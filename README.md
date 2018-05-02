@@ -20,13 +20,13 @@
 - [Maintenance](#maintenance)
 - [Acknowledgements](#acknowledgements)
 
-Haskell auto-magic test discovery and runner for the [tasty framework].
+Haskell auto-magic test discovery and runner for the [tasty test framework].
 
-[tasty framework]: https://github.com/feuerbach/tasty
+[tasty test framework]: https://github.com/feuerbach/tasty
 
 Prefix your test case names and `tasty-discover` will discover, collect and run
-them. All popular Haskell test libraries are covered. Configure once and then
-just write your tests. Avoid forgetting to add test modules to your Cabal/Hpack
+them. All popular Haskell test libraries are covered. Configure once then just
+write your tests. Avoid forgetting to add test modules to your Cabal/Hpack
 files. Tasty ingredients are included along with various configuration options
 for different use cases.
 
@@ -34,7 +34,7 @@ See below for full documentation and examples.
 
 # Getting Started
 
-There's 4 simple steps:
+There are 4 simple steps:
 
   1. [Create a test driver file in the test directory](#create-test-driver-file)
   2. [Mark the driver file as the `main-is` in the test suite](#configure-cabal-or-hpack-test-suite)
@@ -46,7 +46,7 @@ Check out the [example project](#example-project) to get moving quickly.
 ## Create Test Driver File
 
 You can name this file anything you want but it must contain the correct
-preprocessor definition for tasty-discover to run and to detect the
+preprocessor definition for `tasty-discover` to run and to detect the
 configuration. It should be at the top level of the test directory.
 
 For example (in `test/Driver.hs`):
@@ -58,8 +58,8 @@ For example (in `test/Driver.hs`):
 ## Configure Cabal or Hpack Test Suite
 
 In order for Cabal/Stack to know where the tests are, you'll need to configure
-the main-is option of your test-suite to point to the driver file. In the
-following example, the test driver file is called Driver.hs:
+the `main-is` option of your test-suite to point to the driver file. In the
+following example, the test driver file is called `Driver.hs`:
 
 ```
 test-suite test
@@ -83,7 +83,7 @@ tests:
 
 # Write Tests
 
-Create test modules and correctly prefix the tests with the name that
+Create test modules and prefix the test function name with an identifier that
 corresponds to the testing library you wish to run the test with:
 
   - **prop_**: [QuickCheck](http://hackage.haskell.org/package/tasty-quickcheck) properties.
@@ -93,7 +93,7 @@ corresponds to the testing library you wish to run the test with:
   - **spec_**: [Hspec](http://hackage.haskell.org/package/tasty-hspec) specifications.
   - **test_**: [Tasty](http://hackage.haskell.org/package/tasty) TestTrees.
 
-Here's an example test module:
+Here is an example test module with a bunch of different tests:
 
 ``` haskell
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -144,7 +144,7 @@ test_generateTrees = do
 
 # Customise Discovery
 
-You configure tasty-discover by passing options to the test driver file.
+You configure `tasty-discover` by passing options to the test driver file.
 
 ## No Arguments
 
@@ -162,7 +162,9 @@ Example: `{-# OPTIONS_GHC -F -pgmF tasty-discover -optF --modules="*CustomTest.h
   - **--generated-module**: The name of the generated test module.
   - **--ingredient**: Tasty ingredients to add to your test runner.
 
-It is also possible to override tasty arguments with `-optF`:
+It is also possible to override [tasty test options] with `-optF`:
+
+[tasty test options]: https://github.com/feuerbach/tasty#options
 
 ``` bash
 {-# OPTIONS_GHC -F -pgmF tasty-discover -optF --hide-successes #-}
