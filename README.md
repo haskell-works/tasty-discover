@@ -70,7 +70,7 @@ test-suite test
 
 If you use [hpack], that might look like:
 
-[hpack]: https://github.com/sol/hpack
+[hpack]: https://git.coop/sol/hpack
 
 ``` yaml
 tests:
@@ -164,7 +164,7 @@ Example: `{-# OPTIONS_GHC -F -pgmF tasty-discover -optF --modules="*CustomTest.h
 
 It is also possible to override [tasty test options] with `-optF`:
 
-[tasty test options]: https://github.com/feuerbach/tasty#options
+[tasty test options]: https://git.coop/feuerbach/tasty#options
 
 ``` bash
 {-# OPTIONS_GHC -F -pgmF tasty-discover -optF --hide-successes #-}
@@ -174,7 +174,7 @@ It is also possible to override [tasty test options] with `-optF`:
 
 See the [testing for this package] for a fully configured example.
 
-[testing for this package]: https://github.com/lwm/tasty-discover/tree/master/test
+[testing for this package]: https://git.coop/lwm/tasty-discover/tree/master/test
 
 # Change Log
 
@@ -182,8 +182,8 @@ Please see the [CHANGELOG.md] for the latest changes.
 
 We try to keep [tagged releases] in our release process, if you care about that.
 
-[CHANGELOG.md]: https://github.com/lwm/tasty-discover/blob/master/CHANGELOG.md
-[tagged releases]: https://github.com/lwm/tasty-discover/releases
+[CHANGELOG.md]: https://git.coop/lwm/tasty-discover/blob/master/CHANGELOG.md
+[tagged releases]: https://git.coop/lwm/tasty-discover/releases
 
 # Deprecation Policy
 
@@ -192,7 +192,7 @@ entry in the [change log] and a compile-time error with a deprecation warning
 and clear instructions on how to upgrade. Please do complain if we're doing
 this too much.
 
-[change log]: https://github.com/lwm/tasty-discover/blob/master/CHANGELOG.md
+[change log]: https://git.coop/lwm/tasty-discover/blob/master/CHANGELOG.md
 
 # Contributing
 
@@ -214,15 +214,14 @@ It doesn't take much time (max ~3 hours a month) and all we need to do is:
 
 You can [create an issue] or drop him a line at **lukewm AT riseup DOT NET**.
 
-[@lwm]: https://github.com/lwm
-[create an issue]: https://github.com/lwm/tasty-discover/issues/new
+[@lwm]: https://git.coop/lwm
+[create an issue]: https://git.coop/lwm/tasty-discover/issues/new
 
 # Acknowledgements
 
 Thanks to [hspec-discover] and [tasty-auto] for making this possible.
 
-A huge thanks to the growing list of [contributors].
+A huge thanks to the growing list of contributors.
 
 [hspec-discover]: https://hspec.github.io/hspec-discover.html
 [tasty-auto]: https://github.com/minad/tasty-auto
-[contributors]: https://github.com/lwm/tasty-discover/graphs/contributors
