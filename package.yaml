@@ -1,5 +1,5 @@
 name: "tasty-discover"
-version: "4.2.0"
+version: "4.2.1"
 synopsis: "Test discovery for the tasty framework."
 description: >
   Automatic test discovery and runner for the tasty framework.
@@ -15,7 +15,9 @@ maintainer: "Luke Murphy <lukewm@riseup.net>"
 copyright: "2016 Luke Murphy"
 license: "MIT"
 license-file: "LICENSE"
-github: "lwm/tasty-discover"
+git: "http://git.coop/lwm/tasty-discover"
+homepage: "http://git.coop/lwm/tasty-discover"
+bug-reports: "http://git.coop/lwm/tasty-discover/issues"
 stability: "Experimental"
 category: "Testing"
 extra-source-files:

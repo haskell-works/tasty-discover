@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog] and this project adheres to
 [Keep a Changelog]: http://keepachangelog.com/
 [Semantic Versioning]: http://semver.org/
 
+# 4.2.1 [2018-06-06]
+
+## Changed
+- Migrated source code hosting to https://git.coop/lwm/tasty-discover.
+
 # 4.2.0 [2018-03-03]
 
 ## Fixed
