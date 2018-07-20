@@ -1,6 +1,5 @@
-resolver: lts-10.7
-
+---
+resolver: lts-12.1
 packages:
-- '.'
-
+  - '.'
 save-hackage-creds: false
