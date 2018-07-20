@@ -17,6 +17,7 @@
 - [Change Log](#change-log)
 - [Deprecation Policy](#deprecation-policy)
 - [Contributing](#contributing)
+- [FAQ](#frequently-asked-questions)
 - [Maintenance](#maintenance)
 - [Acknowledgements](#acknowledgements)
 
@@ -199,6 +200,14 @@ this too much.
 All contributions welcome! The continuous integration suite is pretty
 comprehensive, so just get hacking and add a test case - there are *plenty* of
 examples, so this should be simple - and I'll get to review your change ASAP.
+
+# Frequently Asked Questions
+
+## Deleting Tests Breaks The Test Run
+
+This is a known limitation and has been reported. No fix is planned unless you have time.
+
+Please see [#145](https://git.coop/lwm/tasty-discover/issues/145) for more information.
 
 # Maintenance
 
