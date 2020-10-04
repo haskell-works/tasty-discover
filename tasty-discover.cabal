@@ -1,7 +1,7 @@
 cabal-version: 2.2
 
 name:                 tasty-discover
-version:              4.2.1
+version:              4.2.2
 synopsis:             Test discovery for the tasty framework.
 description:          Automatic test discovery and runner for the tasty framework.
                       
