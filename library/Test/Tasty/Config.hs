@@ -3,22 +3,20 @@
 -- Anything that can be passed as an argument to the test driver
 -- definition exists as a field in the 'Config' type.
 
-module Test.Tasty.Config (
-  -- * Configuration Options
-  Config (..)
+module Test.Tasty.Config
+  ( -- * Configuration Options
+    Config (..)
   , GlobPattern
 
-  -- * Configuration Parser
+    -- * Configuration Parser
   , parseConfig
 
-  -- * Configuration Defaults
+    -- * Configuration Defaults
   , defaultConfig
   ) where
 
-import           Data.Maybe            (isJust)
-import           System.Console.GetOpt (ArgDescr (NoArg, ReqArg),
-                                        ArgOrder (Permute), OptDescr (Option),
-                                        getOpt')
+import Data.Maybe            (isJust)
+import System.Console.GetOpt (ArgDescr (NoArg, ReqArg), ArgOrder (Permute), OptDescr (Option), getOpt')
 
 -- | A tasty ingredient.
 type Ingredient = String
@@ -46,47 +44,42 @@ defaultConfig = Config Nothing Nothing Nothing Nothing [] [] [] False False Fals
 
 -- | Deprecation message for old `--[no-]module-suffix` option.
 moduleSuffixDeprecationMessage :: String
-moduleSuffixDeprecationMessage =
-  error $ concat
-    [ "\n\n"
-    , "----------------------------------------------------------\n"
-    , "DEPRECATION NOTICE: `--[no-]module-suffix` is deprecated.\n"
-    , "The default behaviour now discovers all test module suffixes.\n"
-    , "Please use the `--modules='<glob-pattern>'` option to specify.\n"
-    , "----------------------------------------------------------\n"
-    ]
+moduleSuffixDeprecationMessage = error $ concat
+  [ "\n\n"
+  , "----------------------------------------------------------\n"
+  , "DEPRECATION NOTICE: `--[no-]module-suffix` is deprecated.\n"
+  , "The default behaviour now discovers all test module suffixes.\n"
+  , "Please use the `--modules='<glob-pattern>'` option to specify.\n"
+  , "----------------------------------------------------------\n"
+  ]
 
 -- | Deprecation message for old `--ignore-module` option.
 ignoreModuleDeprecationMessage :: String
-ignoreModuleDeprecationMessage =
-  error $ concat
-    [ "\n\n"
-    , "----------------------------------------------------------\n"
-    , "DEPRECATION NOTICE: `--ignore-module` is deprecated.\n"
-    , "Please use the `--ignores='<glob-pattern>'` option instead.\n"
-    , "----------------------------------------------------------\n"
-    ]
+ignoreModuleDeprecationMessage = error $ concat
+  [ "\n\n"
+  , "----------------------------------------------------------\n"
+  , "DEPRECATION NOTICE: `--ignore-module` is deprecated.\n"
+  , "Please use the `--ignores='<glob-pattern>'` option instead.\n"
+  , "----------------------------------------------------------\n"
+  ]
 
 -- | Configuration options parser.
 parseConfig :: String -> [String] -> Either String Config
 parseConfig prog args = case getOpt' Permute options args of
-    (opts, rest, rest', []) ->
-      let config = foldl (flip id) defaultConfig { tastyOptions = rest ++ rest' } opts in
-        if noModuleSuffix config || isJust (moduleSuffix config) then
-          error moduleSuffixDeprecationMessage
-        else
-        if not $ null (ignoredModules config) then
-          error ignoreModuleDeprecationMessage
-        else
-        Right config
-    (_, _, _, err:_)  -> formatError err
-  where
-    formatError err = Left (prog ++ ": " ++ err)
+  (opts, rest, rest', []) ->
+    let config = foldl (flip id) defaultConfig { tastyOptions = rest ++ rest' } opts in
+      if noModuleSuffix config || isJust (moduleSuffix config)
+        then error moduleSuffixDeprecationMessage
+        else if not $ null (ignoredModules config)
+          then error ignoreModuleDeprecationMessage
+          else Right config
+  (_, _, _, err:_)  -> formatError err
+  where formatError err = Left (prog ++ ": " ++ err)
 
 -- | All configuration options.
 options :: [OptDescr (Config -> Config)]
-options = [
-    Option [] ["modules"]
+options =
+  [ Option [] ["modules"]
       (ReqArg (\s c -> c {modules = Just s}) "GLOB-PATTERN")
       "Specify desired modules with a glob pattern (white-list)"
   , Option [] ["module-suffix"]

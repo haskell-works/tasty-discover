@@ -6,27 +6,26 @@
 -- run all the tests.
 
 module Test.Tasty.Generator
-  (
-  -- * Types
-  Generator (..)
+  ( -- * Types
+    Generator (..)
   , Test (..)
 
-  -- * Generators
+    -- * Generators
   , generators
   , getGenerator
   , getGenerators
 
-  -- * Boilerplate Formatter
+    -- * Boilerplate Formatter
   , showSetup
 
-  -- * Type Constructor
+    -- * Type Constructor
   , mkTest
   ) where
 
-import           Data.Function   (on)
-import           Data.List       (find, groupBy, isPrefixOf, sortOn)
-import           Data.Maybe      (fromJust)
-import           System.FilePath (dropExtension, isPathSeparator)
+import Data.Function   (on)
+import Data.List       (find, groupBy, isPrefixOf, sortOn)
+import Data.Maybe      (fromJust)
+import System.FilePath (dropExtension, isPathSeparator)
 
 -- | The test type.
 data Test = Test

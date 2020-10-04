@@ -2,14 +2,15 @@
 
 module DiscoverTest where
 
-import           Data.List
-import qualified Hedgehog              as H
-import qualified Hedgehog.Gen          as Gen
-import qualified Hedgehog.Range        as Range
-import           Test.Tasty
-import           Test.Tasty.Hspec
-import           Test.Tasty.HUnit
-import           Test.Tasty.QuickCheck
+import Data.List
+import Test.Tasty
+import Test.Tasty.Hspec
+import Test.Tasty.HUnit
+import Test.Tasty.QuickCheck
+
+import qualified Hedgehog       as H
+import qualified Hedgehog.Gen   as G
+import qualified Hedgehog.Range as R
 
 unit_listCompare :: IO ()
 unit_listCompare = [1 :: Int, 2, 3] `compare` [1,2] @?= GT
@@ -21,10 +22,9 @@ scprop_sortReverse :: [Int] -> Bool
 scprop_sortReverse list = sort list == sort (reverse list)
 
 spec_prelude :: Spec
-spec_prelude =
-  describe "Prelude.head" $
-  it "returns the first element of a list" $
-  head [23 ..] `shouldBe` (23 :: Int)
+spec_prelude = describe "Prelude.head" $ do
+  it "returns the first element of a list" $ do
+    head [23 ..] `shouldBe` (23 :: Int)
 
 test_addition :: TestTree
 test_addition = testProperty "Addition commutes" $ \(a :: Int) (b :: Int) -> a + b == b + a
@@ -41,10 +41,10 @@ test_generateTree = do
   pure $ testCase input $ pure ()
 
 test_generateTrees :: IO [TestTree]
-test_generateTrees = map (\ s -> testCase s $ pure ()) <$> pure ["First input", "Second input"]
+test_generateTrees = pure (map (\s -> testCase s $ pure ()) ["First input", "Second input"])
 
 {-# ANN hprop_reverse "HLint: ignore Avoid reverse" #-}
 hprop_reverse :: H.Property
 hprop_reverse = H.property $ do
-  xs <- H.forAll $ Gen.list (Range.linear 0 100) Gen.alpha
+  xs <- H.forAll $ G.list (R.linear 0 100) G.alpha
   reverse (reverse xs) H.=== xs

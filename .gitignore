@@ -3,4 +3,5 @@
 *.mix
 dist/
 tasty-discover*/
+.vscode
 TAGS

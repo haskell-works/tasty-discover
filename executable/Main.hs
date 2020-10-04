@@ -2,13 +2,13 @@
 
 module Main where
 
-import           Control.Monad       (when)
-import           Data.Maybe          (fromMaybe)
-import           System.Environment  (getArgs, getProgName)
-import           System.Exit         (exitFailure)
-import           System.IO           (hPutStrLn, stderr)
-import           Test.Tasty.Config   (Config (..), parseConfig)
-import           Test.Tasty.Discover (findTests, generateTestDriver)
+import Control.Monad       (when)
+import Data.Maybe          (fromMaybe)
+import System.Environment  (getArgs, getProgName)
+import System.Exit         (exitFailure)
+import System.IO           (hPutStrLn, stderr)
+import Test.Tasty.Config   (Config (..), parseConfig)
+import Test.Tasty.Discover (findTests, generateTestDriver)
 
 -- | Main function.
 main :: IO ()
@@ -16,7 +16,7 @@ main = do
   args <- getArgs
   name <- getProgName
   case args of
-    src : _ : dst : opts ->
+    src:_:dst:opts ->
       case parseConfig name opts of
         Left err -> do
           hPutStrLn stderr err
