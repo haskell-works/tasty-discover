@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/lwm/tasty-discover.svg?branch=master)](https://travis-ci.org/lwm/tasty-discover)
+[![CircleCI](https://circleci.com/gh/haskell-works/tasty-discover/tree/master.svg?style=svg)](https://circleci.com/gh/haskell-works/tasty-discover/tree/master)
 [![tasty-discover-nightly](http://stackage.org/package/tasty-discover/badge/nightly)](http://stackage.org/nightly/package/tasty-discover)
 [![tasty-discover-lts](http://stackage.org/package/tasty-discover/badge/lts)](http://stackage.org/lts/package/tasty-discover)
 [![Hackage Status](https://img.shields.io/hackage/v/tasty-discover.svg)](http://hackage.haskell.org/package/tasty-discover)
