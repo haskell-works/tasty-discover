@@ -210,7 +210,7 @@ Please see [#145](https://git.coop/lwm/tasty-discover/issues/145) for more infor
 
 # Maintenance
 
-If you're interested in helping maintain this package, please let [@lwm] know!
+If you're interested in helping maintain this package, please let [@newhoggy] know!
 
 It doesn't take much time (max ~3 hours a month) and all we need to do is:
 
@@ -222,8 +222,8 @@ It doesn't take much time (max ~3 hours a month) and all we need to do is:
 
 You can [create an issue] or drop him a line at **lukewm AT riseup DOT NET**.
 
-[@lwm]: https://git.coop/lwm
-[create an issue]: https://git.coop/lwm/tasty-discover/issues/new
+[@newhoggy]: https://twitter.com/newhoggy
+[create an issue]: https://github.com/haskell-works/tasty-discover/issues/new
 
 # Acknowledgements
 
