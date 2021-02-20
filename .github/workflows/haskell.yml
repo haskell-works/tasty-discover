@@ -7,7 +7,7 @@ defaults:
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
 
 jobs:
@@ -106,7 +106,7 @@ jobs:
 
       - name: Tag new version
         id: tag
-        if: ${{ github.ref == 'refs/heads/master' }}
+        if: ${{ github.ref == 'refs/heads/main' }}
         env:
           server: http://hackage.haskell.org
           username: ${{ secrets.HACKAGE_USER }}
