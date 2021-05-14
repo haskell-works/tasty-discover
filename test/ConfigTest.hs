@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE TupleSections #-}
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
@@ -11,6 +12,10 @@ import Test.Tasty.Generator  (Test (..), mkTest)
 import Test.Tasty.Hspec
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
+
+#if MIN_VERSION_tasty_hspec(1,1,7)
+import Test.Hspec
+#endif
 
 import qualified Data.Map.Strict as M
 
