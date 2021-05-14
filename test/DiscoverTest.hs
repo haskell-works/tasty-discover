@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module DiscoverTest where
@@ -7,6 +8,10 @@ import Test.Tasty
 import Test.Tasty.Hspec
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
+
+#if MIN_VERSION_tasty_hspec(1,1,7)
+import Test.Hspec
+#endif
 
 import qualified Hedgehog       as H
 import qualified Hedgehog.Gen   as G
