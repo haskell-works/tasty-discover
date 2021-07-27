@@ -115,7 +115,7 @@ unit_listCompare = [1, 2, 3] `compare` [1,2] @?= GT
 prop_additionCommutative :: Int -> Int -> Bool
 prop_additionCommutative a b = a + b == b + a
 
--- SmallSheck property
+-- SmallCheck property
 scprop_sortReverse :: [Int] -> Bool
 scprop_sortReverse list = sort list == sort (reverse list)
 
