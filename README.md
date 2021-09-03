@@ -27,7 +27,7 @@ Haskell auto-magic test discovery and runner for the [tasty test framework].
 
 Prefix your test case names and `tasty-discover` will discover, collect and run
 them. All popular Haskell test libraries are covered. Configure once then just
-write your tests. Avoid forgetting to add test modules to your Cabal/Hpack
+write your tests. Remember to add your test modules to your Cabal/Hpack
 files. Tasty ingredients are included along with various configuration options
 for different use cases.
 
@@ -115,7 +115,7 @@ unit_listCompare = [1, 2, 3] `compare` [1,2] @?= GT
 prop_additionCommutative :: Int -> Int -> Bool
 prop_additionCommutative a b = a + b == b + a
 
--- SmallSheck property
+-- SmallCheck property
 scprop_sortReverse :: [Int] -> Bool
 scprop_sortReverse list = sort list == sort (reverse list)
 
