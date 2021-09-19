@@ -17,24 +17,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ghc: ["8.10.3", "8.8.4", "8.6.5"]
+        ghc: ["9.0.1", "8.10.7", "8.8.4", "8.6.5"]
         os: [ubuntu-latest, macOS-latest, windows-latest]
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Select optimal cabal version
-        run: |
-          case "$OS" in
-            Windows_NT)   echo "CABAL_VERSION=3.4.0.0-rc5"  >> $GITHUB_ENV;;
-            *)            echo "CABAL_VERSION=3.4.0.0-rc4"  >> $GITHUB_ENV;;
-          esac
-
       - uses: haskell/actions/setup@v1
         id: setup-haskell
         with:
           ghc-version: ${{ matrix.ghc }}
-          cabal-version: ${{ env.CABAL_VERSION }}
+          cabal-version: 3.4.0.0
 
       - name: Set some window specific things
         if: matrix.os == 'windows-latest'
