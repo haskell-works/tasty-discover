@@ -1,0 +1,75 @@
+name:                tasty-discover
+version:             4.2.2
+github:              "haskell-works/tasty-discover"
+license:             MIT
+author:              "Luke Murphy"
+maintainer:          "John Ky <newhoggy@gmail.com>"
+copyright:
+- 2016 Luke Murphy
+- 2020-2021 John Ky
+
+extra-source-files:
+- README.md
+- CHANGELOG.md
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+synopsis: Test discovery for the tasty framework.
+description:
+    Automatic test discovery and runner for the tasty framework.
+    Prefix your test case names and tasty-discover will discover, collect and run them.
+    All popular test libraries are covered. Configure once and then just write your tests.
+    Avoid forgetting to add test modules to your Cabal/Hpack files.
+    Tasty ingredients are included along with various configuration options for different
+    use cases.
+    Please see the `README.md` below for how to get started.
+
+tested-with:            GHC == 9.0.1, GHC == 8.10.7, GHC == 8.8.4, GHC == 8.6.5
+
+dependencies:
+- base             >= 4.11 && < 5
+- containers       >= 0.4  && < 1.0
+
+library:
+  source-dirs: library
+  ghc-options:
+    - -Wall
+  dependencies:
+    - directory        >= 1.1  && < 2.0
+    - filepath         >= 1.3  && < 2.0
+    - Glob             >= 0.8  && < 1.0
+
+executables:
+  tasty-discover:
+    main:                Main.hs
+    source-dirs:         executable
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+      - -Wall
+    dependencies:
+    - tasty-discover
+
+tests:
+  test:
+    main:                Driver.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -Wall
+    build-tools:
+    - tasty-discover:tasty-discover
+    dependencies:
+    - tasty-discover
+    - hedgehog         >= 1.0  && < 2.0
+    - hspec            >= 2.7  && < 2.9
+    - tasty            >= 1.3  && < 2.0
+    - tasty-hedgehog   >= 1.0  && < 2.0
+    - tasty-hspec      >= 1.1  && < 1.3
+    - tasty-hunit      >= 0.10 && < 0.11
+    - tasty-quickcheck >= 0.10 && < 0.11
+    - tasty-smallcheck >= 0.8  && < 1.0
