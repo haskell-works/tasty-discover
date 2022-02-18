@@ -16,7 +16,7 @@ import Data.List            (dropWhileEnd, intercalate, isPrefixOf, nub, stripPr
 import Data.Maybe           (fromMaybe)
 import System.FilePath      (pathSeparator, takeDirectory)
 import System.FilePath.Glob (compile, globDir1, match)
-import System.IO            (IOMode (ReadMode), openFile)
+import System.IO            (IOMode (ReadMode), withFile)
 import Test.Tasty.Config    (Config (..), GlobPattern)
 import Test.Tasty.Generator (Generator (..), Test (..), generators, getGenerators, mkTest, showSetup)
 
@@ -79,13 +79,14 @@ findTests src config = do
   allModules <- filesByModuleGlob directory (modules config)
   let filtered = ignoreByModuleGlob allModules (ignores config)
   concat <$> traverse (extract directory) filtered
-  where extract directory filePath = do
-          h <- openFile filePath ReadMode
+  where extract directory filePath =
+          withFile filePath ReadMode $ \h -> do
 #if defined(mingw32_HOST_OS)
           -- Avoid internal error: hGetContents: invalid argument (invalid byte sequence)' non UTF-8 Windows
-          hSetEncoding h $ mkLocaleEncoding TransliterateCodingFailure
+            hSetEncoding h $ mkLocaleEncoding TransliterateCodingFailure
 #endif
-          extractTests (dropDirectory directory filePath) <$> hGetContents h
+            tests <- extractTests (dropDirectory directory filePath) <$> hGetContents h
+            seq (length tests) (return tests)
         dropDirectory directory filePath = fromMaybe filePath $
           stripPrefix (directory ++ [pathSeparator]) filePath
 
