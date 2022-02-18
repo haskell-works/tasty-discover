@@ -17,6 +17,7 @@ module Test.Tasty.Config
 
 import Data.Maybe            (isJust)
 import System.Console.GetOpt (ArgDescr (NoArg, ReqArg), ArgOrder (Permute), OptDescr (Option), getOpt')
+import System.FilePath ((</>))
 
 -- | A tasty ingredient.
 type Ingredient = String
@@ -28,6 +29,7 @@ type GlobPattern = String
 data Config = Config
   { modules             :: Maybe GlobPattern -- ^ Glob pattern for matching modules during test discovery.
   , moduleSuffix        :: Maybe String      -- ^ <<<DEPRECATED>>>: Module suffix.
+  , searchDir           :: FilePath          -- ^ Directory where to look for tests.
   , generatedModuleName :: Maybe String      -- ^ Name of the generated main module.
   , ignores             :: Maybe GlobPattern -- ^ Glob pattern for ignoring modules during test discovery.
   , ignoredModules      :: [FilePath]        -- ^ <<<DEPRECATED>>>: Ignored modules by full name.
@@ -39,8 +41,8 @@ data Config = Config
   } deriving (Show)
 
 -- | The default configuration
-defaultConfig :: Config
-defaultConfig = Config Nothing Nothing Nothing Nothing [] [] [] False False False
+defaultConfig :: FilePath -> Config
+defaultConfig theSearchDir = Config Nothing Nothing theSearchDir Nothing Nothing [] [] [] False False False
 
 -- | Deprecation message for old `--[no-]module-suffix` option.
 moduleSuffixDeprecationMessage :: String
@@ -64,10 +66,10 @@ ignoreModuleDeprecationMessage = error $ concat
   ]
 
 -- | Configuration options parser.
-parseConfig :: String -> [String] -> Either String Config
-parseConfig prog args = case getOpt' Permute options args of
+parseConfig :: FilePath -> String -> [String] -> Either String Config
+parseConfig srcDir prog args = case getOpt' Permute (options srcDir) args of
   (opts, rest, rest', []) ->
-    let config = foldl (flip id) defaultConfig { tastyOptions = rest ++ rest' } opts in
+    let config = foldl (flip id) (defaultConfig srcDir) { tastyOptions = rest ++ rest' } opts in
       if noModuleSuffix config || isJust (moduleSuffix config)
         then error moduleSuffixDeprecationMessage
         else if not $ null (ignoredModules config)
@@ -77,14 +79,17 @@ parseConfig prog args = case getOpt' Permute options args of
   where formatError err = Left (prog ++ ": " ++ err)
 
 -- | All configuration options.
-options :: [OptDescr (Config -> Config)]
-options =
+options :: FilePath -> [OptDescr (Config -> Config)]
+options srcDir =
   [ Option [] ["modules"]
       (ReqArg (\s c -> c {modules = Just s}) "GLOB-PATTERN")
       "Specify desired modules with a glob pattern (white-list)"
   , Option [] ["module-suffix"]
       (ReqArg (\s c -> c {moduleSuffix = Just s}) "SUFFIX")
       "<<<DEPRECATED>>>: Specify desired test module suffix"
+  , Option [] ["search-dir"]
+      (ReqArg (\s c -> c {searchDir = srcDir </> s}) "DIR")
+      "Directory where to look for tests relative to the directory of src. By default, this is the directory of src."
   , Option [] ["generated-module"]
       (ReqArg (\s c -> c {generatedModuleName = Just s}) "MODULE")
       "Qualified generated module name"

@@ -168,6 +168,9 @@ Example: `{-# OPTIONS_GHC -F -pgmF tasty-discover -optF --debug #-}`
 Example: `{-# OPTIONS_GHC -F -pgmF tasty-discover -optF --modules="*CustomTest.hs" #-}`
 
   - **--modules**: Which test modules to discover (with glob pattern).
+  - **--search-dir**: Where to look for tests. This is a directory relative
+    to the location of the source file. By default, this is the directory
+    of the source file."
   - **--ignores**: Which test modules to ignore (with glob pattern).
   - **--generated-module**: The name of the generated test module.
   - **--ingredient**: Tasty ingredients to add to your test runner.

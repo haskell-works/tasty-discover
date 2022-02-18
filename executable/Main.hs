@@ -6,6 +6,7 @@ import Control.Monad       (when)
 import Data.Maybe          (fromMaybe)
 import System.Environment  (getArgs, getProgName)
 import System.Exit         (exitFailure)
+import System.FilePath     (takeDirectory)
 import System.IO           (hPutStrLn, stderr)
 import Test.Tasty.Config   (Config (..), parseConfig)
 import Test.Tasty.Discover (findTests, generateTestDriver)
@@ -17,12 +18,12 @@ main = do
   name <- getProgName
   case args of
     src:_:dst:opts ->
-      case parseConfig name opts of
+      case parseConfig (takeDirectory src) name opts of
         Left err -> do
           hPutStrLn stderr err
           exitFailure
         Right config -> do
-          tests <- findTests src config
+          tests <- findTests config
           let ingredients = tastyIngredients config
               moduleName  = fromMaybe "Main" (generatedModuleName config)
               output      = generateTestDriver config moduleName ingredients src tests

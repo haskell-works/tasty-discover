@@ -14,7 +14,7 @@ module Test.Tasty.Discover
 
 import Data.List            (dropWhileEnd, intercalate, isPrefixOf, nub, stripPrefix)
 import Data.Maybe           (fromMaybe)
-import System.FilePath      (pathSeparator, takeDirectory)
+import System.FilePath      (pathSeparator)
 import System.FilePath.Glob (compile, globDir1, match)
 import System.IO            (IOMode (ReadMode), openFile)
 import Test.Tasty.Config    (Config (..), GlobPattern)
@@ -74,9 +74,9 @@ ignoreByModuleGlob filePaths (Just ignoreGlob) = filter (not . match pattern) fi
   where pattern = compile ("**/" ++ ignoreGlob)
 
 -- | Discover the tests modules.
-findTests :: FilePath -> Config -> IO [Test]
-findTests src config = do
-  let directory = takeDirectory src
+findTests :: Config -> IO [Test]
+findTests config = do
+  let directory = searchDir config
   allModules <- filesByModuleGlob directory (modules config)
   let filtered = ignoreByModuleGlob allModules (ignores config)
   concat <$> traverse (extract directory) filtered

@@ -25,41 +25,42 @@ spec_modules = describe "Test discovery" $ do
     let expectedTests = [ mkTest "PropTest.hs" "prop_additionAssociative"
                         , mkTest "SubSubMod/PropTest.hs" "prop_additionCommutative"
                         ]
-        config        = defaultConfig { modules = Just "*Test.hs" }
-    discoveredTests <- findTests "test/SubMod/" config
+        config        = (defaultConfig "test/SubMod") { modules = Just "*Test.hs" }
+    discoveredTests <- findTests config
     sort discoveredTests `shouldBe` sort expectedTests
 
 spec_ignores :: Spec
 spec_ignores = describe "Module ignore configuration" $ do
   it "Ignores tests in modules with the specified suffix" $ do
-    let ignoreModuleConfig = defaultConfig { ignores = Just "*.hs" }
-    discoveredTests <- findTests "test/SubMod/" ignoreModuleConfig
+    let ignoreModuleConfig = (defaultConfig "test/SubMod") { ignores = Just "*.hs" }
+    discoveredTests <- findTests ignoreModuleConfig
     discoveredTests `shouldBe` []
 
 spec_badModuleGlob :: Spec
 spec_badModuleGlob = describe "Module suffix configuration" $ do
   it "Filters discovered tests by specified suffix" $ do
-    let badGlobConfig = defaultConfig { modules = Just "DoesntExist*.hs" }
-    discoveredTests <- findTests "test/SubMod/" badGlobConfig
+    let badGlobConfig = (defaultConfig "test/SubMod") { modules = Just "DoesntExist*.hs" }
+    discoveredTests <- findTests badGlobConfig
     discoveredTests `shouldBe` []
 
 spec_customModuleName :: Spec
 spec_customModuleName = describe "Module name configuration" $ do
   it "Creates a generated main function with the specified name" $ do
-    let generatedModule = generateTestDriver defaultConfig "FunkyModuleName" [] "test/" []
+    let generatedModule = generateTestDriver (defaultConfig "test/") "FunkyModuleName" [] "test/" []
     "FunkyModuleName" `shouldSatisfy` (`isInfixOf` generatedModule)
 
 unit_noTreeDisplayDefault :: IO ()
 unit_noTreeDisplayDefault = do
-  tests <- findTests "test/SubMod/" defaultConfig
+  let config = defaultConfig "test/SubMod"
+  tests <- findTests config
   let testNumVars = map (('t' :) . show) [(0::Int)..]
-      trees = showTests defaultConfig tests testNumVars
+      trees = showTests config tests testNumVars
   length trees @?= 4
 
 unit_treeDisplay :: IO ()
 unit_treeDisplay = do
-  let config = defaultConfig { treeDisplay = True }
-  tests <- findTests "test/SubMod/" config
+  let config = (defaultConfig "test/SubMod") { treeDisplay = True }
+  tests <- findTests config
   let testNumVars = map (('t' :) . show) [(0::Int)..]
       trees = showTests config tests testNumVars
   length trees @?= 3
