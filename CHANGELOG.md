@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog] and this project adheres to
 [Keep a Changelog]: http://keepachangelog.com/
 [Semantic Versioning]: http://semver.org/
 
+- Adds an `--inplace` flag to write the generated driver to the source file.
+
 # 4.2.1 [2018-06-06]
 
 ## Changed

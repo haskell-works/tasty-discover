@@ -171,6 +171,7 @@ Example: `{-# OPTIONS_GHC -F -pgmF tasty-discover -optF --modules="*CustomTest.h
   - **--ignores**: Which test modules to ignore (with glob pattern).
   - **--generated-module**: The name of the generated test module.
   - **--ingredient**: Tasty ingredients to add to your test runner.
+  - **--inplace**: Has the generated code written to the source file.
 
 It is also possible to override [tasty test options] with `-optF`:
 
