@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog] and this project adheres to
 [Semantic Versioning]: http://semver.org/
 
 - Added `--search-dir DIR` option
+- Adds an `--inplace` flag to write the generated driver to the source file.
 
 # 4.2.1 [2018-06-06]
 

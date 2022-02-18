@@ -37,8 +37,7 @@ generateTestDriver config modname is src tests =
   let generators' = getGenerators tests
       testNumVars = map (("t"++) . show) [(0 :: Int)..]
   in concat
-    [ "{-# LINE 1 " ++ show src ++ " #-}\n"
-    , "{-# LANGUAGE FlexibleInstances #-}\n"
+    [ "{-# LANGUAGE FlexibleInstances #-}\n"
     , "module " ++ modname ++ " (main, ingredients, tests) where\n"
     , "import Prelude\n"
     , "import qualified System.Environment as E\n"
