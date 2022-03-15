@@ -12,7 +12,7 @@ module Test.Tasty.Discover
   , showTests
   ) where
 
-import Data.List            (dropWhileEnd, intercalate, isPrefixOf, nub, stripPrefix)
+import Data.List            (dropWhileEnd, intercalate, isPrefixOf, nub, sort, stripPrefix)
 import Data.Maybe           (fromMaybe)
 import System.FilePath      (pathSeparator)
 import System.FilePath.Glob (compile, globDir1, match)
@@ -78,7 +78,10 @@ findTests config = do
   let directory = searchDir config
   allModules <- filesByModuleGlob directory (modules config)
   let filtered = ignoreByModuleGlob allModules (ignores config)
-  concat <$> traverse (extract directory) filtered
+      -- The files to scan need to be sorted or otherwise the output of
+      -- findTests might not be deterministic
+      sortedFiltered = sort filtered
+  concat <$> traverse (extract directory) sortedFiltered
   where extract directory filePath =
           withFile filePath ReadMode $ \h -> do
 #if defined(mingw32_HOST_OS)
