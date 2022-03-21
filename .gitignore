@@ -2,6 +2,8 @@
 *.tix
 *.mix
 dist/
+dist-newstyle/
 tasty-discover*/
 .vscode
 TAGS
+/.ghc.environment.*
