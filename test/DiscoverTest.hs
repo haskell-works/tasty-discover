@@ -1,11 +1,12 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP                 #-}
+{-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications    #-}
 
 module DiscoverTest where
 
 import Data.List
 import Test.Tasty
-import Test.Tasty.Hspec
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
 
@@ -48,7 +49,7 @@ test_generateTree = do
 test_generateTrees :: IO [TestTree]
 test_generateTrees = pure (map (\s -> testCase s $ pure ()) ["First input", "Second input"])
 
-{-# ANN hprop_reverse "HLint: ignore Avoid reverse" #-}
+{- HLINT ignore "Avoid reverse" -}
 hprop_reverse :: H.Property
 hprop_reverse = H.property $ do
   xs <- H.forAll $ G.list (R.linear 0 100) G.alpha

@@ -82,6 +82,16 @@ tests:
     - "base"
 ```
 
+To ensure that `tasty-discover` is available even without installation, add this
+to the test suite in your cabal file:
+
+```
+  build-tool-depends:
+    tasty-discover:tasty-discover
+```
+
+See [`hpack` documentation](https://github.com/sol/hpack) for `stack` equivalent.
+
 # Write Tests
 
 Create test modules and prefix the test function name with an identifier that

@@ -9,7 +9,7 @@ import Data.List             (isInfixOf, sort)
 import Test.Tasty.Config
 import Test.Tasty.Discover   (ModuleTree (..), findTests, generateTestDriver, mkModuleTree, showTests)
 import Test.Tasty.Generator  (Test (..), mkTest)
-import Test.Tasty.Hspec
+
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
 
