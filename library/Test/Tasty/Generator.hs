@@ -140,11 +140,11 @@ tastyTestGroupGenerator = Generator
   { generatorPrefix = "test_"
   , generatorImport = ""
   , generatorClass  = concat
-    [ "class TestGroup a where testGroup :: String -> a -> IO T.TestTree\n"
-    , "instance TestGroup T.TestTree        where testGroup _ a = pure a\n"
-    , "instance TestGroup [T.TestTree]      where testGroup n a = pure $ T.testGroup n a\n"
-    , "instance TestGroup (IO T.TestTree)   where testGroup _ a = a\n"
-    , "instance TestGroup (IO [T.TestTree]) where testGroup n a = T.testGroup n <$> a\n"
+    [ "class ToTestTree a where toTestTree :: String -> a -> IO T.TestTree\n"
+    , "instance ToTestTree T.TestTree        where toTestTree _ a = pure a\n"
+    , "instance ToTestTree [T.TestTree]      where toTestTree n a = pure $ T.testGroup n a\n"
+    , "instance ToTestTree (IO T.TestTree)   where toTestTree _ a = a\n"
+    , "instance ToTestTree (IO [T.TestTree]) where toTestTree n a = T.testGroup n <$> a\n"
     ]
-  , generatorSetup  = \t -> "testGroup \"" ++ name t ++ "\" " ++ qualifyFunction t
+  , generatorSetup  = \t -> "toTestTree \"" ++ name t ++ "\" " ++ qualifyFunction t
   }
