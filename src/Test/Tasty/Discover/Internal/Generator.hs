@@ -81,6 +81,7 @@ generators =
   , hedgehogPropertyGenerator
   , hunitTestCaseGenerator
   , hspecTestCaseGenerator
+  , customGroupGenerator
   , tastyTestGroupGenerator
   ]
 
@@ -132,6 +133,15 @@ hspecTestCaseGenerator = Generator
   , generatorImports  = ["import qualified Test.Tasty.Hspec as HS"]
   , generatorClass    = ""
   , generatorSetup    = \t -> "HS.testSpec \"" ++ name t ++ "\" " ++ qualifyFunction t
+  }
+
+-- | Custom test generator prefix.
+customGroupGenerator :: Generator
+customGroupGenerator = Generator
+  { generatorPrefix   = "custom_"
+  , generatorImports  = ["import qualified Test.Tasty.Discover.Custom as TD"]
+  , generatorClass    = ""
+  , generatorSetup    = \t -> "TD.fromCustomTest \"" ++ name t ++ "\" " ++ qualifyFunction t
   }
 
 -- | Tasty group generator prefix.

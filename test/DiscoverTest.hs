@@ -5,8 +5,11 @@
 
 module DiscoverTest where
 
+import Data.ByteString.Lazy (ByteString)
 import Data.List
 import Test.Tasty
+import Test.Tasty.Discover.Custom
+import Test.Tasty.Golden
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
 import Test.Hspec.Core.Spec (Spec, describe, it)
@@ -52,3 +55,10 @@ hprop_reverse :: H.Property
 hprop_reverse = H.property $ do
   xs <- H.forAll $ G.list (R.linear 0 100) G.alpha
   reverse (reverse xs) H.=== xs
+
+data GoldenTest = GoldenTest FilePath (IO ByteString)
+instance FromCustomTest GoldenTest where
+  fromCustomTest name (GoldenTest fp act) = pure $ goldenVsString name fp act
+
+custom_goldenTest :: GoldenTest
+custom_goldenTest = GoldenTest "test/SubMod/example.golden" $ return "test"

@@ -12,6 +12,7 @@ import qualified SubMod.PropTest
 import qualified SubMod.SubSubMod.PropTest
 import qualified System.Environment as E
 import qualified Test.Tasty as T
+import qualified Test.Tasty.Discover.Custom as TD
 import qualified Test.Tasty.HUnit as HU
 import qualified Test.Tasty.Hedgehog as H
 import qualified Test.Tasty.Hspec as HS
@@ -20,6 +21,7 @@ import qualified Test.Tasty.QuickCheck as QC
 import qualified Test.Tasty.SmallCheck as SC
 
 {- HLINT ignore "Use let" -}
+
 
 
 
@@ -70,15 +72,17 @@ tests = do
 
   t15 <- pure $ H.testProperty "reverse" DiscoverTest.hprop_reverse
 
-  t16 <- pure $ QC.testProperty "additionCommutative" SubMod.FooBaz.prop_additionCommutative
+  t16 <- TD.fromCustomTest "goldenTest" DiscoverTest.custom_goldenTest
 
-  t17 <- pure $ QC.testProperty "multiplationDistributiveOverAddition" SubMod.FooBaz.prop_multiplationDistributiveOverAddition
+  t17 <- pure $ QC.testProperty "additionCommutative" SubMod.FooBaz.prop_additionCommutative
 
-  t18 <- pure $ QC.testProperty "additionAssociative" SubMod.PropTest.prop_additionAssociative
+  t18 <- pure $ QC.testProperty "multiplationDistributiveOverAddition" SubMod.FooBaz.prop_multiplationDistributiveOverAddition
 
-  t19 <- pure $ QC.testProperty "additionCommutative" SubMod.SubSubMod.PropTest.prop_additionCommutative
+  t19 <- pure $ QC.testProperty "additionAssociative" SubMod.PropTest.prop_additionAssociative
 
-  pure $ T.testGroup "test/Driver.hs" [t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19]
+  t20 <- pure $ QC.testProperty "additionCommutative" SubMod.SubSubMod.PropTest.prop_additionCommutative
+
+  pure $ T.testGroup "test/Driver.hs" [t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19,t20]
 ingredients :: [T.Ingredient]
 ingredients = T.defaultIngredients
 main :: IO ()
