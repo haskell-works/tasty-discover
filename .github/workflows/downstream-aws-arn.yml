@@ -1,0 +1,71 @@
+name: CI with external project aws-arn
+
+defaults:
+  run:
+    shell: bash
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        ghc: ["9.0.2"]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: haskell/actions/setup@v1
+        id: setup-haskell
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          cabal-version: 3.6.2.0
+
+      - name: Set some window specific things
+        run: echo 'EXE_EXT=.exe' >> $GITHUB_ENV
+
+      - name: Clone downstream repository
+        run: |
+          git clone https://github.com/bellroy/aws-arn
+
+          cat > cabal.project <<EOF
+          packages: . aws-arn
+          EOF
+
+      - name: Configure project
+        run: cabal configure --enable-tests --enable-benchmarks --write-ghc-environment-files=ghc8.4.4+
+
+      - name: Cabal cache over S3
+        uses: action-works/cabal-cache-s3@v1
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        with:
+          region: us-west-2
+          dist-dir: dist-newstyle
+          store-path: ${{ steps.setup-haskell.outputs.cabal-store }}
+          threads: 16
+          archive-uri: ${{ secrets.BINARY_CACHE_URI }}
+          skip: "${{ secrets.BINARY_CACHE_URI == '' }}"
+
+      - name: Cabal cache over HTTPS
+        uses: action-works/cabal-cache-s3@v1
+        with:
+          dist-dir: dist-newstyle
+          store-path: ${{ steps.setup-haskell.outputs.cabal-store }}
+          threads: 16
+          archive-uri: https://cache.haskellworks.io/archive
+          skip: "${{ secrets.BINARY_CACHE_URI != '' }}"
+
+      - name: Build
+        run: cabal build aws-arn --enable-tests --enable-benchmarks
+
+      - name: Test
+        run: cabal test aws-arn --enable-tests --enable-benchmarks
