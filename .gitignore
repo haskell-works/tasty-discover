@@ -8,3 +8,6 @@ tasty-discover*/
 TAGS
 /dist-newstyle
 /.ghc.environment.*
+/stack.yaml
+/stack.yaml.lock
+

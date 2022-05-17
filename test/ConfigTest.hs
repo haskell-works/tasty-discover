@@ -12,10 +12,9 @@ import Test.Tasty.Generator  (Test (..), mkTest)
 
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
+import Test.Hspec.Core.Spec (Spec, describe, it)
 
-#if MIN_VERSION_tasty_hspec(1,1,7)
-import Test.Hspec
-#endif
+import Test.Hspec (shouldBe, shouldSatisfy)
 
 import qualified Data.Map.Strict as M
 
