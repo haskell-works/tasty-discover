@@ -9,10 +9,8 @@ import Data.List
 import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
-
-#if MIN_VERSION_tasty_hspec(1,1,7)
-import Test.Hspec
-#endif
+import Test.Hspec.Core.Spec (Spec, describe, it)
+import Test.Hspec (shouldBe)
 
 import qualified Hedgehog       as H
 import qualified Hedgehog.Gen   as G

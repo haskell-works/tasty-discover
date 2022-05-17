@@ -1,0 +1,53 @@
+name: Binaries
+
+defaults:
+  run:
+    shell: bash
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        lts: [lts-18, lts-19]
+        os: [ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: haskell/actions/setup@v1
+        id: setup-haskell
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          stack-version: 'latest'
+
+      - name: Set some window specific things
+        if: matrix.os == 'windows-latest'
+        run: echo 'EXE_EXT=.exe' >> $GITHUB_ENV
+
+      - name: Configure project
+        run: stack init --resolver=${{ matrix.lts }}
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.stack
+            .stack-work
+          key: ${{ runner.os }}-stack-${{ hashFiles('stack.yaml.lock', 'tasty-discover.cabal') }}
+          restore-keys: |
+            ${{ runner.os }}-stack
+
+      - name: Build
+        run: stack build
+
+      - name: Test
+        run: stack test
+ 
