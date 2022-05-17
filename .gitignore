@@ -6,4 +6,5 @@ dist-newstyle/
 tasty-discover*/
 .vscode
 TAGS
+/dist-newstyle
 /.ghc.environment.*

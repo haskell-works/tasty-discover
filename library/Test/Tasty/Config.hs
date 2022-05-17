@@ -35,6 +35,7 @@ data Config = Config
   , ignoredModules      :: [FilePath]        -- ^ <<<DEPRECATED>>>: Ignored modules by full name.
   , tastyIngredients    :: [Ingredient]      -- ^ Tasty ingredients to use.
   , tastyOptions        :: [String]          -- ^ Options passed to tasty
+  , inplace             :: Bool              -- ^ Whether the source file should be modified in-place.
   , noModuleSuffix      :: Bool              -- ^ <<<DEPRECATED>>>: suffix and look in all modules.
   , debug               :: Bool              -- ^ Debug the generated module.
   , treeDisplay         :: Bool              -- ^ Tree display for the test results table.
@@ -42,7 +43,7 @@ data Config = Config
 
 -- | The default configuration
 defaultConfig :: FilePath -> Config
-defaultConfig theSearchDir = Config Nothing Nothing theSearchDir Nothing Nothing [] [] [] False False False
+defaultConfig theSearchDir = Config Nothing Nothing theSearchDir Nothing Nothing [] [] [] False False False False
 
 -- | Deprecation message for old `--[no-]module-suffix` option.
 moduleSuffixDeprecationMessage :: String
@@ -102,6 +103,9 @@ options srcDir =
   , Option [] ["ingredient"]
       (ReqArg (\s c -> c {tastyIngredients = s : tastyIngredients c}) "INGREDIENT")
       "Qualified tasty ingredient name"
+  , Option [] ["inplace"]
+      (NoArg $ \c -> c {inplace = True})
+      "Whether the source file should be modified in-place"
   , Option [] ["no-module-suffix"]
       (NoArg $ \c -> c {noModuleSuffix = True})
       "<<<DEPRECATED>>>: Ignore test module suffix and import them all"
