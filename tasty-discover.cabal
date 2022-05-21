@@ -53,7 +53,7 @@ common tasty-quickcheck           { build-depends: tasty-quickcheck           >=
 common tasty-smallcheck           { build-depends: tasty-smallcheck           >= 0.8      && < 1.0      }
 
 library
-  exposed-modules:      Test.Tasty.Discover.Custom
+  exposed-modules:      Test.Tasty.Discover
                         Test.Tasty.Discover.Internal.Config
                         Test.Tasty.Discover.Internal.Driver
                         Test.Tasty.Discover.Internal.Generator

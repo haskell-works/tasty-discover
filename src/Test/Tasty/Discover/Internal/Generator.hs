@@ -116,14 +116,16 @@ smallCheckPropertyGenerator = Generator
 hunitTestCaseGenerator :: Generator
 hunitTestCaseGenerator = Generator
   { generatorPrefix   = "unit_"
-  , generatorImports  = ["import qualified Test.Tasty.HUnit as HU"]
+  , generatorImports  =
+      [ "import qualified Test.Tasty.HUnit as HU"
+      , "import qualified Test.Tasty.Discover as TD" 
+      ]
   , generatorClass    = concat
-    [ "class TestCase a where testCase :: String -> a -> IO T.TestTree\n"
-    , "instance TestCase (IO ())                      where testCase n = pure . HU.testCase      n\n"
-    , "instance TestCase (IO String)                  where testCase n = pure . HU.testCaseInfo  n\n"
-    , "instance TestCase ((String -> IO ()) -> IO ()) where testCase n = pure . HU.testCaseSteps n\n"
+    [ "instance TD.TestCase (IO ())                      where testCase n = pure . HU.testCase      n\n"
+    , "instance TD.TestCase (IO String)                  where testCase n = pure . HU.testCaseInfo  n\n"
+    , "instance TD.TestCase ((String -> IO ()) -> IO ()) where testCase n = pure . HU.testCaseSteps n\n"
     ]
-  , generatorSetup  = \t -> "testCase \"" ++ name t ++ "\" " ++ qualifyFunction t
+  , generatorSetup  = \t -> "TD.testCase \"" ++ name t ++ "\" " ++ qualifyFunction t
   }
 
 -- | Hspec generator prefix.
@@ -139,22 +141,16 @@ hspecTestCaseGenerator = Generator
 customGroupGenerator :: Generator
 customGroupGenerator = Generator
   { generatorPrefix   = "custom_"
-  , generatorImports  = ["import qualified Test.Tasty.Discover.Custom as TD"]
+  , generatorImports  = ["import qualified Test.Tasty.Discover as TD"]
   , generatorClass    = ""
-  , generatorSetup    = \t -> "TD.fromCustomTest \"" ++ name t ++ "\" " ++ qualifyFunction t
+  , generatorSetup    = \t -> "TD.testGroup \"" ++ name t ++ "\" " ++ qualifyFunction t
   }
 
 -- | Tasty group generator prefix.
 tastyTestGroupGenerator :: Generator
 tastyTestGroupGenerator = Generator
   { generatorPrefix   = "test_"
-  , generatorImports  = []
-  , generatorClass    = concat
-    [ "class TestGroup a where testGroup :: String -> a -> IO T.TestTree\n"
-    , "instance TestGroup T.TestTree        where testGroup _ a = pure a\n"
-    , "instance TestGroup [T.TestTree]      where testGroup n a = pure $ T.testGroup n a\n"
-    , "instance TestGroup (IO T.TestTree)   where testGroup _ a = a\n"
-    , "instance TestGroup (IO [T.TestTree]) where testGroup n a = T.testGroup n <$> a\n"
-    ]
-  , generatorSetup  = \t -> "testGroup \"" ++ name t ++ "\" " ++ qualifyFunction t
+  , generatorImports  = ["import qualified Test.Tasty.Discover as TD"]
+  , generatorClass    = []
+  , generatorSetup  = \t -> "TD.testGroup \"" ++ name t ++ "\" " ++ qualifyFunction t
   }

@@ -113,7 +113,7 @@ module ExampleTest where
 
 import Data.List
 import Test.Tasty
-import Test.Tasty.Discover.Custom
+import Test.Tasty.Discover
 import Test.Tasty.HUnit
 import Test.Tasty.Hspec
 import Test.Tasty.QuickCheck
@@ -137,11 +137,11 @@ spec_prelude = describe "Prelude.head" $ do
     head [23 ..] `shouldBe` (23 :: Int)
 
 -- Write a test for anything with a FromCustomTest instance
-custom_myTest :: PrefixedTest
-custom_myTest = PrefixedTest "Custom: " $ pure ()
+test_myTest :: PrefixedTest
+test_myTest = PrefixedTest "Custom: " $ pure ()
 data PrefixedTest = PrefixedTest String Assertion
-instance FromCustomTest PrefixedTest where
-  fromCustomTest name (PrefixedTest prefix act) =
+instance TestGroup PrefixedTest where
+  testGroup name (PrefixedTest prefix act) =
     pure $ testCase (prefix ++ name) act
 
 -- Tasty TestTree

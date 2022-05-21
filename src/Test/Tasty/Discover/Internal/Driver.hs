@@ -49,6 +49,9 @@ generateTestDriver config modname is src tests =
   in concat
     [ "{-# LANGUAGE FlexibleInstances #-}\n"
     , "\n"
+    , "{-# OPTIONS_GHC -Wno-orphans #-}\n"
+    -- , "{-# OPTIONS_GHC -Wno-unused-imports #-}\n"
+    , "\n"
     , "module " ++ modname ++ " (main, ingredients, tests) where\n"
     , "\n"
     , unlines $ nub $ sort $ (mconcat $ defaultImports:testKindImports) ++ testImports

@@ -7,8 +7,8 @@ module DiscoverTest where
 
 import Data.ByteString.Lazy (ByteString)
 import Data.List
+import Test.Tasty.Discover (TestGroup(..))
 import Test.Tasty
-import Test.Tasty.Discover.Custom
 import Test.Tasty.Golden
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
@@ -57,8 +57,8 @@ hprop_reverse = H.property $ do
   reverse (reverse xs) H.=== xs
 
 data GoldenTest = GoldenTest FilePath (IO ByteString)
-instance FromCustomTest GoldenTest where
-  fromCustomTest name (GoldenTest fp act) = pure $ goldenVsString name fp act
+instance TestGroup GoldenTest where
+  testGroup name (GoldenTest fp act) = pure $ goldenVsString name fp act
 
 custom_goldenTest :: GoldenTest
 custom_goldenTest = GoldenTest "test/SubMod/example.golden" $ return "test"
