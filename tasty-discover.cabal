@@ -54,6 +54,7 @@ library
   exposed-modules:      Test.Tasty.Discover.Internal.Config
                         Test.Tasty.Discover.Internal.Driver
                         Test.Tasty.Discover.Internal.Generator
+                        Test.Tasty.Discover.Version
   other-modules:        Paths_tasty_discover
   autogen-modules:      Paths_tasty_discover
   hs-source-dirs:       src
