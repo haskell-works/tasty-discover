@@ -121,11 +121,11 @@ hunitTestCaseGenerator = Generator
       , "import qualified Test.Tasty.Discover as TD" 
       ]
   , generatorClass    = concat
-    [ "instance TD.TestCase (IO ())                      where testCase n = pure . HU.testCase      n\n"
-    , "instance TD.TestCase (IO String)                  where testCase n = pure . HU.testCaseInfo  n\n"
-    , "instance TD.TestCase ((String -> IO ()) -> IO ()) where testCase n = pure . HU.testCaseSteps n\n"
+    [ "instance TD.TestCase (IO ())                      where testCase d _ = pure . HU.testCase      d\n"
+    , "instance TD.TestCase (IO String)                  where testCase d _ = pure . HU.testCaseInfo  d\n"
+    , "instance TD.TestCase ((String -> IO ()) -> IO ()) where testCase d _ = pure . HU.testCaseSteps d\n"
     ]
-  , generatorSetup  = \t -> "TD.testCase \"" ++ name t ++ "\" " ++ qualifyFunction t
+  , generatorSetup  = \t -> "TD.testCase \"" ++ name t ++ "\" \"" ++ name t ++ "\" " ++ qualifyFunction t
   }
 
 -- | Hspec generator prefix.
@@ -143,7 +143,7 @@ customGroupGenerator = Generator
   { generatorPrefix   = "custom_"
   , generatorImports  = ["import qualified Test.Tasty.Discover as TD"]
   , generatorClass    = ""
-  , generatorSetup    = \t -> "TD.testGroup \"" ++ name t ++ "\" " ++ qualifyFunction t
+  , generatorSetup    = \t -> "TD.testGroup \"" ++ name t ++ "\" \"" ++ qualifyFunction t ++ "\" " ++ qualifyFunction t
   }
 
 -- | Tasty group generator prefix.
@@ -152,5 +152,5 @@ tastyTestGroupGenerator = Generator
   { generatorPrefix   = "test_"
   , generatorImports  = ["import qualified Test.Tasty.Discover as TD"]
   , generatorClass    = []
-  , generatorSetup  = \t -> "TD.testGroup \"" ++ name t ++ "\" " ++ qualifyFunction t
+  , generatorSetup  = \t -> "TD.testGroup \"" ++ name t ++ "\" \"" ++ qualifyFunction t ++ "\" " ++ qualifyFunction t
   }

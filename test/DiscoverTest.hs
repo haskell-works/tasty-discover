@@ -58,7 +58,7 @@ hprop_reverse = H.property $ do
 
 data GoldenTest = GoldenTest FilePath (IO ByteString)
 instance TestGroup GoldenTest where
-  testGroup name (GoldenTest fp act) = pure $ goldenVsString name fp act
+  testGroup description _name (GoldenTest fp act) = pure $ goldenVsString description fp act
 
 custom_goldenTest :: GoldenTest
 custom_goldenTest = GoldenTest "test/SubMod/example.golden" $ return "test"

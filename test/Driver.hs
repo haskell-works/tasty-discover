@@ -30,9 +30,9 @@ import qualified Test.Tasty.SmallCheck as SC
 
 
 
-instance TD.TestCase (IO ())                      where testCase n = pure . HU.testCase      n
-instance TD.TestCase (IO String)                  where testCase n = pure . HU.testCaseInfo  n
-instance TD.TestCase ((String -> IO ()) -> IO ()) where testCase n = pure . HU.testCaseSteps n
+instance TD.TestCase (IO ())                      where testCase d _ = pure . HU.testCase      d
+instance TD.TestCase (IO String)                  where testCase d _ = pure . HU.testCaseInfo  d
+instance TD.TestCase ((String -> IO ()) -> IO ()) where testCase d _ = pure . HU.testCaseSteps d
 
 tests :: IO T.TestTree
 tests = do
@@ -44,13 +44,13 @@ tests = do
 
   t3 <- HS.testSpec "customModuleName" ConfigTest.spec_customModuleName
 
-  t4 <- TD.testCase "noTreeDisplayDefault" ConfigTest.unit_noTreeDisplayDefault
+  t4 <- TD.testCase "noTreeDisplayDefault" "noTreeDisplayDefault" ConfigTest.unit_noTreeDisplayDefault
 
-  t5 <- TD.testCase "treeDisplay" ConfigTest.unit_treeDisplay
+  t5 <- TD.testCase "treeDisplay" "treeDisplay" ConfigTest.unit_treeDisplay
 
   t6 <- pure $ QC.testProperty "mkModuleTree" ConfigTest.prop_mkModuleTree
 
-  t7 <- TD.testCase "listCompare" DiscoverTest.unit_listCompare
+  t7 <- TD.testCase "listCompare" "listCompare" DiscoverTest.unit_listCompare
 
   t8 <- pure $ QC.testProperty "additionCommutative" DiscoverTest.prop_additionCommutative
 
@@ -58,17 +58,17 @@ tests = do
 
   t10 <- HS.testSpec "prelude" DiscoverTest.spec_prelude
 
-  t11 <- TD.testGroup "addition" DiscoverTest.test_addition
+  t11 <- TD.testGroup "addition" "DiscoverTest.test_addition" DiscoverTest.test_addition
 
-  t12 <- TD.testGroup "multiplication" DiscoverTest.test_multiplication
+  t12 <- TD.testGroup "multiplication" "DiscoverTest.test_multiplication" DiscoverTest.test_multiplication
 
-  t13 <- TD.testGroup "generateTree" DiscoverTest.test_generateTree
+  t13 <- TD.testGroup "generateTree" "DiscoverTest.test_generateTree" DiscoverTest.test_generateTree
 
-  t14 <- TD.testGroup "generateTrees" DiscoverTest.test_generateTrees
+  t14 <- TD.testGroup "generateTrees" "DiscoverTest.test_generateTrees" DiscoverTest.test_generateTrees
 
   t15 <- pure $ H.testProperty "reverse" DiscoverTest.hprop_reverse
 
-  t16 <- TD.testGroup "goldenTest" DiscoverTest.custom_goldenTest
+  t16 <- TD.testGroup "goldenTest" "DiscoverTest.custom_goldenTest" DiscoverTest.custom_goldenTest
 
   t17 <- pure $ QC.testProperty "additionCommutative" SubMod.FooBaz.prop_additionCommutative
 
