@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 -- | The test generator boilerplate module.
 --
 -- Any test that is supported (HUnit, HSpec, etc.) provides here, a
@@ -88,9 +90,13 @@ generators =
 hedgehogPropertyGenerator :: Generator
 hedgehogPropertyGenerator = Generator
   { generatorPrefix = "hprop_"
-  , generatorImport = "import qualified Test.Tasty.Hedgehog as H\n"
+  , generatorImport = unlines
+      [ "import qualified Test.Tasty.Hedgehog as H\n"
+      , "import qualified Data.String as H (IsString(..))\n"
+      ]
   , generatorClass  = ""
-  , generatorSetup  = \t -> "pure $ H.testProperty \"" ++ name t ++ "\" " ++ qualifyFunction t
+  , generatorSetup  = \t ->
+      "pure $ H.testPropertyNamed \"" ++ name t ++ "\" (H.fromString \"" ++ qualifyFunction t ++ "\") " ++ qualifyFunction t
   }
 
 -- | Quickcheck group generator prefix.

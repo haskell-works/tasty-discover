@@ -11,6 +11,9 @@ import qualified Test.Tasty as T
 import qualified Test.Tasty.Ingredients as T
 import qualified Test.Tasty.Hedgehog as H
 
+import qualified Data.String as H (IsString(..))
+
+
 import qualified Test.Tasty.QuickCheck as QC
 
 import qualified Test.Tasty.SmallCheck as SC
@@ -79,7 +82,7 @@ tests = do
 
   t14 <- testGroup "generateTrees" DiscoverTest.test_generateTrees
 
-  t15 <- pure $ H.testProperty "reverse" DiscoverTest.hprop_reverse
+  t15 <- pure $ H.testPropertyNamed "reverse" (H.fromString "DiscoverTest.hprop_reverse") DiscoverTest.hprop_reverse
 
   t16 <- pure $ QC.testProperty "additionCommutative" SubMod.FooBaz.prop_additionCommutative
 
