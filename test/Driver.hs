@@ -5,30 +5,19 @@
 module Main (main, ingredients, tests) where
 
 import Prelude
-
+import qualified ConfigTest
+import qualified DiscoverTest
+import qualified SubMod.FooBaz
+import qualified SubMod.PropTest
+import qualified SubMod.SubSubMod.PropTest
 import qualified System.Environment as E
 import qualified Test.Tasty as T
-import qualified Test.Tasty.Ingredients as T
-import qualified Test.Tasty.Hedgehog as H
-
-import qualified Test.Tasty.QuickCheck as QC
-
-import qualified Test.Tasty.SmallCheck as SC
-
-import qualified Test.Tasty.Hspec as HS
-
-
 import qualified Test.Tasty.HUnit as HU
-
-import qualified ConfigTest
-
-import qualified DiscoverTest
-
-import qualified SubMod.FooBaz
-
-import qualified SubMod.PropTest
-
-import qualified SubMod.SubSubMod.PropTest
+import qualified Test.Tasty.Hedgehog as H
+import qualified Test.Tasty.Hspec as HS
+import qualified Test.Tasty.Ingredients as T
+import qualified Test.Tasty.QuickCheck as QC
+import qualified Test.Tasty.SmallCheck as SC
 
 {- HLINT ignore "Use let" -}
 

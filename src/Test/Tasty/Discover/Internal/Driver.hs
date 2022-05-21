@@ -30,24 +30,29 @@ import GHC.IO.Handle            (hGetContents, hSetEncoding)
 import GHC.IO.Handle (hGetContents)
 #endif
 
+defaultImports :: [String]
+defaultImports =
+  [ "import Prelude"
+  , "import qualified System.Environment as E"
+  , "import qualified Test.Tasty as T"
+  , "import qualified Test.Tasty.Ingredients as T"
+  ]
+
 -- | Main function generator, along with all the boilerplate which
 -- which will run the discovered tests.
 generateTestDriver :: Config -> String -> [String] -> FilePath -> [Test] -> String
 generateTestDriver config modname is src tests =
   let generators' = getGenerators tests
       testNumVars = map (("t"++) . show) [(0 :: Int)..]
+      testKindImports = map generatorImports generators' :: [[String]]
+      testImports = showImports (map ingredientImport is ++ map testModule tests) :: [String]
   in concat
     [ "{-# LANGUAGE FlexibleInstances #-}\n"
     , "\n"
     , "module " ++ modname ++ " (main, ingredients, tests) where\n"
     , "\n"
-    , "import Prelude\n"
+    , unlines $ nub $ sort $ (mconcat $ defaultImports:testKindImports) ++ testImports
     , "\n"
-    , "import qualified System.Environment as E\n"
-    , "import qualified Test.Tasty as T\n"
-    , "import qualified Test.Tasty.Ingredients as T\n"
-    , unlines $ map generatorImport generators'
-    , showImports (map ingredientImport is ++ map testModule tests)
     , "{- HLINT ignore \"Use let\" -}\n"
     , "\n"
     , unlines $ map generatorClass generators'
@@ -107,8 +112,8 @@ extractTests file = mkTestDeDuped . isKnownPrefix . parseTest
         parseTest     = map fst . concatMap lex . lines
 
 -- | Show the imports.
-showImports :: [String] -> String
-showImports mods = unlines $ nub $ map (\m -> "import qualified " ++ m ++ "\n") mods
+showImports :: [String] -> [String]
+showImports mods = sort $ map (\m -> "import qualified " ++ m) mods
 
 -- | Retrieve the ingredient name.
 ingredientImport :: String -> String
