@@ -5,10 +5,10 @@
 
 module ConfigTest where
 
-import Data.List             (isInfixOf, sort)
-import Test.Tasty.Config
-import Test.Tasty.Discover   (ModuleTree (..), findTests, generateTestDriver, mkModuleTree, showTests)
-import Test.Tasty.Generator  (Test (..), mkTest)
+import Data.List                              (isInfixOf, sort)
+import Test.Tasty.Discover.Internal.Config
+import Test.Tasty.Discover.Internal.Driver    (ModuleTree (..), findTests, generateTestDriver, mkModuleTree, showTests)
+import Test.Tasty.Discover.Internal.Generator (Test (..), mkTest)
 
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck

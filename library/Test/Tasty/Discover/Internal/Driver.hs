@@ -1,7 +1,7 @@
 {-# LANGUAGE CPP #-}
 
 -- | Automatic test discovery and runner for the tasty framework.
-module Test.Tasty.Discover
+module Test.Tasty.Discover.Internal.Driver
   ( -- * Main Test Generator
     generateTestDriver
 
@@ -12,13 +12,13 @@ module Test.Tasty.Discover
   , showTests
   ) where
 
-import Data.List            (dropWhileEnd, intercalate, isPrefixOf, nub, sort, stripPrefix)
-import Data.Maybe           (fromMaybe)
-import System.FilePath      (pathSeparator)
-import System.FilePath.Glob (compile, globDir1, match)
-import System.IO            (IOMode (ReadMode), withFile)
-import Test.Tasty.Config    (Config (..), GlobPattern)
-import Test.Tasty.Generator (Generator (..), Test (..), generators, getGenerators, mkTest, showSetup)
+import Data.List                              (dropWhileEnd, intercalate, isPrefixOf, nub, sort, stripPrefix)
+import Data.Maybe                             (fromMaybe)
+import System.FilePath                        (pathSeparator)
+import System.FilePath.Glob                   (compile, globDir1, match)
+import System.IO                              (IOMode (ReadMode), withFile)
+import Test.Tasty.Discover.Internal.Config    (Config (..), GlobPattern)
+import Test.Tasty.Discover.Internal.Generator (Generator (..), Test (..), generators, getGenerators, mkTest, showSetup)
 
 import qualified Data.Map.Strict as M
 

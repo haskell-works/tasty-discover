@@ -3,7 +3,7 @@
 -- Anything that can be passed as an argument to the test driver
 -- definition exists as a field in the 'Config' type.
 
-module Test.Tasty.Config
+module Test.Tasty.Discover.Internal.Config
   ( -- * Configuration Options
     Config (..)
   , GlobPattern

@@ -2,14 +2,14 @@
 
 module Main where
 
-import Control.Monad       (when)
-import Data.Maybe          (fromMaybe)
-import System.Environment  (getArgs, getProgName)
-import System.Exit         (exitFailure)
-import System.FilePath     (takeDirectory)
-import System.IO           (IOMode(ReadMode), hGetContents, hPutStrLn, withFile, stderr)
-import Test.Tasty.Config   (Config (..), parseConfig)
-import Test.Tasty.Discover (findTests, generateTestDriver)
+import Control.Monad                       (when)
+import Data.Maybe                          (fromMaybe)
+import System.Environment                  (getArgs, getProgName)
+import System.Exit                         (exitFailure)
+import System.FilePath                     (takeDirectory)
+import System.IO                           (IOMode(ReadMode), hGetContents, hPutStrLn, withFile, stderr)
+import Test.Tasty.Discover.Internal.Config (Config (..), parseConfig)
+import Test.Tasty.Discover.Internal.Driver (findTests, generateTestDriver)
 
 -- | Main function.
 main :: IO ()

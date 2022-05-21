@@ -5,7 +5,7 @@
 -- necessary boilerplate for the generated main function that will
 -- run all the tests.
 
-module Test.Tasty.Generator
+module Test.Tasty.Discover.Internal.Generator
   ( -- * Types
     Generator (..)
   , Test (..)
