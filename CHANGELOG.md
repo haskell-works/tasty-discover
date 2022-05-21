@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog] and this project adheres to
 [Keep a Changelog]: http://keepachangelog.com/
 [Semantic Versioning]: http://semver.org/
 
+- Rename library directory to src
 - Move existing library modules to Test.Discover.Internal
 
 # 4.2.3 [2022-05-21]
