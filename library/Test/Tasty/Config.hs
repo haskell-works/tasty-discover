@@ -35,7 +35,7 @@ data Config = Config
   , ignoredModules      :: [FilePath]        -- ^ <<<DEPRECATED>>>: Ignored modules by full name.
   , tastyIngredients    :: [Ingredient]      -- ^ Tasty ingredients to use.
   , tastyOptions        :: [String]          -- ^ Options passed to tasty
-  , inplace             :: Bool              -- ^ Whether the source file should be modified in-place.
+  , inPlace             :: Bool              -- ^ Whether the source file should be modified in-place.
   , noModuleSuffix      :: Bool              -- ^ <<<DEPRECATED>>>: suffix and look in all modules.
   , debug               :: Bool              -- ^ Debug the generated module.
   , treeDisplay         :: Bool              -- ^ Tree display for the test results table.
@@ -103,8 +103,8 @@ options srcDir =
   , Option [] ["ingredient"]
       (ReqArg (\s c -> c {tastyIngredients = s : tastyIngredients c}) "INGREDIENT")
       "Qualified tasty ingredient name"
-  , Option [] ["inplace"]
-      (NoArg $ \c -> c {inplace = True})
+  , Option [] ["in-place"]
+      (NoArg $ \c -> c {inPlace = True})
       "Whether the source file should be modified in-place"
   , Option [] ["no-module-suffix"]
       (NoArg $ \c -> c {noModuleSuffix = True})
