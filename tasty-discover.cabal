@@ -51,9 +51,9 @@ common tasty-quickcheck           { build-depends: tasty-quickcheck           >=
 common tasty-smallcheck           { build-depends: tasty-smallcheck           >= 0.8      && < 1.0      }
 
 library
-  exposed-modules:      Test.Tasty.Config
-                        Test.Tasty.Discover
-                        Test.Tasty.Generator
+  exposed-modules:      Test.Tasty.Discover.Internal.Config
+                        Test.Tasty.Discover.Internal.Driver
+                        Test.Tasty.Discover.Internal.Generator
   other-modules:        Paths_tasty_discover
   autogen-modules:      Paths_tasty_discover
   hs-source-dirs:       library
