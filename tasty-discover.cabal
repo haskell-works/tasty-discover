@@ -56,7 +56,7 @@ library
                         Test.Tasty.Discover.Internal.Generator
   other-modules:        Paths_tasty_discover
   autogen-modules:      Paths_tasty_discover
-  hs-source-dirs:       library
+  hs-source-dirs:       src
   ghc-options:          -Wall
   build-depends:        base            >= 4.8      && < 5.0
                       , Glob            >= 0.8      && < 1.0
