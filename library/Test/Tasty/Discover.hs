@@ -38,13 +38,18 @@ generateTestDriver config modname is src tests =
       testNumVars = map (("t"++) . show) [(0 :: Int)..]
   in concat
     [ "{-# LANGUAGE FlexibleInstances #-}\n"
+    , "\n"
     , "module " ++ modname ++ " (main, ingredients, tests) where\n"
+    , "\n"
     , "import Prelude\n"
+    , "\n"
     , "import qualified System.Environment as E\n"
     , "import qualified Test.Tasty as T\n"
     , "import qualified Test.Tasty.Ingredients as T\n"
     , unlines $ map generatorImport generators'
     , showImports (map ingredientImport is ++ map testModule tests)
+    , "{- HLINT ignore \"Use let\" -}\n"
+    , "\n"
     , unlines $ map generatorClass generators'
     , "tests :: IO T.TestTree\n"
     , "tests = do\n"

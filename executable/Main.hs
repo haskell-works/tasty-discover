@@ -29,7 +29,7 @@ main = do
           header <- readHeader src
           let output = generateTestDriver config moduleName ingredients src tests
           when (debug config) $ hPutStrLn stderr output
-          when (inplace config) $ writeFile src $ unlines $ header ++ [marker, output]
+          when (inPlace config) $ writeFile src $ unlines $ header ++ [marker, output]
           writeFile dst $
             "{-# LINE " ++ show (length header + 2) ++ " " ++ show src ++ " #-}\n"
             ++ output
