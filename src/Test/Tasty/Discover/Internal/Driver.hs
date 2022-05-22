@@ -51,7 +51,7 @@ generateTestDriver config modname is src tests =
     , "\n"
     , "module " ++ modname ++ " (main, ingredients, tests) where\n"
     , "\n"
-    , unlines $ nub $ sort $ (mconcat $ defaultImports:testKindImports) ++ testImports
+    , unlines $ nub $ sort $ mconcat (defaultImports:testKindImports) ++ testImports
     , "\n"
     , "{- HLINT ignore \"Use let\" -}\n"
     , "\n"
@@ -113,7 +113,7 @@ extractTests file = mkTestDeDuped . isKnownPrefix . parseTest
 
 -- | Show the imports.
 showImports :: [String] -> [String]
-showImports mods = sort $ map (\m -> "import qualified " ++ m) mods
+showImports mods = sort $ map ("import qualified " ++) mods
 
 -- | Retrieve the ingredient name.
 ingredientImport :: String -> String
@@ -127,7 +127,7 @@ ingredients is = concat $ map (++":") is ++ ["T.defaultIngredients"]
 showTests :: Config -> [Test] -> [String] -> [String]
 showTests config tests testNumVars = if treeDisplay config
   then showModuleTree $ mkModuleTree tests testNumVars
-  else zipWith (curry snd) tests testNumVars
+  else zipWith const testNumVars tests
 
 newtype ModuleTree = ModuleTree (M.Map String (ModuleTree, [String]))
   deriving (Eq, Show)
@@ -135,9 +135,11 @@ newtype ModuleTree = ModuleTree (M.Map String (ModuleTree, [String]))
 showModuleTree :: ModuleTree -> [String]
 showModuleTree (ModuleTree mdls) = map showModule $ M.assocs mdls
   where -- special case, collapse to mdl.submdl
+        showModule :: ([Char], (ModuleTree, [String])) -> [Char]
         showModule (mdl, (ModuleTree subMdls, [])) | M.size subMdls == 1 =
-          let [(subMdl, (subSubTree, testVars))] = M.assocs subMdls
-          in showModule (mdl ++ '.' : subMdl, (subSubTree, testVars))
+          case M.assocs subMdls of
+            [(subMdl, (subSubTree, testVars))] -> showModule (mdl ++ '.' : subMdl, (subSubTree, testVars))
+            as -> error $ "Excepted number of submodules != 1.  Found " <> show (length as)
         showModule (mdl, (subTree, testVars)) = concat
           [ "T.testGroup \"", mdl
           , "\" [", intercalate "," (showModuleTree subTree ++ testVars), "]" ]

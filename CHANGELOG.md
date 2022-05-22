@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog] and this project adheres to
 [Keep a Changelog]: http://keepachangelog.com/
 [Semantic Versioning]: http://semver.org/
 
+- Support for custom test libraries
+- Version module
 - Deduplicate imports in generated code
 - Rename library directory to src
 - Move existing library modules to Test.Discover.Internal

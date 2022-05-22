@@ -82,6 +82,7 @@ generators =
   , hunitTestCaseGenerator
   , hspecTestCaseGenerator
   , tastyTestGroupGenerator
+  , tastyGenerator
   ]
 
 -- | Quickcheck group generator prefix.
@@ -147,4 +148,13 @@ tastyTestGroupGenerator = Generator
     , "instance TestGroup (IO [T.TestTree]) where testGroup n a = T.testGroup n <$> a\n"
     ]
   , generatorSetup  = \t -> "testGroup \"" ++ name t ++ "\" " ++ qualifyFunction t
+  }
+
+-- | Tasty group generator prefix.
+tastyGenerator :: Generator
+tastyGenerator = Generator
+  { generatorPrefix   = "tasty_"
+  , generatorImports  = ["import qualified Test.Tasty.Discover as TD"]
+  , generatorClass    = []
+  , generatorSetup    = \t -> "TD.tasty (TD.description \"" ++ name t ++ "\" <> TD.name \"" ++ qualifyFunction t ++ "\") " ++ qualifyFunction t
   }
