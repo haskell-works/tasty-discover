@@ -35,6 +35,7 @@ source-repository head
 
 common base                       { build-depends: base                       >= 4.11       && < 5      }
 
+common bytestring                 { build-depends: bytestring                 >= 0.9      && < 1.0      }
 common containers                 { build-depends: containers                 >= 0.4      && < 1.0      }
 common directory                  { build-depends: directory                  >= 1.1      && < 2.0      }
 common filepath                   { build-depends: filepath                   >= 1.3      && < 2.0      }
@@ -44,6 +45,7 @@ common hspec                      { build-depends: hspec                      >=
 common hspec-core                 { build-depends: hspec-core                 >= 2.7.10   && < 2.11     }
 common tasty                      { build-depends: tasty                      >= 1.3      && < 2.0      }
 common tasty-discover             { build-depends: tasty-discover             >= 4.0      && < 5.0      }
+common tasty-golden               { build-depends: tasty-golden               >= 2.0      && < 3.0      }
 common tasty-hedgehog             { build-depends: tasty-hedgehog             >= 1.1      && < 2.0      }
 common tasty-hspec                { build-depends: tasty-hspec                >= 1.1      && < 1.3      }
 common tasty-hunit                { build-depends: tasty-hunit                >= 0.10     && < 0.11     }
@@ -51,9 +53,11 @@ common tasty-quickcheck           { build-depends: tasty-quickcheck           >=
 common tasty-smallcheck           { build-depends: tasty-smallcheck           >= 0.8      && < 1.0      }
 
 library
-  exposed-modules:      Test.Tasty.Discover.Internal.Config
+  exposed-modules:      Test.Tasty.Discover
+                        Test.Tasty.Discover.Internal.Config
                         Test.Tasty.Discover.Internal.Driver
                         Test.Tasty.Discover.Internal.Generator
+                        Test.Tasty.Discover.TastyInfo
                         Test.Tasty.Discover.Version
   other-modules:        Paths_tasty_discover
   autogen-modules:      Paths_tasty_discover
@@ -64,6 +68,7 @@ library
                       , containers      >= 0.4      && < 1.0
                       , directory       >= 1.1      && < 2.0
                       , filepath        >= 1.3      && < 2.0
+                      , tasty           >= 1.3      && < 2.0
   default-language:     Haskell2010
 
 executable              tasty-discover
@@ -82,6 +87,7 @@ executable              tasty-discover
 test-suite tasty-discover-test
   import:               base
                       , Glob
+                      , bytestring
                       , containers
                       , directory
                       , filepath
@@ -89,6 +95,7 @@ test-suite tasty-discover-test
                       , hspec
                       , hspec-core
                       , tasty
+                      , tasty-golden
                       , tasty-hedgehog
                       , tasty-hspec
                       , tasty-hunit

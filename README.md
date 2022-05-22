@@ -103,6 +103,7 @@ corresponds to the testing library you wish to run the test with:
   - **unit_**: [HUnit](http://hackage.haskell.org/package/tasty-hunit) test cases.
   - **spec_**: [Hspec](http://hackage.haskell.org/package/tasty-hspec) specifications.
   - **test_**: [Tasty](http://hackage.haskell.org/package/tasty) TestTrees.
+  - **tasty_**: Custom tests
 
 Here is an example test module with a bunch of different tests:
 
@@ -113,6 +114,7 @@ module ExampleTest where
 
 import Data.List
 import Test.Tasty
+import Test.Tasty.Discover
 import Test.Tasty.HUnit
 import Test.Tasty.Hspec
 import Test.Tasty.QuickCheck
@@ -134,6 +136,27 @@ spec_prelude :: Spec
 spec_prelude = describe "Prelude.head" $ do
   it "returns the first element of a list" $ do
     head [23 ..] `shouldBe` (23 :: Int)
+
+-- Custom test
+--
+-- Write a test for anything with a Tasty instance
+-- 
+-- In order to use this feature, you must add tasty-discover as a library dependency
+-- to your test component in the cabal file.
+--
+-- The instance defined should not be an orphaned instance.  A future version of
+-- tasty-discover may choose to define orphaned instances for popular test libraries.
+import Test.Tasty (testCase)
+import Test.Tasty.Discover (TestCase(..), descriptionOf)
+
+data CustomTest = CustomTest String Assertion
+
+instance Tasty CustomTest where
+  tasty info (CustomTest prefix act) =
+    pure $ testCase (prefix ++ descriptionOf info) act
+
+tasty_myTest :: CustomTest
+tasty_myTest = CustomTest "Custom: " $ pure ()
 
 -- Tasty TestTree
 test_multiplication :: [TestTree]
@@ -221,6 +244,33 @@ examples, so this should be simple - and I'll get to review your change ASAP.
 This is a known limitation and has been reported. No fix is planned unless you have time.
 
 Please see [#145](https://git.coop/lwm/tasty-discover/issues/145) for more information.
+
+## Deprecation warnings
+
+If you see the `testProperty` deprecation warnings like the following:
+
+```
+test/Driver.hs:77:17: warning: [-Wdeprecations]
+    In the use of ‘testProperty’ (imported from Test.Tasty.Hedgehog):
+    Deprecated: "testProperty will cause Hedgehog to provide incorrect instructions for re-checking properties"
+   |
+77 |   t16 <- pure $ H.testProperty "reverse" DiscoverTest.hprop_reverse
+   |                 ^^^^^^^^^^^^^^
+```
+
+There are two ways to fix it:
+
+One is to suppress the warning.  This can be done for example with an adjustment to the
+Driver preprocessing with the `-Wno-deprecations` option:
+
+```
+{-# OPTIONS_GHC -Wno-deprecations -F -pgmF tasty-discover -optF --hide-successes #-}
+```
+
+Taking this option, whilst quick an easy, risks missing important deprecation warnings however.
+
+The recommended option is define a `Tasty` type class instance for hedgehog.  An example can be
+found in `DiscoverTest` module.
 
 # Maintenance
 
