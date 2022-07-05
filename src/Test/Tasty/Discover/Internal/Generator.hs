@@ -89,9 +89,9 @@ generators =
 hedgehogPropertyGenerator :: Generator
 hedgehogPropertyGenerator = Generator
   { generatorPrefix   = "hprop_"
-  , generatorImports  = ["import qualified Test.Tasty.Hedgehog as H"]
+  , generatorImports  = ["import qualified Test.Tasty.Hedgehog as H", "import Data.String (fromString)"]
   , generatorClass    = ""
-  , generatorSetup    = \t -> "pure $ H.testProperty \"" ++ name t ++ "\" " ++ qualifyFunction t
+  , generatorSetup    = \t -> "pure $ H.testPropertyNamed \"" ++ name t ++ "\" (fromString \"" ++ qualifyFunction t ++ "\") " ++ qualifyFunction t
   }
 
 -- | Quickcheck group generator prefix.

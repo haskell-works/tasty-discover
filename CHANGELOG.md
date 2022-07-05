@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog] and this project adheres to
 - Deduplicate imports in generated code
 - Rename library directory to src
 - Move existing library modules to Test.Discover.Internal
+- Fix tasty-hedgehog `testProperty` deprecation warning
 
 # 4.2.3 [2022-05-21]
 
