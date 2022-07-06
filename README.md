@@ -245,33 +245,6 @@ This is a known limitation and has been reported. No fix is planned unless you h
 
 Please see [#145](https://git.coop/lwm/tasty-discover/issues/145) for more information.
 
-## Deprecation warnings
-
-If you see the `testProperty` deprecation warnings like the following:
-
-```
-test/Driver.hs:77:17: warning: [-Wdeprecations]
-    In the use of ‘testProperty’ (imported from Test.Tasty.Hedgehog):
-    Deprecated: "testProperty will cause Hedgehog to provide incorrect instructions for re-checking properties"
-   |
-77 |   t16 <- pure $ H.testProperty "reverse" DiscoverTest.hprop_reverse
-   |                 ^^^^^^^^^^^^^^
-```
-
-There are two ways to fix it:
-
-One is to suppress the warning.  This can be done for example with an adjustment to the
-Driver preprocessing with the `-Wno-deprecations` option:
-
-```
-{-# OPTIONS_GHC -Wno-deprecations -F -pgmF tasty-discover -optF --hide-successes #-}
-```
-
-Taking this option, whilst quick an easy, risks missing important deprecation warnings however.
-
-The recommended option is define a `Tasty` type class instance for hedgehog.  An example can be
-found in `DiscoverTest` module.
-
 # Maintenance
 
 If you're interested in helping maintain this package, please let [@newhoggy] know!
