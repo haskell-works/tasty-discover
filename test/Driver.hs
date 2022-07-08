@@ -4,6 +4,7 @@
 
 module Main (main, ingredients, tests) where
 
+import Data.String (fromString)
 import Prelude
 import qualified ConfigTest
 import qualified DiscoverTest
@@ -72,7 +73,7 @@ tests = do
 
   t15 <- TD.tasty (TD.description "reverse" <> TD.name "DiscoverTest.tasty_reverse") DiscoverTest.tasty_reverse
 
-  t16 <- pure $ H.testProperty "reverse" DiscoverTest.hprop_reverse
+  t16 <- pure $ H.testPropertyNamed "reverse" (fromString "DiscoverTest.hprop_reverse") DiscoverTest.hprop_reverse
 
   t17 <- pure $ QC.testProperty "additionCommutative" SubMod.FooBaz.prop_additionCommutative
 

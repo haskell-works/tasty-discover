@@ -69,7 +69,7 @@ test_generateTrees :: IO [TestTree]
 test_generateTrees = pure (map (\s -> testCase s $ pure ()) ["First input", "Second input"])
 
 ------------------------------------------------------------------------------------------------
--- How to add custom support for hedgehog to avoid deprecation warning from tasty-hedgehog
+-- How to simultaneously support tasty-hedgehog <1.2 and ^>1.2 using a custom test
 
 newtype Property = Property
   { unProperty :: H.Property
@@ -93,7 +93,7 @@ tasty_reverse = property $ do
   reverse (reverse xs) H.=== xs
 
 ------------------------------------------------------------------------------------------------
--- How to use tasty-hedgehog up to version 1.1
+-- How to use the latest version of tasty-hedgehog
 
 {- HLINT ignore "Avoid reverse" -}
 hprop_reverse :: H.Property

@@ -1,3 +1,6 @@
+# This is disabled because no stackage lts supports tasty-hedgehog >= 1.2 yet
+# Re-enable when an lts with this support exists
+
 name: Binaries
 
 defaults:
