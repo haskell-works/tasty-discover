@@ -37,6 +37,9 @@ jobs:
 
           cat > cabal.project <<EOF
           packages: . aws-arn
+
+          allow-newer:
+            aws-arn:tasty-discover
           EOF
 
       - name: Configure project
