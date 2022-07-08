@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog] and this project adheres to
 [Keep a Changelog]: http://keepachangelog.com/
 [Semantic Versioning]: http://semver.org/
 
+# 5.0.0 [2022-07-08]
+
 - Fix tasty-hedgehog `testProperty` deprecation warning
 
 # 4.2.4 [2022-05-22]
