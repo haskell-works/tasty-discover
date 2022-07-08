@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog] and this project adheres to
 [Keep a Changelog]: http://keepachangelog.com/
 [Semantic Versioning]: http://semver.org/
 
+# 4.2.4 [2022-05-22]
+
 - Support for custom test libraries
 - Version module
 - Deduplicate imports in generated code
