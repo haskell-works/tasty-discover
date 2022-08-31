@@ -55,6 +55,12 @@ common tasty-discover
   build-depends: tasty-discover
 
 library
+  import:               base
+                      , Glob
+                      , containers
+                      , directory
+                      , filepath
+                      , tasty
   exposed-modules:      Test.Tasty.Discover
                         Test.Tasty.Discover.Internal.Config
                         Test.Tasty.Discover.Internal.Driver
@@ -65,21 +71,15 @@ library
   autogen-modules:      Paths_tasty_discover
   hs-source-dirs:       src
   ghc-options:          -Wall
-  build-depends:        base            >= 4.8      && < 5.0
-                      , Glob            >= 0.8      && < 1.0
-                      , containers      >= 0.4      && < 1.0
-                      , directory       >= 1.1      && < 2.0
-                      , filepath        >= 1.3      && < 2.0
-                      , tasty           >= 1.3      && < 2.0
   default-language:     Haskell2010
 
-executable              tasty-discover
+executable tasty-discover
   import:               base
                       , Glob
                       , containers
                       , directory
                       , filepath
-  main-is:              executable/Main.hs
+  main-is:              app/Main.hs
   autogen-modules:      Paths_tasty_discover
   other-modules:        Paths_tasty_discover
   ghc-options:          -Wall
