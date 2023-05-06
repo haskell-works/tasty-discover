@@ -64,6 +64,7 @@ following example, the test driver file is called `Driver.hs`:
 
 ```
 test-suite test
+  type: exitcode-stdio-1.0
   main-is: Driver.hs
   hs-source-dirs: test
   build-depends: base
