@@ -59,7 +59,7 @@ common tasty-smallcheck           { build-depends: tasty-smallcheck           >=
 common project-config
   default-extensions:   DerivingStrategies
   if (impl(ghc >= 9.2.1))
-                        OverloadedRecordDot
+    default-extensions: OverloadedRecordDot
   ghc-options:          -Wall
                         -Widentities
                         -Wincomplete-uni-patterns
