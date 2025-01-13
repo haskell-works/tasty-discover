@@ -33,6 +33,11 @@ source-repository head
   type: git
   location: https://github.com/haskell-works/tasty-discover
 
+flag dev
+  description: Enable development mode
+  manual: True
+  default: False
+
 common base                       { build-depends: base                       >= 4.11       && < 5      }
 
 common bytestring                 { build-depends: bytestring                 >= 0.9      && < 1.0      }
@@ -51,14 +56,27 @@ common tasty-hunit                { build-depends: tasty-hunit                >=
 common tasty-quickcheck           { build-depends: tasty-quickcheck           >= 0.10     && < 0.11     }
 common tasty-smallcheck           { build-depends: tasty-smallcheck           >= 0.8      && < 1.0      }
 
+common project-config
+  default-extensions:   DerivingStrategies
+  if (impl(ghc >= 9.2.1))
+                        OverloadedRecordDot
+  ghc-options:          -Wall
+                        -Widentities
+                        -Wincomplete-uni-patterns
+                        -Wmissing-deriving-strategies
+                        -Wredundant-constraints
+                        -Wunused-packages
+  default-language:     GHC2021
+  if (flag(dev))
+    ghc-options:        -Werror
+
 common tasty-discover
   build-depends: tasty-discover
 
 library
-  import:               base
+  import:               base, project-config
                       , Glob
                       , containers
-                      , directory
                       , filepath
                       , tasty
   exposed-modules:      Test.Tasty.Discover
@@ -74,10 +92,7 @@ library
   default-language:     Haskell2010
 
 executable tasty-discover
-  import:               base
-                      , Glob
-                      , containers
-                      , directory
+  import:               base, project-config
                       , filepath
   main-is:              app/Main.hs
   autogen-modules:      Paths_tasty_discover
@@ -87,12 +102,9 @@ executable tasty-discover
   default-language:     Haskell2010
 
 test-suite tasty-discover-test
-  import:               base
-                      , Glob
+  import:               base, project-config
                       , bytestring
                       , containers
-                      , directory
-                      , filepath
                       , hedgehog
                       , hspec
                       , hspec-core

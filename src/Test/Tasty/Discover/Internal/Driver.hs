@@ -137,7 +137,7 @@ showTests config tests testNumVars = if treeDisplay config
   else zipWith const testNumVars tests
 
 newtype ModuleTree = ModuleTree (M.Map String (ModuleTree, [String]))
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
 
 showModuleTree :: ModuleTree -> [String]
 showModuleTree (ModuleTree mdls) = map showModule $ M.assocs mdls

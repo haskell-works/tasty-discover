@@ -7,7 +7,7 @@ import Data.Monoid
 data TastyInfo = TastyInfo
   { name        :: Last String
   , description :: Last String
-  } deriving (Eq, Show)
+  } deriving stock (Eq, Show)
 
 instance Semigroup TastyInfo where
   a <> b = TastyInfo

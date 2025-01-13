@@ -31,7 +31,7 @@ import System.FilePath (dropExtension, isPathSeparator)
 data Test = Test
   { testModule   :: String -- ^ Module name.
   , testFunction :: String -- ^ Function name.
-  } deriving (Eq, Show, Ord)
+  } deriving stock (Eq, Show, Ord)
 
 -- | 'Test' constructor.
 mkTest :: FilePath -> String -> Test
