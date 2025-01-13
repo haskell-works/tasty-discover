@@ -39,7 +39,7 @@ data Config = Config
   , noModuleSuffix      :: Bool              -- ^ <<<DEPRECATED>>>: suffix and look in all modules.
   , debug               :: Bool              -- ^ Debug the generated module.
   , treeDisplay         :: Bool              -- ^ Tree display for the test results table.
-  } deriving (Show)
+  } deriving stock (Show)
 
 -- | The default configuration
 defaultConfig :: FilePath -> Config

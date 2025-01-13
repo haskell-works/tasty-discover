@@ -106,9 +106,16 @@ findTests config = do
 -- | Extract the test names from discovered modules.
 extractTests :: FilePath -> String -> [Test]
 extractTests file = mkTestDeDuped . isKnownPrefix . parseTest
-  where mkTestDeDuped = map (mkTest file) . nub
+  where mkTestDeDuped :: [String] -> [Test]
+        mkTestDeDuped = map (mkTest file) . nub
+
+        isKnownPrefix :: [String] -> [String]
         isKnownPrefix = filter (\g -> any (checkPrefix g) generators)
+
+        checkPrefix :: String -> Generator -> Bool
         checkPrefix g = (`isPrefixOf` g) . generatorPrefix
+
+        parseTest :: String -> [String]
         parseTest     = map fst . concatMap lex . lines
 
 -- | Show the imports.
@@ -130,7 +137,7 @@ showTests config tests testNumVars = if treeDisplay config
   else zipWith const testNumVars tests
 
 newtype ModuleTree = ModuleTree (M.Map String (ModuleTree, [String]))
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
 
 showModuleTree :: ModuleTree -> [String]
 showModuleTree (ModuleTree mdls) = map showModule $ M.assocs mdls
