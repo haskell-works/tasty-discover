@@ -16,6 +16,7 @@ module Test.Tasty.Discover.Internal.Config
   ) where
 
 import Data.Maybe            (isJust)
+import GHC.Generics          (Generic)
 import System.Console.GetOpt (ArgDescr (NoArg, ReqArg), ArgOrder (Permute), OptDescr (Option), getOpt')
 import System.FilePath ((</>))
 
@@ -39,7 +40,7 @@ data Config = Config
   , noModuleSuffix      :: Bool              -- ^ <<<DEPRECATED>>>: suffix and look in all modules.
   , debug               :: Bool              -- ^ Debug the generated module.
   , treeDisplay         :: Bool              -- ^ Tree display for the test results table.
-  } deriving stock (Show)
+  } deriving stock (Show, Generic)
 
 -- | The default configuration
 defaultConfig :: FilePath -> Config

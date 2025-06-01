@@ -32,10 +32,12 @@ instance Tasty (IO [TT.TestTree]) where
   tasty info a = TT.testGroup (descriptionOf info) <$> a
 
 nameOf :: TastyInfo -> String
-nameOf info = (fromMaybe "<unnamed>" (getLast (TI.name info)))
+nameOf info =
+  fromMaybe "<unnamed>" (getLast (TI.name info))
 
 descriptionOf :: TastyInfo -> String
-descriptionOf info = (fromMaybe "<undescribed>" (getLast (TI.description info)))
+descriptionOf info =
+  fromMaybe "<undescribed>" (getLast (TI.description info))
 
 name :: String -> TastyInfo
 name n = mempty

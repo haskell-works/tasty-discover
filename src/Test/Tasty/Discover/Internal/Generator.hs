@@ -25,13 +25,14 @@ module Test.Tasty.Discover.Internal.Generator
 import Data.Function   (on)
 import Data.List       (find, groupBy, isPrefixOf, sortOn)
 import Data.Maybe      (fromJust)
+import GHC.Generics    (Generic)
 import System.FilePath (dropExtension, isPathSeparator)
 
 -- | The test type.
 data Test = Test
   { testModule   :: String -- ^ Module name.
   , testFunction :: String -- ^ Function name.
-  } deriving stock (Eq, Show, Ord)
+  } deriving stock (Eq, Show, Generic, Ord)
 
 -- | 'Test' constructor.
 mkTest :: FilePath -> String -> Test
@@ -44,7 +45,7 @@ data Generator = Generator
   , generatorImports  :: [String]        -- ^ Module import path.
   , generatorClass    :: String          -- ^ Generator class.
   , generatorSetup    :: Test -> String  -- ^ Generator setup.
-  }
+  } deriving (Generic)
 
 -- | Module import qualifier.
 qualifyFunction :: Test -> String
