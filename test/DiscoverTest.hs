@@ -1,13 +1,13 @@
 {-# LANGUAGE CPP                 #-}
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications    #-}
 
 module DiscoverTest where
 
 import Data.ByteString.Lazy (ByteString)
 import Data.List
 import Data.String (IsString(..))
+import GHC.Generics (Generic)
 import Test.Hspec (shouldBe)
 import Test.Hspec.Core.Spec (Spec, describe, it)
 import Test.Tasty
@@ -105,6 +105,7 @@ hprop_reverse = H.property $ do
 -- How to add custom support for golden tests.
 
 data GoldenTest = GoldenTest FilePath (IO ByteString)
+  deriving stock (Generic)
 
 instance TD.Tasty GoldenTest where
   tasty info (GoldenTest fp act) = pure $ goldenVsString (TD.descriptionOf info) fp act

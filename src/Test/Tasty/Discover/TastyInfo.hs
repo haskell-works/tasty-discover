@@ -3,11 +3,12 @@ module Test.Tasty.Discover.TastyInfo
   ) where
 
 import Data.Monoid
+import GHC.Generics (Generic)
 
 data TastyInfo = TastyInfo
   { name        :: Last String
   , description :: Last String
-  } deriving stock (Eq, Show)
+  } deriving stock (Eq, Show, Generic)
 
 instance Semigroup TastyInfo where
   a <> b = TastyInfo

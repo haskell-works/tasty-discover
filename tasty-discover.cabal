@@ -57,7 +57,8 @@ common tasty-quickcheck           { build-depends: tasty-quickcheck           >=
 common tasty-smallcheck           { build-depends: tasty-smallcheck           >= 0.8      && < 1.0      }
 
 common project-config
-  default-extensions:   DerivingStrategies
+  default-extensions:   DeriveGeneric
+                        DerivingStrategies
   if (impl(ghc >= 9.2.1))
     default-extensions: OverloadedRecordDot
   ghc-options:          -Wall
