@@ -45,7 +45,7 @@ data Generator = Generator
   , generatorImports  :: [String]        -- ^ Module import path.
   , generatorClass    :: String          -- ^ Generator class.
   , generatorSetup    :: Test -> String  -- ^ Generator setup.
-  } deriving (Generic)
+  } deriving stock (Generic)
 
 -- | Module import qualifier.
 qualifyFunction :: Test -> String
