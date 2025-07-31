@@ -40,12 +40,12 @@ defaultImports =
 
 -- | Main function generator, along with all the boilerplate which
 -- which will run the discovered tests.
-generateTestDriver :: Config -> String -> [String] -> FilePath -> [Test] -> String
-generateTestDriver config modname is src tests =
+generateTestDriver :: Config -> String -> [String] -> [String] -> FilePath -> [Test] -> String
+generateTestDriver config modname is wrappers src tests =
   let generators' = getGenerators tests
       testNumVars = map (("t"++) . show) [(0 :: Int)..]
       testKindImports = map generatorImports generators' :: [[String]]
-      testImports = showImports (map ingredientImport is ++ map testModule tests) :: [String]
+      testImports = showImports (map wrapperImport wrappers ++ map ingredientImport is ++ map testModule tests) :: [String]
   in concat
     [ "{-# LANGUAGE FlexibleInstances #-}\n"
     , "\n"
@@ -68,7 +68,7 @@ generateTestDriver config modname is src tests =
     , "main = do\n"
     , "  args <- E.getArgs\n"
     , "  E.withArgs (" ++ show (tastyOptions config) ++ " ++ args) $"
-    , "    tests >>= T.defaultMainWithIngredients ingredients\n"
+    , "    (fmap (" ++ showWrappers wrappers ++ ") tests) >>= T.defaultMainWithIngredients ingredients\n"
     ]
 
 -- | Match files by specified glob pattern.
@@ -122,6 +122,11 @@ extractTests file = mkTestDeDuped . isKnownPrefix . parseTest
 showImports :: [String] -> [String]
 showImports mods = sort $ map ("import qualified " ++) mods
 
+
+-- | Retrieve the wrapper name.
+wrapperImport :: String -> String
+wrapperImport = init . dropWhileEnd (/= '.')
+
 -- | Retrieve the ingredient name.
 ingredientImport :: String -> String
 ingredientImport = init . dropWhileEnd (/= '.')
@@ -135,6 +140,13 @@ showTests :: Config -> [Test] -> [String] -> [String]
 showTests config tests testNumVars = if treeDisplay config
   then showModuleTree $ mkModuleTree tests testNumVars
   else zipWith const testNumVars tests
+
+
+showWrappers :: [String] -> String
+showWrappers ws = case ws of
+  [] -> "id"
+  _ -> intercalate " . " ws
+
 
 newtype ModuleTree = ModuleTree (M.Map String (ModuleTree, [String]))
   deriving stock (Eq, Show)

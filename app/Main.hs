@@ -26,8 +26,9 @@ main = do
           tests <- findTests config
           let ingredients = tastyIngredients config
               moduleName  = fromMaybe "Main" (generatedModuleName config)
+              wrappers   = testWrappers config
           header <- readHeader src
-          let output = generateTestDriver config moduleName ingredients src tests
+          let output = generateTestDriver config moduleName ingredients wrappers src tests
           when (debug config) $ hPutStrLn stderr output
           when (inPlace config) $ writeFile src $ unlines $ header ++ [marker, output]
           writeFile dst $

@@ -34,6 +34,7 @@ data Config = Config
   , generatedModuleName :: Maybe String      -- ^ Name of the generated main module.
   , ignores             :: Maybe GlobPattern -- ^ Glob pattern for ignoring modules during test discovery.
   , ignoredModules      :: [FilePath]        -- ^ <<<DEPRECATED>>>: Ignored modules by full name.
+  , testWrappers        :: [String]          -- ^ Wrapper functions of the test tree.
   , tastyIngredients    :: [Ingredient]      -- ^ Tasty ingredients to use.
   , tastyOptions        :: [String]          -- ^ Options passed to tasty
   , inPlace             :: Bool              -- ^ Whether the source file should be modified in-place.
@@ -44,7 +45,7 @@ data Config = Config
 
 -- | The default configuration
 defaultConfig :: FilePath -> Config
-defaultConfig theSearchDir = Config Nothing Nothing theSearchDir Nothing Nothing [] [] [] False False False False
+defaultConfig theSearchDir = Config Nothing Nothing theSearchDir Nothing Nothing [] [] [] [] False False False False
 
 -- | Deprecation message for old `--[no-]module-suffix` option.
 moduleSuffixDeprecationMessage :: String
@@ -101,6 +102,9 @@ options srcDir =
   , Option [] ["ignore-module"]
       (ReqArg (\s c -> c {ignoredModules = s : ignoredModules c}) "FILE")
       "<<<DEPRECATED>>>: Ignore a test module"
+  , Option [] ["wrapper"]
+      (ReqArg (\s c -> c {testWrappers = s : testWrappers c}) "WRAPPER")
+      "Qualified test wrapper function name"
   , Option [] ["ingredient"]
       (ReqArg (\s c -> c {tastyIngredients = s : tastyIngredients c}) "INGREDIENT")
       "Qualified tasty ingredient name"
