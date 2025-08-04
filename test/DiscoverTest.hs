@@ -6,6 +6,7 @@ module DiscoverTest where
 
 import Data.ByteString.Lazy (ByteString)
 import Data.List
+import Data.Maybe (listToMaybe)
 import Data.String (IsString(..))
 import GHC.Generics (Generic)
 import Test.Hspec (shouldBe)
@@ -41,7 +42,7 @@ scprop_sortReverse list = sort list == sort (reverse list)
 spec_prelude :: Spec
 spec_prelude = describe "Prelude.head" $ do
   it "returns the first element of a list" $ do
-    head [23 ..] `shouldBe` (23 :: Int)
+    listToMaybe [23 ..] `shouldBe` Just (23 :: Int)
 
 ------------------------------------------------------------------------------------------------
 

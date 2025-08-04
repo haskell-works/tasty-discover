@@ -24,7 +24,7 @@ copyright:              2016 Luke Murphy
                         2020-2022 John Ky
 license:                MIT
 license-file:           LICENSE
-tested-with:            GHC == 9.2.2, GHC == 9.0.2, GHC == 8.10.7, GHC == 8.8.4, GHC == 8.6.5
+tested-with:            GHC == 9.12.2, GHC == 9.10.2, GHC == 9.8.4, GHC == 9.6.7
 build-type:             Simple
 extra-source-files:     CHANGELOG.md
                         README.md
