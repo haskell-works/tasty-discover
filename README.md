@@ -2,7 +2,7 @@
 [![tasty-discover-nightly](http://stackage.org/package/tasty-discover/badge/nightly)](http://stackage.org/nightly/package/tasty-discover)
 [![tasty-discover-lts](http://stackage.org/package/tasty-discover/badge/lts)](http://stackage.org/lts/package/tasty-discover)
 [![Hackage Status](https://img.shields.io/hackage/v/tasty-discover.svg)](http://hackage.haskell.org/package/tasty-discover)
-[![GitHub license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://raw.githubusercontent.com/lwm/tasty-discover/master/LICENSE)
+[![GitHub license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://raw.githubusercontent.com/haskell-works/tasty-discover/main/LICENSE)
 
 # tasty-discover
 
@@ -75,7 +75,7 @@ test-suite test
 
 If you use [hpack], that might look like:
 
-[hpack]: https://git.coop/sol/hpack
+[hpack]: https://github.com/sol/hpack
 
 ``` yaml
 tests:
@@ -306,7 +306,7 @@ Example: `{-# OPTIONS_GHC -F -pgmF tasty-discover -optF --modules="*CustomTest.h
 
 It is also possible to override [tasty test options] with `-optF`:
 
-[tasty test options]: https://git.coop/feuerbach/tasty#options
+[tasty test options]: https://github.com/feuerbach/tasty#options
 
 ``` bash
 {-# OPTIONS_GHC -F -pgmF tasty-discover -optF --hide-successes #-}
@@ -367,7 +367,7 @@ test-suite my-tests
 
 See the [testing for this package] for a fully configured example.
 
-[testing for this package]: https://git.coop/lwm/tasty-discover/tree/master/test
+[testing for this package]: https://github.com/haskell-works/tasty-discover/tree/main/test
 
 # Change Log
 
@@ -375,8 +375,8 @@ Please see the [CHANGELOG.md] for the latest changes.
 
 We try to keep [tagged releases] in our release process, if you care about that.
 
-[CHANGELOG.md]: https://git.coop/lwm/tasty-discover/blob/master/CHANGELOG.md
-[tagged releases]: https://git.coop/lwm/tasty-discover/releases
+[CHANGELOG.md]: https://github.com/haskell-works/tasty-discover/blob/main/CHANGELOG.md
+[tagged releases]: https://github.com/haskell-works/tasty-discover/releases
 
 # Deprecation Policy
 
@@ -385,7 +385,7 @@ entry in the [change log] and a compile-time error with a deprecation warning
 and clear instructions on how to upgrade. Please do complain if we're doing
 this too much.
 
-[change log]: https://git.coop/lwm/tasty-discover/blob/master/CHANGELOG.md
+[change log]: https://github.com/haskell-works/tasty-discover/blob/main/CHANGELOG.md
 
 # Contributing
 
@@ -403,7 +403,7 @@ For AI assistants and detailed development guidelines, see [AI_GUIDELINES.md](AI
 
 This is a known limitation and has been reported. No fix is planned unless you have time.
 
-Please see [#145](https://git.coop/lwm/tasty-discover/issues/145) for more information.
+Please see [#145](https://github.com/haskell-works/tasty-discover/issues/145) for more information.
 
 # Maintenance
 
