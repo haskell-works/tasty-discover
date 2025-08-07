@@ -107,7 +107,7 @@ corresponds to the testing library you wish to run the test with:
   - **unit_**: [HUnit](http://hackage.haskell.org/package/tasty-hunit) test cases.
   - **spec_**: [Hspec](http://hackage.haskell.org/package/tasty-hspec) specifications.
   - **test_**: [Tasty](http://hackage.haskell.org/package/tasty) TestTrees.
-  - **tasty_**: Custom tests
+  - **tasty_**: Custom tests with [Tasty](http://hackage.haskell.org/package/tasty) instances.
 
 Here is an example test module with a bunch of different tests:
 
@@ -122,10 +122,26 @@ import Test.Tasty.Discover
 import Test.Tasty.HUnit
 import Test.Tasty.Hspec
 import Test.Tasty.QuickCheck
+import Test.Tasty.SmallCheck
+import qualified Test.Tasty.Hedgehog as TH
+import qualified Hedgehog as H
+import qualified Hedgehog.Gen as G
+import qualified Hedgehog.Range as R
 
 -- HUnit test case
 unit_listCompare :: IO ()
 unit_listCompare = [1, 2, 3] `compare` [1,2] @?= GT
+
+-- HUnit test case with additional info
+unit_listInfo :: IO String
+unit_listInfo = return "This test provides info"
+
+-- HUnit test case with steps
+unit_listSteps :: (String -> IO ()) -> IO ()
+unit_listSteps step = do
+  step "Setting up test data"
+  step "Running the test"
+  [1, 2, 3] `compare` [1,2] @?= GT
 
 -- QuickCheck property
 prop_additionCommutative :: Int -> Int -> Bool
@@ -135,23 +151,50 @@ prop_additionCommutative a b = a + b == b + a
 scprop_sortReverse :: [Int] -> Bool
 scprop_sortReverse list = sort list == sort (reverse list)
 
+-- Hedgehog property
+hprop_reverseReverse :: H.Property
+hprop_reverseReverse = H.property $ do
+  xs <- H.forAll $ G.list (R.linear 0 100) G.alpha
+  reverse (reverse xs) H.=== xs
+
 -- Hspec specification
 spec_prelude :: Spec
 spec_prelude = describe "Prelude.head" $ do
   it "returns the first element of a list" $ do
     head [23 ..] `shouldBe` (23 :: Int)
 
--- Custom test
+-- Simple Tasty TestTree
+test_addition :: TestTree
+test_addition = testProperty "Addition commutes" $ \(a :: Int) (b :: Int) -> a + b == b + a
+
+-- List of Tasty TestTrees
+test_multiplication :: [TestTree]
+test_multiplication =
+  [ testProperty "Multiplication commutes" $ \(a :: Int) (b :: Int) -> a * b == b * a
+  , testProperty "One is identity" $ \(a :: Int) -> a * 1 == a
+  ]
+
+-- IO Tasty TestTree
+test_generateTree :: IO TestTree
+test_generateTree = do
+  input <- pure "Some input"
+  pure $ testCase input $ pure ()
+
+-- IO List of Tasty TestTrees
+test_generateTrees :: IO [TestTree]
+test_generateTrees = do
+  inputs <- pure ["First input", "Second input"]
+  pure $ map (\s -> testCase s $ pure ()) inputs
+
+-- Custom test with Tasty instance
 --
 -- Write a test for anything with a Tasty instance
 -- 
 -- In order to use this feature, you must add tasty-discover as a library dependency
 -- to your test component in the cabal file.
 --
--- The instance defined should not be an orphaned instance.  A future version of
+-- The instance defined should not be an orphaned instance. A future version of
 -- tasty-discover may choose to define orphaned instances for popular test libraries.
-import Test.Tasty (testCase)
-import Test.Tasty.Discover (TestCase(..), descriptionOf)
 
 data CustomTest = CustomTest String Assertion
 
@@ -162,22 +205,79 @@ instance Tasty CustomTest where
 tasty_myTest :: CustomTest
 tasty_myTest = CustomTest "Custom: " $ pure ()
 
--- Tasty TestTree
-test_multiplication :: [TestTree]
-test_multiplication = [testProperty "One is identity" $ \(a :: Int) -> a * 1 == a]
-
--- Tasty IO TestTree
-test_generateTree :: IO TestTree
-test_generateTree = do
-  input <- pure "Some input"
-  pure $ testCase input $ pure ()
-
--- Tasty IO [TestTree]
-test_generateTrees :: IO [TestTree]
-test_generateTrees = do
-  inputs <- pure ["First input", "Second input"]
-  pure $ map (\s -> testCase s $ pure ()) inputs
+-- Custom Tasty TestTree (can be any TestTree)
+tasty_customGroup :: TestTree
+tasty_customGroup = testGroup "Custom Test Group"
+  [ testCase "nested test 1" $ return ()
+  , testCase "nested test 2" $ (1 + 1) @?= (2 :: Int)
+  ]
 ```
+
+## Test Type Variations
+
+### HUnit Tests (`unit_` prefix)
+
+The `unit_` prefix supports three different function signatures:
+
+- `unit_testName :: IO ()` - Basic test case
+- `unit_testName :: IO String` - Test case that provides additional info
+- `unit_testName :: (String -> IO ()) -> IO ()` - Test case with steps
+
+### Tasty TestTrees (`test_` prefix)
+
+The `test_` prefix supports four different function signatures:
+
+- `test_testName :: TestTree` - A single test tree
+- `test_testName :: [TestTree]` - A list of test trees (automatically grouped)
+- `test_testName :: IO TestTree` - A test tree generated in IO
+- `test_testName :: IO [TestTree]` - A list of test trees generated in IO
+
+### Custom Tests (`tasty_` prefix)
+
+The `tasty_` prefix works with any type that has a `Tasty` instance:
+
+- Built-in instances for `TestTree`, `[TestTree]`, `IO TestTree`, `IO [TestTree]`
+- Custom instances for your own data types
+- Provides access to test metadata through `TastyInfo`
+
+### Organizing Tests with `testGroup`
+
+The `testGroup` function is Tasty's way of organizing tests into hierarchical groups. You can use it in several ways:
+
+**In `test_` functions:**
+```haskell
+test_arithmeticTests :: TestTree
+test_arithmeticTests = testGroup "Arithmetic Operations"
+  [ testCase "addition" $ 2 + 2 @?= 4
+  , testCase "multiplication" $ 3 * 4 @?= 12
+  , testProperty "commutativity" $ \a b -> a + b == b + (a :: Int)
+  ]
+```
+
+**In `tasty_` functions:**
+```haskell
+tasty_myTestSuite :: TestTree
+tasty_myTestSuite = testGroup "My Test Suite"
+  [ testGroup "Unit Tests"
+      [ testCase "test 1" $ pure ()
+      , testCase "test 2" $ pure ()
+      ]
+  , testGroup "Properties"
+      [ testProperty "prop 1" $ \x -> x == (x :: Int)
+      ]
+  ]
+```
+
+**In list form with `test_` functions:**
+```haskell
+test_groupedTests :: [TestTree]
+test_groupedTests =
+  [ testGroup "Group 1" [testCase "test A" $ pure ()]
+  , testGroup "Group 2" [testCase "test B" $ pure ()]
+  ]
+```
+
+This creates nested test hierarchies that make test output more organized and easier to navigate.
 
 # Customise Discovery
 
