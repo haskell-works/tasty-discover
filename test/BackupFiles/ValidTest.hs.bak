@@ -1,0 +1,8 @@
+module BackupFiles.ValidTest where
+
+-- DO NOT DELETE: This backup file is part of the regression test
+-- for spec_backupFilesIgnored in ConfigTest.hs
+-- It tests that tasty-discover ignores .hs.bak files
+-- This is another backup version that should be ignored
+prop_anotherOldTest :: Bool -> Bool
+prop_anotherOldTest _ = False
