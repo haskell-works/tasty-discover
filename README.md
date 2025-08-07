@@ -21,6 +21,8 @@
 - [FAQ](#frequently-asked-questions)
 - [Maintenance](#maintenance)
 - [Acknowledgements](#acknowledgements)
+- [AI Guidelines](AI_GUIDELINES.md)
+- [Coding Style](CODING_STYLE.md)
 
 Haskell auto-magic test discovery and runner for the [tasty test framework].
 
@@ -290,6 +292,10 @@ this too much.
 All contributions welcome! The continuous integration suite is pretty
 comprehensive, so just get hacking and add a test case - there are *plenty* of
 examples, so this should be simple - and I'll get to review your change ASAP.
+
+Please follow the guidelines in [CODING_STYLE.md](CODING_STYLE.md) for consistent code formatting and patterns.
+
+For AI assistants and detailed development guidelines, see [AI_GUIDELINES.md](AI_GUIDELINES.md).
 
 # Frequently Asked Questions
 

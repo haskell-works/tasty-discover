@@ -1,0 +1,43 @@
+# Cursor Rules for tasty-discover
+
+## Project Context
+This is tasty-discover, a Haskell test discovery tool for the Tasty testing framework. It automatically discovers and runs tests based on naming conventions using GHC's preprocessing mechanism.
+
+## Key Guidelines
+
+### Architecture
+- Core modules: Config (CLI parsing), Driver (code generation), Generator (test type definitions)
+- Uses GHC's `-F -pgmF` preprocessing for automatic test discovery
+- Supports multiple test libraries: HUnit, QuickCheck, Hedgehog, Hspec, etc.
+- Recent addition: `--no-main` option for custom test runners
+
+### Code Style
+- Follow existing Haskell patterns and formatting
+- Use qualified imports with meaningful aliases
+- Prefer explicit type signatures
+- Keep generated code clean and minimal
+
+### Testing Strategy
+- Main test suite in `test/` directory
+- Demo of `--no-main` feature in `test-no-main/` directory
+- Always test both regular and `--no-main` generation modes
+- Verify generated code compiles without warnings
+
+### Development Flow
+1. Build: `cabal build`
+2. Test: `cabal test` or `cabal test <suite-name>`
+3. Check generated code for correctness
+4. Update documentation (README.md, CHANGELOG.md)
+
+### Common Patterns
+- Test generators in `Generator.hs` define prefixes, imports, and setup
+- CLI options in `Config.hs` with corresponding logic in `Driver.hs`
+- Conditional imports (e.g., System.Environment only when main function needed)
+
+## Recent Work
+- Implemented `--no-main` option for custom test runners
+- Fixed redundant import generation
+- Added comprehensive test suite demonstrating new feature
+
+## Reference
+See AI_GUIDELINES.md for detailed development information.
