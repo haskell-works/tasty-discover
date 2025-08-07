@@ -12,6 +12,7 @@ import qualified Test.Tasty.Ingredients as T
 import qualified Test.Tasty.QuickCheck as QC
 import qualified Tests.Simple
 
+{- HLINT ignore "Evaluate" -}
 {- HLINT ignore "Use let" -}
 
 
