@@ -131,3 +131,21 @@ test-suite tasty-discover-test
   build-depends:        tasty-discover
   default-language:     Haskell2010
   build-tool-depends:   tasty-discover:tasty-discover
+
+test-suite no-main-test
+  import:               base, project-config
+                      , tasty
+                      , tasty-hunit
+                      , tasty-quickcheck
+  type:                 exitcode-stdio-1.0
+  main-is:              Main.hs
+  ghc-options:          -threaded -rtsopts -with-rtsopts=-N
+  other-modules:        Tests
+                        Tests.Simple
+                        Paths_tasty_discover
+  autogen-modules:      Paths_tasty_discover
+  hs-source-dirs:       test-no-main
+  ghc-options:          -Wall
+  build-depends:        tasty-discover
+  default-language:     Haskell2010
+  build-tool-depends:   tasty-discover:tasty-discover

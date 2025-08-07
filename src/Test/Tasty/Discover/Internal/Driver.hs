@@ -30,14 +30,6 @@ import GHC.IO.Handle            (hGetContents, hSetEncoding)
 import GHC.IO.Handle (hGetContents)
 #endif
 
-defaultImports :: [String]
-defaultImports =
-  [ "import Prelude"
-  , "import qualified System.Environment as E"
-  , "import qualified Test.Tasty as T"
-  , "import qualified Test.Tasty.Ingredients as T"
-  ]
-
 -- | Main function generator, along with all the boilerplate which
 -- which will run the discovered tests.
 generateTestDriver :: Config -> String -> [String] -> FilePath -> [Test] -> String
@@ -46,12 +38,29 @@ generateTestDriver config modname is src tests =
       testNumVars = map (("t"++) . show) [(0 :: Int)..]
       testKindImports = map generatorImports generators' :: [[String]]
       testImports = showImports (map ingredientImport is ++ map testModule tests) :: [String]
+      exports = if noMain config
+                then "(ingredients, tests)"
+                else "(main, ingredients, tests)"
+      mainFunction = if noMain config
+                     then ""
+                     else concat [ "main :: IO ()\n"
+                                 , "main = do\n"
+                                 , "  args <- E.getArgs\n"
+                                 , "  E.withArgs (" ++ show (tastyOptions config) ++ " ++ args) $"
+                                 , "    tests >>= T.defaultMainWithIngredients ingredients\n"
+                                 ]
+      -- Only include System.Environment import when main function is generated
+      envImport = if noMain config then [] else ["import qualified System.Environment as E"]
+      baseImports = [ "import Prelude"
+                    , "import qualified Test.Tasty as T"
+                    , "import qualified Test.Tasty.Ingredients as T"
+                    ] ++ envImport
   in concat
     [ "{-# LANGUAGE FlexibleInstances #-}\n"
     , "\n"
-    , "module " ++ modname ++ " (main, ingredients, tests) where\n"
+    , "module " ++ modname ++ " " ++ exports ++ " where\n"
     , "\n"
-    , unlines $ nub $ sort $ mconcat (defaultImports:testKindImports) ++ testImports
+    , unlines $ nub $ sort $ mconcat (baseImports:testKindImports) ++ testImports
     , "\n"
     , "{- HLINT ignore \"Use let\" -}\n"
     , "\n"
@@ -64,11 +73,7 @@ generateTestDriver config modname is src tests =
     , "]\n"
     , "ingredients :: [T.Ingredient]\n"
     , "ingredients = " ++ ingredients is ++ "\n"
-    , "main :: IO ()\n"
-    , "main = do\n"
-    , "  args <- E.getArgs\n"
-    , "  E.withArgs (" ++ show (tastyOptions config) ++ " ++ args) $"
-    , "    tests >>= T.defaultMainWithIngredients ingredients\n"
+    , mainFunction
     ]
 
 -- | Match files by specified glob pattern.
