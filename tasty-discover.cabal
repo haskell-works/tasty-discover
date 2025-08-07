@@ -78,6 +78,7 @@ library
   import:               base, project-config
                       , Glob
                       , containers
+                      , directory
                       , filepath
                       , tasty
   exposed-modules:      Test.Tasty.Discover
@@ -122,6 +123,8 @@ test-suite tasty-discover-test
   other-modules:        ConfigTest
                         DiscoverTest
                         BackupFiles.ValidTest
+                        ModulesGlob.Sub.OneTest
+                        ModulesGlob.TwoTest
                         SubMod.FooBaz
                         SubMod.PropTest
                         SubMod.SubSubMod.PropTest
