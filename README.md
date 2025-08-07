@@ -13,6 +13,7 @@
 - [Customise Discovery](#customise-discovery)
   * [No Arguments](#no-arguments)
   * [With Arguments](#with-arguments)
+  * [Custom Main Function](#custom-main-function)
 - [Example Project](#example-project)
 - [Change Log](#change-log)
 - [Deprecation Policy](#deprecation-policy)
@@ -186,6 +187,7 @@ Example: `{-# OPTIONS_GHC -F -pgmF tasty-discover -optF --debug #-}`
 
   - **--debug**: Output the contents of the generated module while testing.
   - **--tree-display**: Display the test output results hierarchically.
+  - **--no-main**: Generate a module without a main function, exporting `tests` and `ingredients` instead.
 
 ## With Arguments
 
@@ -206,6 +208,57 @@ It is also possible to override [tasty test options] with `-optF`:
 
 ``` bash
 {-# OPTIONS_GHC -F -pgmF tasty-discover -optF --hide-successes #-}
+```
+
+## Custom Main Function
+
+The `--no-main` option allows you to write your own custom main function while still using tasty-discover for test discovery. This is useful when you need to:
+
+- Apply custom test transformations or wrappers
+- Add custom logging or output formatting
+- Integrate with custom test runners or CI systems
+- Control exactly how tests are executed
+
+### Example Usage
+
+Create your test discovery file (e.g., `test/Tests.hs`):
+
+```haskell
+{-# OPTIONS_GHC -F -pgmF tasty-discover -optF --no-main -optF --generated-module -optF Tests #-}
+```
+
+Then create your custom main file (e.g., `test/Main.hs`):
+
+```haskell
+module Main where
+
+import qualified Tests
+import qualified Test.Tasty as T
+
+main :: IO ()
+main = do
+  putStrLn "=== Custom Test Runner ==="
+
+  -- Get discovered tests and ingredients
+  discoveredTests <- Tests.tests
+
+  -- Apply custom transformations
+  let wrappedTests = T.testGroup "My Custom Tests" [discoveredTests]
+
+  -- Run with custom configuration
+  T.defaultMainWithIngredients Tests.ingredients wrappedTests
+```
+
+Configure your cabal test suite to use the custom main:
+
+```
+test-suite my-tests
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  other-modules: Tests
+  hs-source-dirs: test
+  build-depends: base, tasty
+  build-tool-depends: tasty-discover:tasty-discover
 ```
 
 # Example Project

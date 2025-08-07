@@ -40,11 +40,12 @@ data Config = Config
   , noModuleSuffix      :: Bool              -- ^ <<<DEPRECATED>>>: suffix and look in all modules.
   , debug               :: Bool              -- ^ Debug the generated module.
   , treeDisplay         :: Bool              -- ^ Tree display for the test results table.
+  , noMain              :: Bool              -- ^ Whether to generate main function.
   } deriving stock (Show, Generic)
 
 -- | The default configuration
 defaultConfig :: FilePath -> Config
-defaultConfig theSearchDir = Config Nothing Nothing theSearchDir Nothing Nothing [] [] [] False False False False
+defaultConfig theSearchDir = Config Nothing Nothing theSearchDir Nothing Nothing [] [] [] False False False False False
 
 -- | Deprecation message for old `--[no-]module-suffix` option.
 moduleSuffixDeprecationMessage :: String
@@ -116,4 +117,7 @@ options srcDir =
   , Option [] ["tree-display"]
       (NoArg $ \c -> c {treeDisplay = True})
       "Display test output hierarchically"
+  , Option [] ["no-main"]
+      (NoArg $ \c -> c {noMain = True})
+      "Do not generate a main function"
   ]
