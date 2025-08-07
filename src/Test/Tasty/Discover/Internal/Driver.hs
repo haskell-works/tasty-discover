@@ -62,6 +62,7 @@ generateTestDriver config modname is src tests =
     , "\n"
     , unlines $ nub $ sort $ mconcat (baseImports:testKindImports) ++ testImports
     , "\n"
+    , "{- HLINT ignore \"Evaluate\" -}\n"
     , "{- HLINT ignore \"Use let\" -}\n"
     , "\n"
     , unlines $ map generatorClass generators'
