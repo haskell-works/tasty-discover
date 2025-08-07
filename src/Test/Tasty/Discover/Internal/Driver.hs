@@ -80,7 +80,7 @@ generateTestDriver config modname is src tests =
 -- | Match files by specified glob pattern.
 filesByModuleGlob :: FilePath -> Maybe GlobPattern -> IO [String]
 filesByModuleGlob directory globPattern = globDir1 pattern directory
-  where pattern = compile ("**/" ++ fromMaybe "*.hs*" globPattern)
+  where pattern = compile ("**/" ++ fromMaybe "*.hs" globPattern)
 
 -- | Filter and remove files by specified glob pattern.
 ignoreByModuleGlob :: [FilePath] -> Maybe GlobPattern -> [FilePath]

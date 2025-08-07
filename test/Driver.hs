@@ -6,6 +6,7 @@ module Main (main, ingredients, tests) where
 
 import Data.String (fromString)
 import Prelude
+import qualified BackupFiles.ValidTest
 import qualified ConfigTest
 import qualified DiscoverTest
 import qualified SubMod.FooBaz
@@ -42,49 +43,53 @@ instance TestCase ((String -> IO ()) -> IO ()) where testCase n = pure . HU.test
 
 tests :: IO T.TestTree
 tests = do
-  t0 <- HS.testSpec "modules" ConfigTest.spec_modules
+  t0 <- pure $ QC.testProperty "validTest" BackupFiles.ValidTest.prop_validTest
 
-  t1 <- HS.testSpec "ignores" ConfigTest.spec_ignores
+  t1 <- HS.testSpec "modules" ConfigTest.spec_modules
 
-  t2 <- HS.testSpec "badModuleGlob" ConfigTest.spec_badModuleGlob
+  t2 <- HS.testSpec "ignores" ConfigTest.spec_ignores
 
-  t3 <- HS.testSpec "customModuleName" ConfigTest.spec_customModuleName
+  t3 <- HS.testSpec "badModuleGlob" ConfigTest.spec_badModuleGlob
 
-  t4 <- testCase "noTreeDisplayDefault" ConfigTest.unit_noTreeDisplayDefault
+  t4 <- HS.testSpec "backupFilesIgnored" ConfigTest.spec_backupFilesIgnored
 
-  t5 <- testCase "treeDisplay" ConfigTest.unit_treeDisplay
+  t5 <- HS.testSpec "customModuleName" ConfigTest.spec_customModuleName
 
-  t6 <- pure $ QC.testProperty "mkModuleTree" ConfigTest.prop_mkModuleTree
+  t6 <- testCase "noTreeDisplayDefault" ConfigTest.unit_noTreeDisplayDefault
 
-  t7 <- testCase "listCompare" DiscoverTest.unit_listCompare
+  t7 <- testCase "treeDisplay" ConfigTest.unit_treeDisplay
 
-  t8 <- pure $ QC.testProperty "additionCommutative" DiscoverTest.prop_additionCommutative
+  t8 <- pure $ QC.testProperty "mkModuleTree" ConfigTest.prop_mkModuleTree
 
-  t9 <- pure $ SC.testProperty "sortReverse" DiscoverTest.scprop_sortReverse
+  t9 <- testCase "listCompare" DiscoverTest.unit_listCompare
 
-  t10 <- HS.testSpec "prelude" DiscoverTest.spec_prelude
+  t10 <- pure $ QC.testProperty "additionCommutative" DiscoverTest.prop_additionCommutative
 
-  t11 <- testGroup "addition" DiscoverTest.test_addition
+  t11 <- pure $ SC.testProperty "sortReverse" DiscoverTest.scprop_sortReverse
 
-  t12 <- testGroup "multiplication" DiscoverTest.test_multiplication
+  t12 <- HS.testSpec "prelude" DiscoverTest.spec_prelude
 
-  t13 <- testGroup "generateTree" DiscoverTest.test_generateTree
+  t13 <- testGroup "addition" DiscoverTest.test_addition
 
-  t14 <- testGroup "generateTrees" DiscoverTest.test_generateTrees
+  t14 <- testGroup "multiplication" DiscoverTest.test_multiplication
 
-  t15 <- TD.tasty (TD.description "reverse" <> TD.name "DiscoverTest.tasty_reverse") DiscoverTest.tasty_reverse
+  t15 <- testGroup "generateTree" DiscoverTest.test_generateTree
 
-  t16 <- pure $ H.testPropertyNamed "reverse" (fromString "DiscoverTest.hprop_reverse") DiscoverTest.hprop_reverse
+  t16 <- testGroup "generateTrees" DiscoverTest.test_generateTrees
 
-  t17 <- pure $ QC.testProperty "additionCommutative" SubMod.FooBaz.prop_additionCommutative
+  t17 <- TD.tasty (TD.description "reverse" <> TD.name "DiscoverTest.tasty_reverse") DiscoverTest.tasty_reverse
 
-  t18 <- pure $ QC.testProperty "multiplationDistributiveOverAddition" SubMod.FooBaz.prop_multiplationDistributiveOverAddition
+  t18 <- pure $ H.testPropertyNamed "reverse" (fromString "DiscoverTest.hprop_reverse") DiscoverTest.hprop_reverse
 
-  t19 <- pure $ QC.testProperty "additionAssociative" SubMod.PropTest.prop_additionAssociative
+  t19 <- pure $ QC.testProperty "additionCommutative" SubMod.FooBaz.prop_additionCommutative
 
-  t20 <- pure $ QC.testProperty "additionCommutative" SubMod.SubSubMod.PropTest.prop_additionCommutative
+  t20 <- pure $ QC.testProperty "multiplationDistributiveOverAddition" SubMod.FooBaz.prop_multiplationDistributiveOverAddition
 
-  pure $ T.testGroup "test/Driver.hs" [t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19,t20]
+  t21 <- pure $ QC.testProperty "additionAssociative" SubMod.PropTest.prop_additionAssociative
+
+  t22 <- pure $ QC.testProperty "additionCommutative" SubMod.SubSubMod.PropTest.prop_additionCommutative
+
+  pure $ T.testGroup "test/Driver.hs" [t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19,t20,t21,t22]
 ingredients :: [T.Ingredient]
 ingredients = T.defaultIngredients
 main :: IO ()

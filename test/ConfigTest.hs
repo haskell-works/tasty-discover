@@ -5,7 +5,7 @@
 
 module ConfigTest where
 
-import Data.List                              (isInfixOf, sort)
+import Data.List                              (isInfixOf, isSuffixOf, sort)
 import Test.Tasty.Discover.Internal.Config
 import Test.Tasty.Discover.Internal.Driver    (ModuleTree (..), findTests, generateTestDriver, mkModuleTree, showTests)
 import Test.Tasty.Discover.Internal.Generator (Test (..), mkTest)
@@ -41,6 +41,19 @@ spec_badModuleGlob = describe "Module suffix configuration" $ do
     let badGlobConfig = (defaultConfig "test/SubMod") { modules = Just "DoesntExist*.hs" }
     discoveredTests <- findTests badGlobConfig
     discoveredTests `shouldBe` []
+
+spec_backupFilesIgnored :: Spec
+spec_backupFilesIgnored = describe "Backup file filtering" $ do
+  it "Only matches .hs files, not backup files containing .hs" $ do
+    let config = defaultConfig "test/BackupFiles"
+    discoveredTests <- findTests config
+    -- Should only find ValidTest.hs, not ValidTest.hs.orig or ValidTest.hs.bak
+    let moduleNames = map testModule discoveredTests
+    length discoveredTests `shouldBe` 1
+    moduleNames `shouldBe` ["ValidTest"]
+    -- Verify no backup file patterns were found
+    let hasBackupPattern name = ".hs." `isInfixOf` name || ".hs" `isInfixOf` name && not (".hs" `isSuffixOf` name)
+    moduleNames `shouldSatisfy` (not . any hasBackupPattern)
 
 spec_customModuleName :: Spec
 spec_customModuleName = describe "Module name configuration" $ do
