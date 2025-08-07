@@ -9,6 +9,8 @@ import Prelude
 import qualified BackupFiles.ValidTest
 import qualified ConfigTest
 import qualified DiscoverTest
+import qualified ModulesGlob.Sub.OneTest
+import qualified ModulesGlob.TwoTest
 import qualified SubMod.FooBaz
 import qualified SubMod.PropTest
 import qualified SubMod.SubSubMod.PropTest
@@ -53,43 +55,49 @@ tests = do
 
   t4 <- HS.testSpec "backupFilesIgnored" ConfigTest.spec_backupFilesIgnored
 
-  t5 <- HS.testSpec "customModuleName" ConfigTest.spec_customModuleName
+  t5 <- HS.testSpec "modulesGlobIgnoresDirectories" ConfigTest.spec_modulesGlobIgnoresDirectories
 
-  t6 <- testCase "noTreeDisplayDefault" ConfigTest.unit_noTreeDisplayDefault
+  t6 <- HS.testSpec "customModuleName" ConfigTest.spec_customModuleName
 
-  t7 <- testCase "treeDisplay" ConfigTest.unit_treeDisplay
+  t7 <- testCase "noTreeDisplayDefault" ConfigTest.unit_noTreeDisplayDefault
 
-  t8 <- pure $ QC.testProperty "mkModuleTree" ConfigTest.prop_mkModuleTree
+  t8 <- testCase "treeDisplay" ConfigTest.unit_treeDisplay
 
-  t9 <- testCase "listCompare" DiscoverTest.unit_listCompare
+  t9 <- pure $ QC.testProperty "mkModuleTree" ConfigTest.prop_mkModuleTree
 
-  t10 <- pure $ QC.testProperty "additionCommutative" DiscoverTest.prop_additionCommutative
+  t10 <- testCase "listCompare" DiscoverTest.unit_listCompare
 
-  t11 <- pure $ SC.testProperty "sortReverse" DiscoverTest.scprop_sortReverse
+  t11 <- pure $ QC.testProperty "additionCommutative" DiscoverTest.prop_additionCommutative
 
-  t12 <- HS.testSpec "prelude" DiscoverTest.spec_prelude
+  t12 <- pure $ SC.testProperty "sortReverse" DiscoverTest.scprop_sortReverse
 
-  t13 <- testGroup "addition" DiscoverTest.test_addition
+  t13 <- HS.testSpec "prelude" DiscoverTest.spec_prelude
 
-  t14 <- testGroup "multiplication" DiscoverTest.test_multiplication
+  t14 <- testGroup "addition" DiscoverTest.test_addition
 
-  t15 <- testGroup "generateTree" DiscoverTest.test_generateTree
+  t15 <- testGroup "multiplication" DiscoverTest.test_multiplication
 
-  t16 <- testGroup "generateTrees" DiscoverTest.test_generateTrees
+  t16 <- testGroup "generateTree" DiscoverTest.test_generateTree
 
-  t17 <- TD.tasty (TD.description "reverse" <> TD.name "DiscoverTest.tasty_reverse") DiscoverTest.tasty_reverse
+  t17 <- testGroup "generateTrees" DiscoverTest.test_generateTrees
 
-  t18 <- pure $ H.testPropertyNamed "reverse" (fromString "DiscoverTest.hprop_reverse") DiscoverTest.hprop_reverse
+  t18 <- TD.tasty (TD.description "reverse" <> TD.name "DiscoverTest.tasty_reverse") DiscoverTest.tasty_reverse
 
-  t19 <- pure $ QC.testProperty "additionCommutative" SubMod.FooBaz.prop_additionCommutative
+  t19 <- pure $ H.testPropertyNamed "reverse" (fromString "DiscoverTest.hprop_reverse") DiscoverTest.hprop_reverse
 
-  t20 <- pure $ QC.testProperty "multiplationDistributiveOverAddition" SubMod.FooBaz.prop_multiplationDistributiveOverAddition
+  t20 <- pure $ QC.testProperty "subTest" ModulesGlob.Sub.OneTest.prop_subTest
 
-  t21 <- pure $ QC.testProperty "additionAssociative" SubMod.PropTest.prop_additionAssociative
+  t21 <- pure $ QC.testProperty "topLevelTest" ModulesGlob.TwoTest.prop_topLevelTest
 
-  t22 <- pure $ QC.testProperty "additionCommutative" SubMod.SubSubMod.PropTest.prop_additionCommutative
+  t22 <- pure $ QC.testProperty "additionCommutative" SubMod.FooBaz.prop_additionCommutative
 
-  pure $ T.testGroup "test/Driver.hs" [t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19,t20,t21,t22]
+  t23 <- pure $ QC.testProperty "multiplationDistributiveOverAddition" SubMod.FooBaz.prop_multiplationDistributiveOverAddition
+
+  t24 <- pure $ QC.testProperty "additionAssociative" SubMod.PropTest.prop_additionAssociative
+
+  t25 <- pure $ QC.testProperty "additionCommutative" SubMod.SubSubMod.PropTest.prop_additionCommutative
+
+  pure $ T.testGroup "test/Driver.hs" [t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19,t20,t21,t22,t23,t24,t25]
 ingredients :: [T.Ingredient]
 ingredients = T.defaultIngredients
 main :: IO ()

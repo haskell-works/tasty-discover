@@ -55,6 +55,16 @@ spec_backupFilesIgnored = describe "Backup file filtering" $ do
     let hasBackupPattern name = ".hs." `isInfixOf` name || ".hs" `isInfixOf` name && not (".hs" `isSuffixOf` name)
     moduleNames `shouldSatisfy` (not . any hasBackupPattern)
 
+spec_modulesGlobIgnoresDirectories :: Spec
+spec_modulesGlobIgnoresDirectories = describe "Modules glob directory handling" $ do
+  it "Ignores directories that match the glob pattern" $ do
+    let config = (defaultConfig "test/ModulesGlob") { modules = Just "*" }
+    discoveredTests <- findTests config
+    -- Should find both test files, not fail on the Sub directory
+    let moduleNames = sort $ map testModule discoveredTests
+    length discoveredTests `shouldBe` 2
+    moduleNames `shouldBe` ["Sub.OneTest", "TwoTest"]
+
 spec_customModuleName :: Spec
 spec_customModuleName = describe "Module name configuration" $ do
   it "Creates a generated main function with the specified name" $ do

@@ -12,8 +12,10 @@ module Test.Tasty.Discover.Internal.Driver
   , showTests
   ) where
 
+import Control.Monad                          (filterM)
 import Data.List                              (dropWhileEnd, intercalate, isPrefixOf, nub, sort, stripPrefix)
 import Data.Maybe                             (fromMaybe)
+import System.Directory                       (doesFileExist)
 import System.FilePath                        (pathSeparator)
 import System.FilePath.Glob                   (compile, globDir1, match)
 import System.IO                              (IOMode (ReadMode), withFile)
@@ -79,7 +81,10 @@ generateTestDriver config modname is src tests =
 
 -- | Match files by specified glob pattern.
 filesByModuleGlob :: FilePath -> Maybe GlobPattern -> IO [String]
-filesByModuleGlob directory globPattern = globDir1 pattern directory
+filesByModuleGlob directory globPattern = do
+  allPaths <- globDir1 pattern directory
+  -- Filter out directories to avoid "inappropriate type" errors
+  filterM doesFileExist allPaths
   where pattern = compile ("**/" ++ fromMaybe "*.hs" globPattern)
 
 -- | Filter and remove files by specified glob pattern.
