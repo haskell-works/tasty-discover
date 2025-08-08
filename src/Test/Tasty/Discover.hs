@@ -12,10 +12,13 @@ module Test.Tasty.Discover
   , nameOf
   , descriptionOf
   , skip
+  , platform
+  , evaluatePlatformExpression
   ) where
 
 import Data.Maybe
 import Data.Monoid
+import System.Info (os)
 import Test.Tasty.Discover.TastyInfo (TastyInfo)
 import Test.Tasty.Discover.Internal.Config (SkipTest(..))
 
@@ -106,3 +109,108 @@ description n = mempty
 -- @
 skip :: TT.TestTree -> TT.TestTree
 skip = TT.adjustOption (const (SkipTest True))
+
+-- | Conditionally run a test based on a platform expression.
+--
+-- The expression supports logical operations with platform names:
+-- - Platform names: "linux", "darwin", "mingw32", "windows", "unix"
+-- - Negation: "!platform" (not on platform)  
+-- - Conjunction: "platform1 & platform2" (on both platforms)
+-- - Disjunction: "platform1 | platform2" (on either platform)
+-- - Parentheses: "(platform1 | platform2) & !platform3"
+--
+-- Examples:
+-- @
+-- -- Only on Linux
+-- test_linuxOnly :: TestTree
+-- test_linuxOnly = platform "linux" $ testCase "Linux only" $ pure ()
+--
+-- -- Not on Windows or macOS
+-- test_notWinMac :: TestTree  
+-- test_notWinMac = platform "!windows & !darwin" $ testCase "Unix-like only" $ pure ()
+--
+-- -- On Linux or macOS but not Windows
+-- test_unixLike :: TestTree
+-- test_unixLike = platform "(linux | darwin) & !windows" $ testCase "Unix-like" $ pure ()
+-- @
+platform :: String -> TT.TestTree -> TT.TestTree
+platform expr testTree = 
+  if evaluatePlatformExpression expr os
+    then testTree
+    else skip testTree
+
+-- | Parse and evaluate a platform expression against the current platform
+evaluatePlatformExpression :: String -> String -> Bool
+evaluatePlatformExpression expr currentPlatform = 
+  case parsePlatformExpression expr of
+    Just result -> evalExpression result currentPlatform
+    Nothing -> 
+      -- If it's just a simple unknown platform name, return False
+      -- If it's an empty/malformed expression, return True
+      if null (words expr) || any (`elem` ['&', '|', '!', '(', ')']) expr
+        then True   -- Malformed expression - default to running
+        else False  -- Unknown platform name - don't run
+
+-- Parse a platform expression with logical operators
+parsePlatformExpression :: String -> Maybe PlatformExpr
+parsePlatformExpression expr = parseOr (tokenize expr)
+
+-- Tokenize the expression preserving logical operators
+tokenize :: String -> [String]
+tokenize = words . concatMap tokenizeChar
+  where
+    tokenizeChar '&' = " & "
+    tokenizeChar '|' = " | "  
+    tokenizeChar '(' = " ( "
+    tokenizeChar ')' = " ) "
+    tokenizeChar c = [c]
+
+-- Parse OR expressions (lowest precedence)
+parseOr :: [String] -> Maybe PlatformExpr
+parseOr tokens = case break (== "|") tokens of
+  (left, []) -> parseAnd left
+  (left, _:right) -> do
+    leftExpr <- parseAnd left
+    rightExpr <- parseOr right
+    return $ Or leftExpr rightExpr
+
+-- Parse AND expressions (higher precedence)
+parseAnd :: [String] -> Maybe PlatformExpr
+parseAnd tokens = case break (== "&") tokens of
+  (left, []) -> parseAtom left
+  (left, _:right) -> do
+    leftExpr <- parseAtom left
+    rightExpr <- parseAnd right
+    return $ And leftExpr rightExpr
+
+-- Parse atomic expressions (platform names and negation)
+parseAtom :: [String] -> Maybe PlatformExpr
+parseAtom [] = Nothing
+parseAtom tokens = case tokens of
+  ["linux"] -> Just $ PlatformName "linux"
+  ["darwin"] -> Just $ PlatformName "darwin"
+  ["windows"] -> Just $ PlatformName "mingw32"
+  ["mingw32"] -> Just $ PlatformName "mingw32"
+  ["unix"] -> Just $ Or (PlatformName "linux") (PlatformName "darwin")
+  ["!linux"] -> Just $ Not (PlatformName "linux")
+  ["!darwin"] -> Just $ Not (PlatformName "darwin")
+  ["!windows"] -> Just $ Not (PlatformName "mingw32")
+  ["!mingw32"] -> Just $ Not (PlatformName "mingw32")
+  ["!unix"] -> Just $ Not (Or (PlatformName "linux") (PlatformName "darwin"))
+  _ -> Nothing
+
+-- Simple expression data type
+data PlatformExpr 
+  = PlatformName String
+  | Not PlatformExpr
+  | And PlatformExpr PlatformExpr  
+  | Or PlatformExpr PlatformExpr
+  deriving stock (Show, Eq)
+
+-- Evaluate the expression against the current platform
+evalExpression :: PlatformExpr -> String -> Bool
+evalExpression expr currentPlatform = case expr of
+  PlatformName platformName -> currentPlatform == platformName
+  Not e -> not (evalExpression e currentPlatform)
+  And e1 e2 -> evalExpression e1 currentPlatform && evalExpression e2 currentPlatform
+  Or e1 e2 -> evalExpression e1 currentPlatform || evalExpression e2 currentPlatform

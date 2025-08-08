@@ -12,6 +12,7 @@
 - [Write Tests](#write-tests)
   * [Comment Handling](#comment-handling)
   * [Skipping Tests](#skipping-tests)
+  * [Platform-Specific Tests](#platform-specific-tests)
 - [Customise Discovery](#customise-discovery)
   * [No Arguments](#no-arguments)
   * [With Arguments](#with-arguments)
@@ -38,6 +39,7 @@ for different use cases.
 
 **Recent improvements include:**
 - New `--no-main` option for custom test runners
+- **Platform-specific test filtering** with `platform` function and logical expressions
 - **Skip test functionality** with `skip` function and yellow `[SKIPPED]` output
 - **`Flavored` type** for general-purpose test transformations with extensible design
 - Enhanced support for custom test types with `Tasty` instances
@@ -287,6 +289,107 @@ The `Flavored` mechanism is designed to be extensible and could be used for othe
 When tests are skipped, they will show as `[SKIPPED]` in yellow in the test output and won't actually execute.
 
 ```
+
+## Platform-Specific Tests
+
+You can conditionally run tests based on the current operating platform using the `platform` function provided by tasty-discover. This is useful for tests that only work on specific operating systems or need to be excluded from certain platforms.
+
+### Using the `platform` function
+
+The `platform` function takes a platform expression string and a `TestTree`, returning a `TestTree` that will only run if the expression evaluates to true for the current platform:
+
+```haskell
+import Test.Tasty.Discover (platform)
+
+-- Run only on Linux
+tasty_linuxOnly :: TestTree
+tasty_linuxOnly = platform "linux" $ testCase "Linux-specific functionality" $ do
+  -- This test only runs on Linux
+  pure ()
+
+-- Run on all platforms except Windows  
+tasty_notWindows :: TestTree  
+tasty_notWindows = platform "!windows" $ testCase "Non-Windows functionality" $ do
+  -- This test runs on all platforms except Windows
+  pure ()
+
+-- Run on Unix-like systems (Linux or Darwin)
+tasty_unixLike :: TestTree
+tasty_unixLike = platform "unix" $ testCase "Unix-like systems" $ do
+  -- This test runs on Linux and Darwin (Unix-like systems)
+  pure ()
+```
+
+### Platform Expression Syntax
+
+Platform expressions support the following syntax:
+
+**Platform Names:**
+- `"linux"` - Linux systems
+- `"darwin"` - macOS systems 
+- `"windows"` - Windows systems (mapped to "mingw32" internally)
+- `"mingw32"` - Windows systems (actual System.Info.os value)
+- `"unix"` - Unix-like systems (matches both "linux" and "darwin")
+
+**Logical Operators:**
+- `"!"` (NOT) - Negation, e.g., `"!windows"` means "not Windows"
+- `"&"` (AND) - Conjunction, e.g., `"!windows & !darwin"` means "neither Windows nor Darwin"
+- `"|"` (OR) - Disjunction, e.g., `"linux | darwin"` means "Linux or Darwin"
+
+**Complex Examples:**
+```haskell
+-- Run on platforms that are neither Windows nor Darwin (e.g., Linux)
+tasty_complexPlatform1 :: TestTree
+tasty_complexPlatform1 = platform "!windows & !darwin" $ testCase "Neither Windows nor Darwin" $ do
+  pure ()
+
+-- Run on either Linux or Darwin, but not Windows
+tasty_complexPlatform2 :: TestTree
+tasty_complexPlatform2 = platform "linux | darwin" $ testCase "Linux or Darwin only" $ do
+  pure ()
+```
+
+### Using `Flavored` with Platform Filtering
+
+You can combine platform filtering with other test transformations using the `Flavored` type:
+
+```haskell
+import Test.Tasty.Discover (Flavored, flavored, platform)
+
+-- Apply platform filtering to custom test types
+tasty_platformFlavored :: Flavored TestTree
+tasty_platformFlavored = flavored (platform "!windows") $ testCase "Advanced platform test" $ do
+  pure ()
+
+-- Platform-specific property test
+tasty_platformProperty :: Flavored Property  
+tasty_platformProperty = flavored (platform "unix") $ property $ do
+  -- This hedgehog property only runs on Unix-like systems
+  x <- H.forAll $ G.int (R.linear 1 100)
+  x H.=== x
+```
+
+### Combining Platform Filtering with Other Features
+
+Platform filtering can be combined with other tasty-discover features:
+
+```haskell
+-- Platform filtering with test skipping
+tasty_platformAndSkip :: TestTree  
+tasty_platformAndSkip = platform "linux" $ skip $ testCase "Linux test that's also skipped" $ do
+  -- This would only run on Linux, but it's also skipped
+  pure ()
+
+-- Platform filtering with test groups
+tasty_platformGroup :: TestTree
+tasty_platformGroup = platform "unix" $ testGroup "Unix-only tests" 
+  [ testCase "Unix test 1" $ pure ()
+  , testCase "Unix test 2" $ pure ()
+  , testProperty "Unix property" $ \(x :: Int) -> x >= 0 || x < 0
+  ]
+```
+
+Platform filtering works by checking the current platform against the expression at runtime. If the expression evaluates to `False`, the test is automatically skipped using the same mechanism as the `skip` function.
 
 ## Test Type Variations
 

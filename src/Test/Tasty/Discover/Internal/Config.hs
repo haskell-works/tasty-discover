@@ -8,6 +8,12 @@ module Test.Tasty.Discover.Internal.Config
     Config (..)
   , GlobPattern
   , SkipTest (..)
+  , OnPlatform (..)
+  , checkPlatform
+  , onLinux
+  , onDarwin  
+  , onWindows
+  , onUnix
 
     -- * Configuration Parser
   , parseConfig
@@ -20,6 +26,7 @@ import Data.Maybe            (isJust)
 import GHC.Generics          (Generic)
 import System.Console.GetOpt (ArgDescr (NoArg, ReqArg), ArgOrder (Permute), OptDescr (Option), getOpt')
 import System.FilePath ((</>))
+import System.Info (os)
 import Test.Tasty.Options (IsOption (..), safeRead)
 
 -- | A tasty ingredient.
@@ -44,6 +51,62 @@ instance IsOption SkipTest where
   parseValue = fmap SkipTest . safeRead
   optionName = return "skip-test"
   optionHelp = return "Skip test execution (useful for debugging test discovery)"
+
+-- | Newtype wrapper for platform-specific test filtering.
+--
+-- This option type allows tests to be conditionally executed based on platform
+-- criteria. The wrapped function takes a platform string and returns whether
+-- the test should run on that platform.
+--
+-- Platform values correspond to System.Info.os:
+-- - "linux" for Linux systems
+-- - "darwin" for macOS
+-- - "mingw32" for Windows (GHC compiled)
+-- - "unix" matches both "linux" and "darwin"
+--
+-- Example usage:
+-- @
+-- -- Only run on Linux
+-- onLinux :: OnPlatform  
+-- onLinux = OnPlatform (== "linux")
+--
+-- -- Run on Unix-like systems
+-- onUnix :: OnPlatform
+-- onUnix = OnPlatform (\p -> p `elem` ["linux", "darwin"])
+-- @
+newtype OnPlatform = OnPlatform (String -> Bool)
+
+instance IsOption OnPlatform where
+  defaultValue = OnPlatform (const True)  -- Run on all platforms by default
+  parseValue s = case s of
+    "linux"   -> Just $ OnPlatform (== "linux")
+    "darwin"  -> Just $ OnPlatform (== "darwin") 
+    "mingw32" -> Just $ OnPlatform (== "mingw32")  -- Windows with GHC
+    "windows" -> Just $ OnPlatform (== "mingw32")  -- Alias for mingw32
+    "unix"    -> Just $ OnPlatform (\p -> p `elem` ["linux", "darwin"])
+    _         -> Nothing
+  optionName = return "on-platform"
+  optionHelp = return "Run test only on specified platform (linux|darwin|mingw32|windows|unix)"
+
+-- | Check if the current platform matches the OnPlatform criteria
+checkPlatform :: OnPlatform -> Bool
+checkPlatform (OnPlatform f) = f os
+
+-- | Helper function: only run on Linux
+onLinux :: OnPlatform
+onLinux = OnPlatform (== "linux")
+
+-- | Helper function: only run on macOS
+onDarwin :: OnPlatform
+onDarwin = OnPlatform (== "darwin")
+
+-- | Helper function: only run on Windows (mingw32)
+onWindows :: OnPlatform  
+onWindows = OnPlatform (== "mingw32")
+
+-- | Helper function: only run on Unix-like systems (Linux or macOS)
+onUnix :: OnPlatform
+onUnix = OnPlatform (\p -> p `elem` ["linux", "darwin"])
 
 -- | The discovery and runner configuration.
 data Config = Config
