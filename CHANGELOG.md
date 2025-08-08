@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog] and this project adheres to
 - IO-based test generation for TestTrees
 - AI development guidelines in AI_GUIDELINES.md
 - Comprehensive coding style guide in CODING_STYLE.md
+- Multiline block comment handling in test discovery (resolves #10)
 
 ### Fixed
 - Fixed backup file import generation bug - prevents `.hs.orig` and `.hs.bak` files from being processed (see #58)
@@ -26,12 +27,15 @@ The format is based on [Keep a Changelog] and this project adheres to
 - Fixed HLint warnings in generated code
 - Fixed warnings in Generator.hs and added Unsafe.hs module
 - Fixed broken links in documentation
+- Fixed test discovery incorrectly finding tests inside `{- -}` block comments (resolves #10)
 
 ### Changed
 - Cleaned up cabal file configuration
 - Improved test discovery patterns from `*.hs*` to `*.hs` to avoid backup files
 - Enhanced documentation with more test type examples
 - Added regression tests for backup file handling and directory filtering
+- Added preprocessing step to remove block comments before test discovery
+- Enhanced test discovery with proper nested block comment support
 
 ### Removed
 - Removed `project.sh` build script

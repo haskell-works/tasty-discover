@@ -10,6 +10,7 @@ module Test.Tasty.Discover.Internal.Driver
   , findTests
   , mkModuleTree
   , showTests
+  , extractTests
   ) where
 
 import Control.Monad                          (filterM)
@@ -116,7 +117,7 @@ findTests config = do
 
 -- | Extract the test names from discovered modules.
 extractTests :: FilePath -> String -> [Test]
-extractTests file = mkTestDeDuped . isKnownPrefix . parseTest
+extractTests file content = mkTestDeDuped . isKnownPrefix . parseTest . preprocessHaskell $ content
   where mkTestDeDuped :: [String] -> [Test]
         mkTestDeDuped = map (mkTest file) . nub
 
@@ -128,6 +129,22 @@ extractTests file = mkTestDeDuped . isKnownPrefix . parseTest
 
         parseTest :: String -> [String]
         parseTest     = map fst . concatMap lex . lines
+
+-- | Preprocess Haskell source to remove block comments only
+preprocessHaskell :: String -> String
+preprocessHaskell = removeBlockComments
+
+-- | Remove {- -} block comments (handles nesting)
+removeBlockComments :: String -> String
+removeBlockComments = go (0 :: Int)
+  where
+    go _ [] = []
+    go depth ('{':'-':rest) = go (depth + 1) rest
+    go depth ('-':'}':rest) 
+      | depth > 0 = go (depth - 1) rest
+      | otherwise = '-' : '}' : go depth rest
+    go 0 (c:rest) = c : go 0 rest
+    go depth (_:rest) = go depth rest
 
 -- | Show the imports.
 showImports :: [String] -> [String]
