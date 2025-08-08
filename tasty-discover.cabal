@@ -1,4 +1,4 @@
-cabal-version: 2.2
+cabal-version: 3.0
 
 name:                   tasty-discover
 version:                5.0.2
@@ -21,7 +21,7 @@ bug-reports:            https://github.com/haskell-works/tasty-discover/issues
 author:                 Luke Murphy
 maintainer:             John Ky <newhoggy@gmail.com>
 copyright:              2016 Luke Murphy
-                        2020-2022 John Ky
+                        2020-2025 John Ky
 license:                MIT
 license-file:           LICENSE
 tested-with:            GHC == 9.12.2, GHC == 9.10.2, GHC == 9.8.4, GHC == 9.6.7
@@ -67,7 +67,7 @@ common project-config
                         -Wmissing-deriving-strategies
                         -Wredundant-constraints
                         -Wunused-packages
-  default-language:     GHC2021
+  default-language:     Haskell2010
   if (flag(dev))
     ghc-options:        -Werror
 
@@ -76,21 +76,21 @@ common tasty-discover
 
 library
   import:               base, project-config
-                      , Glob
                       , containers
                       , directory
                       , filepath
+                      , Glob
                       , tasty
   exposed-modules:      Test.Tasty.Discover
                         Test.Tasty.Discover.Internal.Config
                         Test.Tasty.Discover.Internal.Driver
                         Test.Tasty.Discover.Internal.Generator
+                        Test.Tasty.Discover.Internal.Unsafe
                         Test.Tasty.Discover.TastyInfo
                         Test.Tasty.Discover.Version
   other-modules:        Paths_tasty_discover
   autogen-modules:      Paths_tasty_discover
   hs-source-dirs:       src
-  ghc-options:          -Wall
   default-language:     Haskell2010
 
 executable tasty-discover
@@ -99,7 +99,6 @@ executable tasty-discover
   main-is:              app/Main.hs
   autogen-modules:      Paths_tasty_discover
   other-modules:        Paths_tasty_discover
-  ghc-options:          -Wall
   build-depends:        tasty-discover
   default-language:     Haskell2010
 
@@ -120,18 +119,17 @@ test-suite tasty-discover-test
   type:                 exitcode-stdio-1.0
   main-is:              Driver.hs
   ghc-options:          -threaded -rtsopts -with-rtsopts=-N
-  other-modules:        ConfigTest
+  other-modules:        BackupFiles.ValidTest
+                        ConfigTest
                         DiscoverTest
-                        BackupFiles.ValidTest
                         ModulesGlob.Sub.OneTest
                         ModulesGlob.TwoTest
                         SubMod.FooBaz
                         SubMod.PropTest
                         SubMod.SubSubMod.PropTest
-                        Paths_tasty_discover
+  other-modules:        Paths_tasty_discover
   autogen-modules:      Paths_tasty_discover
   hs-source-dirs:       test
-  ghc-options:          -Wall
   build-depends:        tasty-discover
   default-language:     Haskell2010
   build-tool-depends:   tasty-discover:tasty-discover
@@ -146,10 +144,9 @@ test-suite no-main-test
   ghc-options:          -threaded -rtsopts -with-rtsopts=-N
   other-modules:        Tests
                         Tests.Simple
-                        Paths_tasty_discover
+  other-modules:        Paths_tasty_discover
   autogen-modules:      Paths_tasty_discover
   hs-source-dirs:       test-no-main
-  ghc-options:          -Wall
   build-depends:        tasty-discover
   default-language:     Haskell2010
   build-tool-depends:   tasty-discover:tasty-discover
