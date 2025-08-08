@@ -41,6 +41,8 @@ tasty-discover is a Haskell test discovery and runner tool for the Tasty testing
 - No-main demo: `test-no-main/` directory demonstrating `--no-main` feature
 - Run tests with: `cabal test` or `cabal test <suite-name>`
 - Build with: `cabal build`
+- **Hybrid Testing**: Test suite uses both Hspec and Tasty tests via `tasty-hspec` integration
+- **Expected Failures**: Use `tasty-expected-failure` package for tests that should fail until bugs are fixed
 
 ### Configuration Files
 - `tasty-discover.cabal` - Package definition with multiple test suites
@@ -81,6 +83,12 @@ tasty-discover is a Haskell test discovery and runner tool for the Tasty testing
 - Introduced comprehensive regression testing for edge cases
 - Fixed HLint warnings in generated code
 
+### Symlink Issue (#38) and Expected Failure Testing (2025)
+- Added reproduction test for symlink crash issue using `expectFail` from `tasty-expected-failure`
+- Demonstrated hybrid testing approach: Hspec specs converted to Tasty via `tasty-hspec`
+- **Important**: When tests need to expect failure, use Tasty's `expectFail` rather than Hspec's `xit`
+- Created dedicated test project structure in `test-symlink-repro/` for issue reproduction
+
 ## Best Practices
 
 ### When Working with Generated Code
@@ -106,6 +114,13 @@ tasty-discover is a Haskell test discovery and runner tool for the Tasty testing
 - Include both positive and negative test cases in the test data
 - Update cabal file to include new test modules when adding test directories
 
+### Expected Failure Testing
+- Use `tasty-expected-failure` package for tests that reproduce known bugs
+- Prefer `expectFail` from Tasty over Hspec's `xit` when working in hybrid test environments
+- Create both failing reproduction tests and placeholder tests in mixed Hspec/Tasty suites
+- Document the GitHub issue number and expected behavior in test comments
+- **Key Insight**: `xit` in Hspec becomes pending in Tasty via `tasty-hspec`, but still shows as failure in test suite
+
 ### Code Quality and Safety
 - Use unsafe functions only when strong invariants guarantee safety
 - Document why unsafe functions are necessary and when they should/shouldn't be used
@@ -119,6 +134,37 @@ tasty-discover is a Haskell test discovery and runner tool for the Tasty testing
 - Use appropriate file existence checks before processing
 - Handle glob patterns that might match unintended file types
 - Consider what happens when file patterns match both files and directories
+
+## Testing Framework Integration
+
+### Hybrid Hspec/Tasty Architecture
+The test suite uses a hybrid approach where Hspec specs are converted to Tasty tests via `tasty-hspec`. This creates some important considerations:
+
+- **Test Discovery**: Both Hspec `spec_*` functions and Tasty `tasty_*` functions are discovered
+- **Conversion**: Hspec specs become Tasty tests through `HS.testSpec`
+- **Failure Handling**: Hspec's `xit` becomes "pending" in Tasty but still counts as test suite failure
+
+### Expected Failure Patterns
+When creating tests for known bugs or incomplete features:
+
+1. **For pure Tasty tests**: Use `expectFail` from `tasty-expected-failure`
+2. **For Hspec tests in hybrid environment**: Create both a placeholder Hspec test and a proper Tasty test with `expectFail`
+3. **Documentation**: Always include GitHub issue numbers and expected behavior
+
+### Example Pattern for Bug Reproduction:
+```haskell
+-- Placeholder Hspec test
+spec_bugReproduction :: Spec
+spec_bugReproduction = describe "Bug reproduction" $ do
+  it "this test is disabled - see tasty_bugReproduction instead" $ do
+    pure () :: IO ()
+
+-- Actual test with expectFail
+tasty_bugReproduction :: IO T.TestTree
+tasty_bugReproduction = do
+  pure $ expectFail $ HU.testCase "reproduces GitHub issue #XX" $ do
+    -- Test implementation that should fail until bug is fixed
+```
 
 ## File Patterns
 
@@ -144,6 +190,8 @@ tasty-discover is a Haskell test discovery and runner tool for the Tasty testing
 - **File discovery problems**: Verify glob patterns and file filtering logic
 - **Backup file interference**: Ensure test discovery ignores `.orig`, `.bak` files
 - **Directory matching**: Check that directory entries are filtered out from file operations
+- **Expected failure confusion**: In hybrid Hspec/Tasty environments, use `expectFail` not `xit` for true expected failures
+- **cabal.project configuration**: Ensure `packages: .` is present for proper cabal commands
 
 ### Development Patterns from Recent Changes
 - **Issue-driven development**: Create regression tests for reported GitHub issues
@@ -187,6 +235,12 @@ cat dist-newstyle/build/.../generated-file.hs
 - Consider both the generated code and the CLI interface impact
 - Add comprehensive documentation and examples
 - Create a complete test suite demonstrating the feature
+
+**When working with test frameworks:**
+- Understand the distinction between Hspec and Tasty test behaviors
+- Use appropriate expected failure mechanisms (`expectFail` vs `xit` vs `pendingWith`)
+- Be aware that `tasty-hspec` converts Hspec tests to Tasty, affecting failure behavior
+- Consider both standalone test behavior and integration into larger test suites
 
 **When improving robustness:**
 - Identify edge cases through real-world usage patterns
