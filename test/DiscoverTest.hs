@@ -134,7 +134,7 @@ tasty_tree_of_testCase_not_skipped =
 -- Platform expression tests
 
 -- Test basic platform matching
-unit_platformExpression_linux :: Assertion  
+unit_platformExpression_linux :: Assertion
 unit_platformExpression_linux =
   evaluatePlatformExpression "linux" "linux" @?= True
 
@@ -168,7 +168,7 @@ unit_platformExpression_and_false :: Assertion
 unit_platformExpression_and_false =
   evaluatePlatformExpression "!windows & !darwin" "darwin" @?= False
 
--- Test disjunction (OR)  
+-- Test disjunction (OR)
 unit_platformExpression_or_true :: Assertion
 unit_platformExpression_or_true =
   evaluatePlatformExpression "linux | darwin" "linux" @?= True
@@ -195,7 +195,7 @@ unit_platformExpression_complex1 :: Assertion
 unit_platformExpression_complex1 =
   evaluatePlatformExpression "!windows & !darwin" "linux" @?= True
 
-unit_platformExpression_complex2 :: Assertion  
+unit_platformExpression_complex2 :: Assertion
 unit_platformExpression_complex2 =
   evaluatePlatformExpression "linux | darwin" "freebsd" @?= False
 
@@ -210,7 +210,7 @@ unit_platformExpression_empty =
 
 ------------------------------------------------------------------------------------------------
 -- Platform-Specific Test Examples
--- 
+--
 -- The `platform` function allows you to conditionally run tests based on the current platform.
 -- It takes a platform expression string and a TestTree, and returns a TestTree that will only
 -- run if the expression evaluates to true for the current platform.
@@ -227,7 +227,7 @@ unit_platformExpression_empty =
 --
 -- Examples:
 --   platform "linux" test          -- Run only on Linux
---   platform "!windows" test       -- Run on all platforms except Windows  
+--   platform "!windows" test       -- Run on all platforms except Windows
 --   platform "!windows & !darwin" test -- Run on platforms that are neither Windows nor Darwin
 --   platform "linux | darwin" test     -- Run on Linux or Darwin (Unix-like systems)
 --   platform "unix" test               -- Run on Unix-like systems (Linux or Darwin)
@@ -238,7 +238,7 @@ tasty_linuxOnly = platform "linux" $ testCase "Linux-specific functionality" $ d
   -- This test only runs on Linux
   pure ()
 
-tasty_notWindows :: TestTree  
+tasty_notWindows :: TestTree
 tasty_notWindows = platform "!windows" $ testCase "Non-Windows functionality" $ do
   -- This test runs on all platforms except Windows
   pure ()
@@ -261,20 +261,20 @@ tasty_complexPlatform2 = platform "linux | darwin" $ testCase "Linux or Darwin o
 
 -- Property tests with platform filtering
 tasty_platformSpecific :: TestTree
-tasty_platformSpecific = platform "!windows" $ testProperty "Property that doesn't work on Windows" $ 
+tasty_platformSpecific = platform "!windows" $ testProperty "Property that doesn't work on Windows" $
   \(x :: Int) -> x + 0 == x
 
 -- You can also combine platform filtering with other test transformations
 -- using the Flavored type and function composition:
 
-tasty_platformAndSkip :: TestTree  
+tasty_platformAndSkip :: TestTree
 tasty_platformAndSkip = platform "linux" $ skip $ testCase "Linux test that's also skipped" $ do
   -- This would only run on Linux, but it's also skipped, so it never actually runs
   pure ()
 
 -- Test groups with platform filtering
 tasty_platformGroup :: TestTree
-tasty_platformGroup = platform "unix" $ testGroup "Unix-only tests" 
+tasty_platformGroup = platform "unix" $ testGroup "Unix-only tests"
   [ testCase "Unix test 1" $ pure ()
   , testCase "Unix test 2" $ pure ()
   , testProperty "Unix property" $ \(x :: Int) -> x >= 0 || x < 0
@@ -289,7 +289,7 @@ tasty_platformFlavored = flavored (platform "!windows") $ testCase "Advanced pla
   pure ()
 
 -- You can also create platform-specific custom Property tests
-tasty_platformProperty :: Flavored Property  
+tasty_platformProperty :: Flavored Property
 tasty_platformProperty = flavored (platform "unix") $ property $ do
   -- This hedgehog property only runs on Unix-like systems
   x <- H.forAll $ G.int (R.linear 1 100)

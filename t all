@@ -1,0 +1,2291 @@
+[33mcommit 540f6c431a32946a9c5f363574693c7a806b650f[m[33m ([m[1;36mHEAD -> [m[1;32mnewhoggy/fix-38-proper[m[33m)[m
+Merge: f55f333 ba43f60
+Author: John Ky <john@uptrust.com>
+Date:   Sat Aug 9 00:54:40 2025 +1000
+
+    Merge remote branch with symlink fix
+
+[33mcommit f55f333835701ec5f03b427fac881152cf19f5c2[m
+Author: John Ky <john@uptrust.com>
+Date:   Sat Aug 9 00:52:45 2025 +1000
+
+    Update symlink test to expect success since bug fix is applied
+
+[33mcommit 92ab6846abb4732b658f849053407584ac5dd5b2[m
+Author: John Ky <john@uptrust.com>
+Date:   Sat Aug 9 00:45:03 2025 +1000
+
+    stuff
+
+[33mcommit 1cd491eb935a63ba2eba300447c62e34036c1d28[m
+Author: John Ky <john@uptrust.com>
+Date:   Fri Aug 8 17:12:31 2025 +1000
+
+    Fix symlink handling crashes in tasty-discover (resolves #38)
+    
+    - Update to symlink-aware Glob library version to prevent crashes on symlinked directories
+    - Replace globDir1 with globDirWith for better directory handling
+    - Add comprehensive test coverage for symlink scenarios with platform-aware skipping
+    - Implement runtime OS detection to skip symlink tests on Windows (no CPP required)
+    - Filter out directories during glob processing to prevent "withFile: inappropriate type" errors
+    - Add detailed documentation about symlink support limitations on Windows
+    - Update CHANGELOG.md and README.md with platform compatibility notes
+    
+    Changes:
+    * cabal.project: Pin to haskell-works/glob with symlink support
+    * Driver.hs: Use globDirWith instead of globDir1, add directory filtering
+    * ConfigTest.hs: Add spec_symlinksNotFollowed test with Windows compatibility
+    * Documentation: Add FAQ section and configuration notes about symlink limitations
+    
+    The fix ensures tasty-discover gracefully handles symlinked directories on Unix-like
+    systems while automatically skipping symlink-related tests on Windows to maintain
+    cross-platform compatibility.
+
+[33mcommit c6fc4010c95fca71128bd702aeed530e83ff6beb[m
+Author: John Ky <john@uptrust.com>
+Date:   Fri Aug 8 15:27:07 2025 +1000
+
+    Add reproduction test for symlink crash issue (#38)
+    
+    Create failing test that demonstrates tasty-discover crashes when encountering
+    symlinked directories with "withFile: inappropriate type (is a directory)" error.
+    
+    Changes:
+    * test/ConfigTest.hs: Add spec_symlinksNotFollowed test that reproduces the bug
+      - Creates temporary directory with real test files and symlinked directory
+      - Calls tasty-discover and expects it to crash with specific error message
+      - Includes comprehensive error reporting and directory structure debugging
+      - Test is designed to fail until issue #38 is fixed
+    
+    * tasty-discover.cabal: Add required dependencies for symlink testing
+      - process: For running tasty-discover subprocess
+      - temporary: For creating temporary test directories
+      - directory, filepath: For file system operations
+    
+    * test/Driver.hs: Integrate new symlink test into test suite
+    
+    The test currently fails as expected, demonstrating the crash that occurs when
+    tasty-discover encounters symlinked directories during test discovery. This
+    provides a clear reproduction case for debugging and validates the fix once
+    implemented.
+
+[33mcommit bb2ed2f690b526846ad9150ded8e51e6bfcbed9b[m[33m ([m[1;31morigin/newhoggy/update-ai-guidelines[m[33m, [m[1;32mnewhoggy/update-ai-guidelines[m[33m, [m[1;32mmain[m[33m)[m
+Author: John Ky <john@uptrust.com>
+Date:   Sat Aug 9 00:45:30 2025 +1000
+
+    Update AI_GUIDELINES.md
+
+[33mcommit 267a4b1a0f9777ffa1a46a7d3680d5ff5080fe3a[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Merge: 39a0127 d3d0ece
+Author: John Ky <newhoggy@gmail.com>
+Date:   Sat Aug 9 00:27:18 2025 +1000
+
+    Merge pull request #69 from haskell-works/newhoggy/platform-skipping-support
+    
+    Platform-Specific Test Filtering Support
+
+[33mcommit d3d0ecef32a586ba37393f032e6aa6f5081e3157[m[33m ([m[1;31morigin/newhoggy/platform-skipping-support[m[33m, [m[1;32mnewhoggy/platform-skipping-support[m[33m)[m
+Author: John Ky <john@uptrust.com>
+Date:   Sat Aug 9 00:16:44 2025 +1000
+
+    Add comprehensive platform-specific test examples and documentation
+    
+    - Add 12 new platform test examples in DiscoverTest.hs using tasty_ prefix
+    - Include simple platform tests (tasty_linuxOnly, tasty_notWindows, tasty_unixLike)
+    - Add complex platform expression examples (!windows & !darwin, linux | darwin)
+    - Demonstrate platform filtering with property tests, test groups, and Flavored types
+    - Show integration with skip functionality and advanced use cases
+    - Add comprehensive platform documentation to README.md with:
+      * Complete platform expression syntax guide
+      * Logical operators (&, |, !) and platform names (linux, darwin, windows, unix)
+      * Multiple code examples with detailed explanations
+      * Integration patterns with Flavored type and other features
+    - Update table of contents and recent improvements section
+    - Add extensive inline documentation explaining platform function usage
+    - All 65 tests passing including 17 platform expression tests and 12 example tests
+    
+    Platform expressions support: "linux", "darwin", "windows", "unix" with logical
+    operators for conditional test execution based on System.Info.os detection.
+    Examples: platform "!windows" test, platform "unix" test, platform "!windows & !darwin" test
+
+[33mcommit 9fa64b16e1d0fd04560ae9e2d31d5437a443624b[m
+Author: John Ky <john@uptrust.com>
+Date:   Sat Aug 9 00:20:05 2025 +1000
+
+    Update AI guidelines
+
+[33mcommit 39a01275539d5fb622548a0b7ba8044d19255ab2[m
+Merge: e3571d1 0102473
+Author: John Ky <newhoggy@gmail.com>
+Date:   Fri Aug 8 23:44:56 2025 +1000
+
+    Merge pull request #68 from haskell-works/newhoggy/skip-test-support
+    
+    Add comprehensive skip test functionality with Flavored transformations
+
+[33mcommit 010247365f63be320038f9e89537c47d0ecea289[m[33m ([m[1;31morigin/newhoggy/skip-test-support[m[33m, [m[1;32mnewhoggy/skip-test-support[m[33m)[m
+Author: John Ky <john@uptrust.com>
+Date:   Fri Aug 8 23:35:32 2025 +1000
+
+    Add comprehensive skip test functionality with Flavored transformations
+    
+    Implements a complete skip test system for tasty-discover with:
+    
+    Features:
+    - SkipTest option type with IsOption instance for Tasty integration
+    - skip :: TestTree -> TestTree function for marking tests as skipped
+    - Flavored type for general-purpose TestTree transformations
+    - Yellow [SKIPPED] output with ANSI terminal colors
+    - Integration with custom test types via Tasty instances
+    
+    Implementation:
+    - Add SkipTest newtype in Test.Tasty.Discover.Internal.Config
+    - Add skip function and Flavored type in Test.Tasty.Discover
+    - Modified Property instance to handle SkipTest option with colored output
+    - Added ansi-terminal dependency for yellow coloring
+    - Comprehensive documentation in README.md and CHANGELOG.md
+    
+    Testing:
+    - Updated test suite with skip functionality demonstrations
+    - All existing tests continue to pass
+    - Skip tests show as [SKIPPED] in yellow and don't execute
+    
+    The Flavored type provides extensible design for future TestTree
+    transformations like timeouts, metadata, and grouping while maintaining
+    backward compatibility.
+
+[33mcommit ba43f600fd58fb1c7f1a9f1ac2588759920338b1[m[33m ([m[1;31morigin/newhoggy/fix-38-proper[m[33m)[m
+Author: John Ky <john@uptrust.com>
+Date:   Fri Aug 8 17:12:31 2025 +1000
+
+    Fix symlink handling crashes in tasty-discover (resolves #38)
+    
+    - Update to symlink-aware Glob library version to prevent crashes on symlinked directories
+    - Replace globDir1 with globDirWith for better directory handling
+    - Add comprehensive test coverage for symlink scenarios with platform-aware skipping
+    - Implement runtime OS detection to skip symlink tests on Windows (no CPP required)
+    - Filter out directories during glob processing to prevent "withFile: inappropriate type" errors
+    - Add detailed documentation about symlink support limitations on Windows
+    - Update CHANGELOG.md and README.md with platform compatibility notes
+    
+    Changes:
+    * cabal.project: Pin to haskell-works/glob with symlink support
+    * Driver.hs: Use globDirWith instead of globDir1, add directory filtering
+    * ConfigTest.hs: Add spec_symlinksNotFollowed test with Windows compatibility
+    * Documentation: Add FAQ section and configuration notes about symlink limitations
+    
+    The fix ensures tasty-discover gracefully handles symlinked directories on Unix-like
+    systems while automatically skipping symlink-related tests on Windows to maintain
+    cross-platform compatibility.
+
+[33mcommit ff79d903b7618fac88c24125aa7c68c5c14f9ff3[m
+Author: John Ky <john@uptrust.com>
+Date:   Fri Aug 8 15:27:07 2025 +1000
+
+    Add reproduction test for symlink crash issue (#38)
+    
+    Create failing test that demonstrates tasty-discover crashes when encountering
+    symlinked directories with "withFile: inappropriate type (is a directory)" error.
+    
+    Changes:
+    * test/ConfigTest.hs: Add spec_symlinksNotFollowed test that reproduces the bug
+      - Creates temporary directory with real test files and symlinked directory
+      - Calls tasty-discover and expects it to crash with specific error message
+      - Includes comprehensive error reporting and directory structure debugging
+      - Test is designed to fail until issue #38 is fixed
+    
+    * tasty-discover.cabal: Add required dependencies for symlink testing
+      - process: For running tasty-discover subprocess
+      - temporary: For creating temporary test directories
+      - directory, filepath: For file system operations
+    
+    * test/Driver.hs: Integrate new symlink test into test suite
+    
+    The test currently fails as expected, demonstrating the crash that occurs when
+    tasty-discover encounters symlinked directories during test discovery. This
+    provides a clear reproduction case for debugging and validates the fix once
+    implemented.
+
+[33mcommit e3571d1a639f0af2f210e8097260d0a997ac5f95[m
+Merge: a5adb6d 4c76939
+Author: John Ky <newhoggy@gmail.com>
+Date:   Fri Aug 8 21:42:04 2025 +1000
+
+    Merge pull request #67 from haskell-works/newhoggy/more-ai-guidelines
+    
+    More AI guidelines
+
+[33mcommit 4c76939b473baf68dca8337f0f12d484c28c28a7[m[33m ([m[1;31morigin/newhoggy/more-ai-guidelines[m[33m, [m[1;32mnewhoggy/more-ai-guidelines[m[33m)[m
+Author: John Ky <john@uptrust.com>
+Date:   Fri Aug 8 21:31:08 2025 +1000
+
+    More AI guidelines
+
+[33mcommit a5adb6d9fd5c254d8373588b48f270747966252b[m
+Merge: c3c36bb d23855a
+Author: John Ky <newhoggy@gmail.com>
+Date:   Fri Aug 8 21:33:31 2025 +1000
+
+    Merge pull request #66 from haskell-works/newhoggy/reproduce-38
+    
+    Add reproduction test for symlink crash issue (#38)
+
+[33mcommit d23855ae1c4b1d96c00613637a1614bd229cbcad[m[33m ([m[1;31morigin/newhoggy/reproduce-38[m[33m, [m[1;32mnewhoggy/reproduce-38[m[33m)[m
+Author: John Ky <john@uptrust.com>
+Date:   Fri Aug 8 21:26:44 2025 +1000
+
+    Add reproduction test for symlink crash issue (#38)
+    
+    Create test that reproduces tasty-discover crash when encountering symlinked
+    directories, marked as expected failure until issue is resolved.
+    
+    Changes:
+    * test/ConfigTest.hs: Add symlink reproduction test
+    - spec_symlinksNotFollowed: Placeholder Hspec test
+    - tasty_symlinksNotFollowed: Tasty test using expectFail
+    - Creates temp directory with real test files and symlinked directory
+    - Calls tasty-discover subprocess and expects crash with specific error
+    - Uses expectFail to mark as expected failure until #38 is fixed
+    
+    * tasty-discover.cabal: Add test dependencies
+    - tasty-expected-failure: For expectFail functionality
+    - process, temporary, directory, filepath: For symlink testing
+    
+    * test/Driver.hs: Auto-generated to include new tests
+    * cabal.project: Add packages specification
+    * test-symlink-repro/: Add minimal reproduction test project
+
+[33mcommit c3c36bb72f5d88cbee887e182cf74c14ef4c4a2e[m
+Merge: 60885a9 2dc9a23
+Author: John Ky <newhoggy@gmail.com>
+Date:   Fri Aug 8 18:04:33 2025 +1000
+
+    Merge pull request #65 from haskell-works/newhoggy/fix-comment-and-cpp-problems
+    
+    Fix multiline block comment handling in test discovery
+
+[33mcommit 2dc9a238539bb82b8be647d6bb3f310b1668e88a[m[33m ([m[1;31morigin/newhoggy/fix-comment-and-cpp-problems[m[33m, [m[1;32mnewhoggy/fix-comment-and-cpp-problems[m[33m)[m
+Author: John Ky <john@uptrust.com>
+Date:   Fri Aug 8 17:58:19 2025 +1000
+
+    Fix multiline block comment handling in test discovery
+    
+    - Add preprocessing step to remove {- -} block comments before test discovery
+    - Implement proper nested block comment support with depth tracking
+    - Add comprehensive test suite for comment handling scenarios
+    - Export extractTests function for testing purposes
+    - Resolves issue #10: tests incorrectly found in block comments
+    
+    The implementation uses a simple lexical analysis approach that:
+    * Handles nested block comments correctly
+    * Preserves line comments (no change in behavior)
+    * Prevents false test discovery in commented code
+    * Maintains backward compatibility with existing functionality
+
+[33mcommit 60885a98ba558d99c698e951a159d9579b0725c6[m
+Merge: aadcce7 7196ffe
+Author: John Ky <newhoggy@gmail.com>
+Date:   Fri Aug 8 11:57:21 2025 +1000
+
+    Merge pull request #63 from haskell-works/newhoggy/more-doc-updates
+    
+    More doc updates
+
+[33mcommit 7196ffec72319ed74f80be6f5ecbd56228f619de[m[33m ([m[1;31morigin/newhoggy/more-doc-updates[m[33m, [m[1;32mnewhoggy/more-doc-updates[m[33m)[m
+Author: John Ky <john@uptrust.com>
+Date:   Fri Aug 8 11:24:58 2025 +1000
+
+    More doc updates
+
+[33mcommit aadcce7a6530b6286f6fd3d9e69980c5d0d224a0[m
+Merge: c1a5f7a acc9824
+Author: John Ky <newhoggy@gmail.com>
+Date:   Fri Aug 8 11:25:28 2025 +1000
+
+    Merge pull request #62 from haskell-works/newhogy/delete-poject.sh
+    
+    Delete project.sh
+
+[33mcommit acc982452139f0cb12592d3caae8b706e735ee18[m[33m ([m[1;31morigin/newhogy/delete-poject.sh[m[33m, [m[1;32mnewhogy/delete-poject.sh[m[33m)[m
+Author: John Ky <john@uptrust.com>
+Date:   Fri Aug 8 11:13:02 2025 +1000
+
+    Delete project.sh
+
+[33mcommit c1a5f7a7465342e8557b4d4bf987ce210d4c37f0[m
+Merge: bc5a285 731d36f
+Author: John Ky <newhoggy@gmail.com>
+Date:   Fri Aug 8 10:52:43 2025 +1000
+
+    Merge pull request #61 from haskell-works/newhoggy/cleanup-cabal-file
+    
+    Cleanup cabal file
+
+[33mcommit 731d36ff111123712018bb66106294ba93a5577a[m[33m ([m[1;31morigin/newhoggy/cleanup-cabal-file[m[33m)[m
+Author: John Ky <john@uptrust.com>
+Date:   Fri Aug 8 10:00:16 2025 +1000
+
+    Fix warnings
+
+[33mcommit a734ac315061f45a0a725905f035ebc8dd20868c[m
+Author: John Ky <john@uptrust.com>
+Date:   Fri Aug 8 08:58:24 2025 +1000
+
+    Cleanup cabal file
+
+[33mcommit bc5a2858fe893db0cdc105560ed2c12644a9ccd0[m
+Merge: 6db9bec a6694b5
+Author: John Ky <newhoggy@gmail.com>
+Date:   Fri Aug 8 08:40:34 2025 +1000
+
+    Merge pull request #60 from haskell-works/newhoggy/fix-links
+    
+    Fix links in docs
+
+[33mcommit a6694b50f9daa439bb1191d1cdb38267cf7042f4[m[33m ([m[1;31morigin/newhoggy/fix-links[m[33m)[m
+Author: John Ky <john@uptrust.com>
+Date:   Fri Aug 8 01:36:37 2025 +1000
+
+    Fix links in docs
+
+[33mcommit 6db9bec0a226880bca547457a551a173e56c149b[m
+Merge: c22c58b ac91d01
+Author: John Ky <newhoggy@gmail.com>
+Date:   Fri Aug 8 01:30:59 2025 +1000
+
+    Merge pull request #59 from haskell-works/newhoggy/ignore-directories-when-searching-for-tests
+    
+    Fix directory handling in glob patterns
+
+[33mcommit ac91d01f80fbe2d3f02a1fb19688c82d6731f5e2[m[33m ([m[1;31morigin/newhoggy/ignore-directories-when-searching-for-tests[m[33m)[m
+Author: John Ky <john@uptrust.com>
+Date:   Fri Aug 8 01:20:25 2025 +1000
+
+    Fix directory handling in glob patterns (GitHub issue #12)
+    
+    Resolves the issue where directories matching glob patterns caused
+    "inappropriate type (is a directory)" errors when using the --modules flag.
+    
+    The problem occurred when glob patterns matched both files and directories,
+    and tasty-discover tried to read directories as files.
+    
+    Changes:
+    - src/Test/Tasty/Discover/Internal/Driver.hs:
+      * Added filterM doesFileExist to filesByModuleGlob function
+      * Added Control.Monad and System.Directory imports
+    - test/ConfigTest.hs: Added spec_modulesGlobIgnoresDirectories regression test
+    - test/ModulesGlob/: Created test data to verify directory filtering
+    - tasty-discover.cabal: Added directory dependency and new test modules
+    
+    Before: Directories matching glob patterns caused crashes
+    After: Directories are silently filtered out, only files processed
+    
+    Example that now works:
+      tasty-discover . _ out --modules='*'
+    
+    Fixes: GitHub issue #12
+
+[33mcommit c22c58b6a4843f95b35577efc7de61e604d02b93[m
+Merge: ea04a4d 3fd6b5e
+Author: John Ky <newhoggy@gmail.com>
+Date:   Fri Aug 8 01:03:55 2025 +1000
+
+    Merge pull request #58 from haskell-works/newhoggy/fix-generated-import
+    
+    Fix backup file import generation bug and add regression test
+
+[33mcommit 3fd6b5e9993595b984f67caa22fae90ab948c8e2[m[33m ([m[1;31morigin/newhoggy/fix-generated-import[m[33m)[m
+Author: John Ky <john@uptrust.com>
+Date:   Fri Aug 8 00:54:35 2025 +1000
+
+    Fix backup file import generation bug and add regression test
+    
+    - Fixed file discovery pattern from "*.hs*" to "*.hs" in Driver.hs
+    - Prevents backup files (.hs.orig, .hs.bak) from being processed as test modules
+    - Added regression test spec_backupFilesIgnored to prevent future regressions
+    - Created test/BackupFiles/ directory with test data to verify fix
+    - Updated cabal file to include new test module
+    
+    Fixes issue where files like "Foo.hs.orig" would generate invalid imports
+    like "import qualified Foo.hs" instead of being ignored.
+    
+    Before: Files matching "*.hs*" included backup files
+    After: Only files ending with ".hs" are processed
+
+[33mcommit ea04a4d1d3760d168447c2373ea166c2f083cc44[m
+Merge: a4e39f7 9413eb8
+Author: John Ky <newhoggy@gmail.com>
+Date:   Fri Aug 8 00:58:27 2025 +1000
+
+    Merge pull request #57 from haskell-works/newhoggy/document-more-test-types
+    
+    Document more test types
+
+[33mcommit 9413eb8c86d62488a0c50f80c0f6c1f1e1b9f203[m[33m ([m[1;31morigin/newhoggy/document-more-test-types[m[33m)[m
+Author: John Ky <john@uptrust.com>
+Date:   Fri Aug 8 00:26:20 2025 +1000
+
+    Document more test types
+
+[33mcommit a4e39f7b6e6c0d844f950665f59a6ce5f5166daa[m
+Merge: 0367bf7 e136642
+Author: John Ky <newhoggy@gmail.com>
+Date:   Fri Aug 8 00:51:12 2025 +1000
+
+    Merge pull request #56 from haskell-works/newhoggy/fix-hlint-in-generated-code
+    
+    Fix `hlint` in generated code
+
+[33mcommit e13664209fecac8da2224c97d75933ed1ef82cc1[m[33m ([m[1;31morigin/newhoggy/fix-hlint-in-generated-code[m[33m)[m
+Author: John Ky <john@uptrust.com>
+Date:   Fri Aug 8 00:15:31 2025 +1000
+
+    Fix hlint in generated code
+
+[33mcommit 0367bf7f2d11dfd8fe81a4cbb8aa8b3b5bb4697f[m
+Merge: bdb4516 bfa9820
+Author: John Ky <newhoggy@gmail.com>
+Date:   Fri Aug 8 00:17:14 2025 +1000
+
+    Merge pull request #55 from haskell-works/newhoggy/documentation
+    
+    Documentation
+
+[33mcommit bfa982096c4d145ee6cb6ee2aab2575318152f5a[m[33m ([m[1;31morigin/newhoggy/documentation[m[33m)[m
+Author: John Ky <john@uptrust.com>
+Date:   Fri Aug 8 00:13:04 2025 +1000
+
+    Documentation
+
+[33mcommit bdb45164f7b9d802f150f3075aa038175859a341[m
+Merge: 57d485a c06156b
+Author: John Ky <newhoggy@gmail.com>
+Date:   Fri Aug 8 00:03:29 2025 +1000
+
+    Merge pull request #54 from haskell-works/newhoggy/new-no-main-argument
+    
+    New `--no-main` option
+
+[33mcommit c06156b7feb72cafa80ea06404a5d87c04fa862e[m[33m ([m[1;31morigin/newhoggy/new-no-main-argument[m[33m)[m
+Author: John Ky <john@uptrust.com>
+Date:   Thu Aug 7 23:48:31 2025 +1000
+
+    New --no-main option
+
+[33mcommit 57d485ab205f5e6a402b8b3bbaaeda71d0309d37[m
+Merge: 23e61fd 95d10c3
+Author: John Ky <newhoggy@gmail.com>
+Date:   Mon Aug 4 14:42:22 2025 +1000
+
+    Merge pull request #53 from haskell-works/newhoggy/support-ghc-9.12.2
+    
+    Support ghc-9.12.2
+
+[33mcommit 95d10c3fb48a9ca6e852d20c1bdb38accc6ed738[m
+Author: John Ky <john@uptrust.com>
+Date:   Sun Aug 3 20:35:25 2025 +1000
+
+    Support ghc-9.12.2
+
+[33mcommit 23e61fd3de496091af3132fbf68ed2991336717b[m
+Merge: 9a8f117 6c808bf
+Author: John Ky <newhoggy@gmail.com>
+Date:   Sun Jun 1 15:36:30 2025 +1000
+
+    Merge pull request #51 from haskell-works/newhoggy/fix-warning
+    
+    Fix warning
+
+[33mcommit 6c808bf4f0ad005ef0ffe240062d97a983620d34[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Sun Jun 1 15:29:40 2025 +1000
+
+    Fix warning
+
+[33mcommit 9a8f11780bdb465ed351bb5120fc8d5626ec6942[m[33m ([m[1;33mtag: v5.0.2[m[33m)[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Sun Jun 1 15:18:53 2025 +1000
+
+    New version tasty-discover-5.0.2
+
+[33mcommit b314b1e19072997e7342f77b0ebe229bbe484742[m
+Merge: a5e1964 eec8b6c
+Author: John Ky <newhoggy@gmail.com>
+Date:   Sun Jun 1 15:15:52 2025 +1000
+
+    Merge pull request #50 from haskell-works/newhoggy/generic-instances
+    
+    Add `Generic` instances
+
+[33mcommit eec8b6c5f54e61bb7442e60fbcc832b2b747561c[m[33m ([m[1;31morigin/newhoggy/generic-instances[m[33m)[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Sun Jun 1 15:07:16 2025 +1000
+
+    Add Generic instances
+
+[33mcommit a5e1964c69af14a36ab97303f3879a9e509967d4[m[33m ([m[1;33mtag: v5.0.1[m[33m)[m
+Merge: b615371 da8a369
+Author: John Ky <newhoggy@gmail.com>
+Date:   Tue Jan 14 00:44:46 2025 +1100
+
+    Merge pull request #47 from haskell-works/newhoggy/fix-build
+    
+    Fix build
+
+[33mcommit da8a369c9b62ec5284f5bcef868141db33b30d9f[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Tue Jan 14 00:37:22 2025 +1100
+
+    Fix build
+
+[33mcommit b61537149812acf3edbe703009b007064217c168[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Tue Jan 14 00:24:45 2025 +1100
+
+    New version tasty-discover-5.0.1
+
+[33mcommit 6b5b5132de01856d36f4c8a26683b832987d8fd8[m
+Merge: 52b31b5 fd4ac99
+Author: John Ky <john.ky@iohk.io>
+Date:   Tue Jan 14 00:24:09 2025 +1100
+
+    Merge pull request #46 from haskell-works/newhoggy/support-record-dot-syntax
+    
+    Support record dot syntax
+
+[33mcommit fd4ac994f8649f788c3b25d9a2154086e39fdb9e[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Tue Jan 14 00:16:34 2025 +1100
+
+    Exclude macOS builds for ghc-9.0.2 and earlier in CI
+
+[33mcommit 62816c19f4d8ae8829f6637be8907ee93fc651cb[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Mon Jan 13 22:18:41 2025 +1100
+
+    Add support for overloaded dot syntax.  Remove unused dependencies.  Add dev build flag
+
+[33mcommit de079a62d20668f8231496ac74d895fbfa01d9ea[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Mon Jan 13 22:04:05 2025 +1100
+
+    Explicit type signatures
+
+[33mcommit 52b31b5d3c6d834cba38e696fc5fbc41b2dfa2d1[m
+Merge: e23c848 4e8fefd
+Author: John Ky <john.ky@iohk.io>
+Date:   Sun Jan 7 18:44:03 2024 +1100
+
+    Merge pull request #44 from haskell-works/newhoggy/update-ci
+    
+    Update CI
+
+[33mcommit 4e8fefdaa886e7561b1996249210a85d7bedd0ed[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Sun Jan 7 17:18:12 2024 +1100
+
+    Update CI
+
+[33mcommit e23c8486a55913d25b98432694d2c1fa5d738b19[m
+Merge: 1bd93a1 79f4407
+Author: John Ky <john.ky@iohk.io>
+Date:   Sat May 6 21:54:43 2023 +1000
+
+    Merge pull request #42 from ashwinmathi/main
+    
+    Fixed README for cabal test-suite configuration
+
+[33mcommit 79f44076ef66a14d31fb326d887aa24e8073beeb[m
+Author: Ashwin Mathi <ashwinmathi@users.noreply.github.com>
+Date:   Wed Nov 16 21:11:34 2022 +0000
+
+    Fixed README for cabal test-suite configuration
+
+[33mcommit 1bd93a1ab56c504d49adc364ba568a662810c8c2[m
+Merge: efae820 a116877
+Author: John Ky <john.ky@iohk.io>
+Date:   Mon Oct 10 15:32:18 2022 +1100
+
+    Merge pull request #40 from felixonmars/patch-1
+    
+    Allow hspec 2.10
+
+[33mcommit a1168779741b14f3120be90dbb7a4a39210e89d9[m
+Author: Felix Yan <felixonmars@archlinux.org>
+Date:   Sun Oct 9 20:05:25 2022 +0300
+
+    Allow hspec 2.10
+    
+    Builds fine and all tests pass.
+
+[33mcommit efae820875c6f754b68476212acc3850eac6555b[m
+Merge: 9447415 b5bbeda
+Author: John Ky <john.ky@iohk.io>
+Date:   Wed Aug 31 11:57:09 2022 +1000
+
+    Merge pull request #39 from haskell-works/newhoggy/tidy-up-cabal-file
+    
+    Tidy up cabal file
+
+[33mcommit b5bbedaeae0d620d5d1654880ee29d9df23876f0[m
+Author: John Ky <newhoggy@gmail.com>
+Date:   Wed Aug 31 08:34:37 2022 +1000
+
+    Tidy up cabal file
+
+[33mcommit 9447415083427f0bb826fcab652afff53505e467[m
+Merge: f755f7a f93206c
+Author: John Ky <john.ky@iohk.io>
+Date:   Tue Jul 19 12:57:02 2022 +1000
+
+    Merge pull request #37 from haskell-works/newhoggy/tasty-discover-does-not-need-constraints
+    
+    Remove constraints from tasty-discover
+
+[33mcommit f93206c5d8f9d6719d33848cab6dc3a31b0baa0d[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Tue Jul 19 12:09:32 2022 +1000
+
+    Remove constraints from tasty-discover
+
+[33mcommit f755f7afbec2653495bbd9a98c1827911318e9fd[m
+Merge: 109ef0f df02382
+Author: John Ky <john.ky@iohk.io>
+Date:   Fri Jul 8 15:09:32 2022 +1000
+
+    Merge pull request #36 from haskell-works/newhoggy/fix-external-ci
+    
+    Fix external CI
+
+[33mcommit df02382739855f143c73ccdd96e765df07bb7ed5[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Fri Jul 8 15:03:16 2022 +1000
+
+    Fix external CI
+
+[33mcommit 109ef0fcd6af057d24f05f11de5b8348a2a0484e[m[33m ([m[1;33mtag: v5.0.0[m[33m)[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Fri Jul 8 13:41:28 2022 +1000
+
+    New version 5.0.0
+
+[33mcommit b0bed96e6b1ce65a18759e602132804ffeccb5ca[m
+Merge: 8d85cf5 8a7a944
+Author: John Ky <john.ky@iohk.io>
+Date:   Fri Jul 8 13:00:49 2022 +1000
+
+    Merge pull request #35 from haskell-works/newhoggy/fix-tasty-hedgehog-deprecation-warning
+    
+    Fix tasty hedgehog deprecation warning
+
+[33mcommit 8a7a94486ce609823596337a03f0a6b9264a5121[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Fri Jul 8 11:33:17 2022 +1000
+
+    Disable stack build in CI
+
+[33mcommit 28adcf7ba411beb3396e2f1962d0a408c9dae516[m
+Author: Luke Worth <luke.worth@bellroy.com>
+Date:   Wed Jul 6 10:12:13 2022 +1000
+
+    Document how to support both tasty-hedgehog <1.2 and ^>1.2
+
+[33mcommit 4702e8c41c46dab6e07b48f81d004a00f0fe7dfb[m
+Author: Luke Worth <luke.worth@bellroy.com>
+Date:   Tue Jul 5 17:15:11 2022 +1000
+
+    Fix tasty-hedgehog `testProperty` deprecation warning
+    
+    Compiling `hprop_` tests would cause the following warning:
+    
+    ```
+    Deprecated: "testProperty will cause Hedgehog to provide incorrect instructions for re-checking properties"
+    ```
+    
+    The recommended solution is to use `testPropertyNamed` instead.
+
+[33mcommit 8d85cf5ca7bcaabd228ca4a5a870933498adcc09[m[33m ([m[1;31morigin/v4-branch[m[33m)[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Fri Jul 8 11:05:06 2022 +1000
+
+    Update changelog to 4.2.4
+
+[33mcommit 7131e71c657bb583582edaddf12a2020b4a28b19[m
+Merge: 796455e d734de0
+Author: John Ky <john.ky@iohk.io>
+Date:   Sun Jun 12 08:47:38 2022 +1000
+
+    Merge pull request #33 from felixonmars/patch-1
+    
+    Allow hspec 2.9
+
+[33mcommit d734de048e56d2d7da4507691ccd2e1930cee095[m
+Author: Felix Yan <felixonmars@archlinux.org>
+Date:   Sun Jun 12 02:02:34 2022 +0800
+
+    Allow hspec 2.9
+    
+    Builds fine and all tests pass.
+
+[33mcommit 796455eb4bd7f994159312f1ce0a5d45e5339ed9[m[33m ([m[1;33mtag: v4.2.4[m[33m)[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Sun May 22 22:59:47 2022 +1000
+
+    New version 4.2.4
+
+[33mcommit b4e997520a22293801f763f5dd4b454d63ab7142[m
+Merge: ed7c99e 953c1b4
+Author: John Ky <john.ky@iohk.io>
+Date:   Sun May 22 22:57:42 2022 +1000
+
+    Merge pull request #32 from haskell-works/newhoggy/custom-support
+    
+    Support for custom test cases
+
+[33mcommit 953c1b4373b256dd7462c2086d51339d4e83d6fc[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Sun May 22 22:49:43 2022 +1000
+
+    Support for custom test groups and test cases
+
+[33mcommit 6627fff67586b7e1bbcdb6ab79856aef9bbdfe41[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Sat May 21 21:27:12 2022 +1000
+
+    Export version function
+
+[33mcommit ed7c99eb4908d5b349f40be2e173b989579f5a6a[m
+Merge: 1800f89 905513d
+Author: John Ky <john.ky@iohk.io>
+Date:   Sat May 21 16:14:24 2022 +1000
+
+    Merge pull request #31 from haskell-works/newhoggy/deduplicate-imports
+    
+    Deduplicate imports
+
+[33mcommit 905513d85c61617ffd73213c7aa4609db0183ea9[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Sat May 21 16:06:12 2022 +1000
+
+    Deduplicate imports
+
+[33mcommit 1800f89e47ed0ce7cb469fc902776d6b1569e326[m
+Merge: 03210d1 882210e
+Author: John Ky <john.ky@iohk.io>
+Date:   Sat May 21 15:12:12 2022 +1000
+
+    Merge pull request #30 from haskell-works/newhoggy/rename-library-directory-to-src
+    
+    Rename library directory to src
+
+[33mcommit 882210e384459710dd293fb010fbe3a4374f4cb1[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Sat May 21 15:00:10 2022 +1000
+
+    Rename library directory to src
+
+[33mcommit 03210d1f86f79365905f6607c3e99e1c9c0d4be7[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Sat May 21 14:58:52 2022 +1000
+
+    Update change log
+
+[33mcommit 6d1f7cd3d7eb3f799b6790e38391f9bdde7bd0c1[m
+Merge: bc696b1 73179cb
+Author: John Ky <john.ky@iohk.io>
+Date:   Sat May 21 14:44:38 2022 +1000
+
+    Merge pull request #28 from haskell-works/newhoggy/make-library-modules-internal
+    
+    Make existing library modules internal
+
+[33mcommit bc696b1525152e00c424eba4f0f1caf47a030346[m[33m ([m[1;33mtag: v4.2.3[m[33m)[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Sat May 21 14:38:03 2022 +1000
+
+    New verison 4.2.3
+
+[33mcommit 73179cbc68d34d5c4dfbd1e34876c1169c9916df[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Sat May 21 14:30:21 2022 +1000
+
+    Make existing library modules internal.  These are only meant to be called by driver generated code
+
+[33mcommit f7d508aa7c1019745e692849f5d3d3273dd54d9f[m
+Merge: cd6fe65 068e32a
+Author: John Ky <john.ky@iohk.io>
+Date:   Sat May 21 10:43:49 2022 +1000
+
+    Merge pull request #27 from haskell-works/newhoggy/rename-inplace-to-in-place
+    
+    Newhoggy/rename inplace to in place
+
+[33mcommit 068e32a9a7b58de78f59c3d3f4077301aebe44d1[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Sat May 21 10:38:01 2022 +1000
+
+    Use --in-place from Driver
+
+[33mcommit 88c9bcaea242703d925a10fd74e9544ae11b99c0[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Sat May 21 10:32:35 2022 +1000
+
+    Rename --inplace to --in-place.
+
+[33mcommit cd6fe6515fe23dec84383c5cf22c20c5d3cd3ad1[m
+Merge: 24e2821 189c47f
+Author: John Ky <john.ky@iohk.io>
+Date:   Sat May 21 10:19:12 2022 +1000
+
+    Merge pull request #25 from haskell-works/newhoggy/ci-with-external-project
+    
+    CI with external project: registry
+
+[33mcommit 189c47fc3c6eebf59128f4cc4594d87ea10a6e52[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Tue May 17 15:16:43 2022 +1000
+
+    CI with external project: registry
+
+[33mcommit 24e282165d220874fe5cb9fcf040f4b96accee2d[m
+Merge: 6a71d53 d108895
+Author: John Ky <john.ky@iohk.io>
+Date:   Tue May 17 12:45:35 2022 +1000
+
+    Merge pull request #24 from haskell-works/newhoggy/drop-lower-bound-of-tasty-hedgehog
+    
+    Drop lower bound of tasty hedgehog
+
+[33mcommit d1088957379e73832b2b4ce5203635a9ed1add91[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Tue May 17 12:38:32 2022 +1000
+
+    Add stack CI
+
+[33mcommit 74c63411f5789cf4abc77c82bf755a514dd30b3c[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Tue May 17 11:47:56 2022 +1000
+
+    Drop lower bound of tasty-hedgehog
+
+[33mcommit 6a71d532c6cd2f7f57259f32d4ad94c66585b0fe[m
+Merge: 8de3079 67e0c53
+Author: John Ky <john.ky@iohk.io>
+Date:   Tue May 17 11:38:59 2022 +1000
+
+    Merge pull request #23 from haskell-works/newhoggy/inplace
+    
+    Add a flag to modify the driver file in-place
+
+[33mcommit 67e0c539ad80cc44f2a30958fb857cd47eb03e2d[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Tue May 17 11:01:28 2022 +1000
+
+    Add cabal build outputs to .gitignore
+
+[33mcommit 39f9bdf5d607b80f9ddef3bccd360cb7f467e556[m
+Author: Facundo Domínguez <facundo.dominguez@tweag.io>
+Date:   Tue Mar 15 16:14:32 2022 -0300
+
+    Make the output of findTests deterministic
+
+[33mcommit c07f1ce06cfdcc61f9b84dd782193bbb82e30be2[m
+Author: Facundo Domínguez <facundo.dominguez@tweag.io>
+Date:   Fri Feb 18 21:12:58 2022 +0000
+
+    Close file handles after scanning the files
+
+[33mcommit 46f1ff3a7ff8632c1f993ac44fa770747d702952[m
+Author: Facundo Domínguez <facundo.dominguez@tweag.io>
+Date:   Fri Feb 18 19:58:00 2022 +0000
+
+    Add the --inplace flag.
+
+[33mcommit 8de30798a4a82c583c2f33fa00bcf5cc65623d47[m
+Merge: 131f65a 2e0282b
+Author: John Ky <john.ky@iohk.io>
+Date:   Tue May 17 10:52:51 2022 +1000
+
+    Merge pull request #16 from facundominguez/fd/tests-directory
+    
+    Add --search-dir DIR option
+
+[33mcommit 131f65a46a1ba2da0f29d6921df418452cb37244[m
+Merge: 6f994d5 d27576e
+Author: John Ky <john.ky@iohk.io>
+Date:   Tue Mar 22 09:18:14 2022 +1100
+
+    Merge pull request #19 from haskell-works/switch-to-use-cabal-cache-s3
+    
+    Switch to use cabal-cache-s3
+
+[33mcommit d27576e137d330ed1bdb5f6bed77b010d1c647df[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Mon Mar 21 23:02:05 2022 +1100
+
+    Switch to use cabal-cache-s3
+
+[33mcommit 2e0282ba4819f516f9366207dab23717485007f1[m
+Author: Facundo Domínguez <facundo.dominguez@tweag.io>
+Date:   Fri Feb 18 02:16:22 2022 +0000
+
+    Add --search-dir DIR option
+
+[33mcommit 6f994d5d8a6eaea6e858b2a0a2cc6ee0c943c553[m
+Merge: 58246e8 35a159e
+Author: John Ky <newhoggy@gmail.com>
+Date:   Sun Sep 19 15:05:09 2021 +1000
+
+    Merge pull request #14 from haskell-works/document-build-tool-depends
+    
+    Document how to add build-tool-depends to cabal file
+
+[33mcommit 35a159edf90ec00054206dc0d2f5ef1447ee9925[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Sun Sep 19 15:02:02 2021 +1000
+
+    Document how to add build-tool-depends to cabal file
+
+[33mcommit 58246e86e2a5fedf2928d37ef1810f6913cd802f[m
+Merge: 21a40af 456fffc
+Author: John Ky <newhoggy@gmail.com>
+Date:   Sun Sep 19 14:22:40 2021 +1000
+
+    Merge pull request #13 from haskell-works/upgrade-to-ghc-8.10.7
+    
+    Upgrade to ghc-8.10.7 and ghc-9.0.1
+
+[33mcommit 456fffc9591735fda9905fbca11f93fcd0f61137[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Sat Sep 18 16:08:34 2021 +1000
+
+    Use cabal-3.4.0.0
+
+[33mcommit dffdc4bf38f76dbd839f0531c8a0ab3185f86f66[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Sat Sep 18 15:23:25 2021 +1000
+
+    Upgrade to ghc-8.10.7 and ghc-9.0.1
+
+[33mcommit 21a40af6e5e5a6341a33a942bfc0be358b0462cf[m
+Merge: 6bfb205 98d3c46
+Author: John Ky <newhoggy@gmail.com>
+Date:   Fri Sep 3 22:19:43 2021 +1000
+
+    Merge pull request #8 from felixonmars/tasty-hspec-1.1.7
+    
+    Fix compatibility with tasty-hspec 1.1.7
+
+[33mcommit 6bfb205735caf5f6117a6f2526fbf9419dcb9a69[m
+Merge: 2a022d9 98fe691
+Author: John Ky <newhoggy@gmail.com>
+Date:   Fri Sep 3 22:18:52 2021 +1000
+
+    Merge pull request #11 from noughtmare/patch-1
+    
+    Fix typo in README
+
+[33mcommit 98fe69111fc66cdff4836706eae343cfa4ca04c2[m
+Merge: cdbc601 80777b2
+Author: Jaro Reinders <noughtmare@users.noreply.github.com>
+Date:   Tue Jul 27 11:58:09 2021 +0000
+
+    Merge pull request #1 from noughtmare/patch-2
+    
+    Improve wording in README
+
+[33mcommit 80777b27e30606d52b0e9b2e04abb9d3add22dc1[m
+Author: Jaro Reinders <noughtmare@users.noreply.github.com>
+Date:   Tue Jul 27 11:56:31 2021 +0000
+
+    Improve wording in README
+
+[33mcommit cdbc60180b1035c02bd2b687aa22f51b56fa55d7[m
+Author: Jaro Reinders <noughtmare@users.noreply.github.com>
+Date:   Tue Jul 27 11:41:13 2021 +0000
+
+    Fix typo in README
+
+[33mcommit 98d3c464f33129e38fa9c0fcdfb1847dfb0490b9[m
+Author: Felix Yan <felixonmars@archlinux.org>
+Date:   Sat May 15 07:16:31 2021 +0800
+
+    Fix compatibility with tasty-hspec 1.1.7
+    
+    tasty-hspec no longer re-exports Test.Hspec since 1.1.7. Let's import
+    it ourselves.
+
+[33mcommit 2a022d9c44d8776d52956a671ac4c6c3853c67b9[m
+Merge: 940890e 2468011
+Author: John Ky <newhoggy@gmail.com>
+Date:   Sat Feb 20 11:44:37 2021 +1100
+
+    Merge pull request #6 from haskell-works/switch-to-main
+    
+    Switch to main as default branch
+
+[33mcommit 24680117af5c8022fb4ecf9544fc76e5e8cdce55[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Sat Feb 20 11:34:57 2021 +1100
+
+    Switch to main as default branch
+
+[33mcommit 940890e8fe5c5d3f16fc0f89a75a9e93414d903d[m
+Merge: fdf2eb8 3681988
+Author: John Ky <newhoggy@gmail.com>
+Date:   Sat Feb 20 01:17:55 2021 +1100
+
+    Merge pull request #5 from haskell-works/build-in-github-actions
+    
+    Build in Github Actions
+
+[33mcommit 368198826042b30ac0932f1036779e0d29bfa079[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Sat Feb 20 01:04:04 2021 +1100
+
+    Build in Github Actions
+
+[33mcommit fdf2eb8a0e162100f27df74b0c6229dee61ec57d[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Tue Oct 13 14:46:21 2020 +1100
+
+    Fix maintainer contact
+
+[33mcommit f297b9f8cf0f5d267fd01eb7fe27bfb16cb2d325[m
+Merge: c0fcbb0 a918fef
+Author: John Ky <newhoggy@gmail.com>
+Date:   Tue Oct 6 01:25:35 2020 +1100
+
+    Merge pull request #2 from haskell-works/add-version-bounds
+    
+    Add version bounds
+
+[33mcommit a918fef4d97faa4f15bfdaf983b991c72d09e80d[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Tue Oct 6 01:22:20 2020 +1100
+
+    Fix status badge
+
+[33mcommit 67b022f5945abdfb71ca31fca7910abc7effe043[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Tue Oct 6 01:14:38 2020 +1100
+
+    Add version bounds
+
+[33mcommit c0fcbb0af2f2de1f20c1a5c78e3dd40297de614f[m[33m ([m[1;33mtag: v4.2.2[m[33m)[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Mon Oct 5 09:45:03 2020 +1100
+
+    New version 4.2.2
+
+[33mcommit 34fca45c6a280be823c595cf12597a154b18f83d[m[33m ([m[1;33mtag: v4.2.1[m[33m)[m
+Merge: 1c24f45 26de87f
+Author: John Ky <newhoggy@gmail.com>
+Date:   Mon Oct 5 09:35:34 2020 +1100
+
+    Merge pull request #1 from haskell-works/switch-to-cabal
+    
+    Switch to cabal
+
+[33mcommit 26de87f9104054a0f5edca2b0f0c50f26cf5127a[m
+Author: John Ky <john.ky@iohk.io>
+Date:   Sun Oct 4 17:53:57 2020 +1100
+
+    Switch to cabal
+
+[33mcommit 1c24f455d314ac969326252b0052af8c3a046496[m
+Merge: 532424f 289a133
+Author: lwm <lukewm@riseup.net>
+Date:   Fri Jul 20 18:33:18 2018 +0100
+
+    Merge branch 'bump-lts' into 'master'
+    
+    Bump the LTS version
+    
+    See merge request lwm/tasty-discover!149
+
+[33mcommit 532424f575164bb88b602d332a12e15913acdb09[m
+Merge: 2a5779b 0af729e
+Author: lwm <lukewm@riseup.net>
+Date:   Fri Jul 20 18:33:11 2018 +0100
+
+    Merge branch 'add-faq-entry' into 'master'
+    
+    Add FAQ entry for #145.
+    
+    Closes #145
+    
+    See merge request lwm/tasty-discover!150
+
+[33mcommit 0af729e131693f098f954069c516fdf69a281af9[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Fri Jul 20 19:32:21 2018 +0200
+
+    Add FAQ entry for #145.
+    
+    Closes https://git.coop/lwm/tasty-discover/issues/145.
+
+[33mcommit 289a133ba2c6859bf5dd1cfb8cfdd0772ca0de80[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Fri Jul 20 19:24:55 2018 +0200
+
+    Appease the YAML linter.
+
+[33mcommit af1b40276416dbd1470dda01d53f767266baa480[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Fri Jul 20 19:23:35 2018 +0200
+
+    Bump the LTS.
+
+[33mcommit 2a5779b4ee426ffd35125f1f2c8a1e29dabb5249[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Wed Jun 6 00:37:19 2018 +0100
+
+    Point all things to git.coop.
+
+[33mcommit 309ca8aa2027ac4d6e5003b2606bf5758aed084d[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Wed Jun 6 00:34:08 2018 +0100
+
+    Migrate to git.coop. Bump to 4.2.1.
+
+[33mcommit 55e342e3005e17ce1a832543bdba7aceca03ad86[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Wed May 2 19:31:17 2018 +0200
+
+    Try to clear up some README badness.
+
+[33mcommit a32baa228fe17464f2bd73cf748961ae861d9689[m
+Merge: b2d9ac9 86773d6
+Author: Luke Murphy <lwm@users.noreply.github.com>
+Date:   Sun Apr 29 13:55:20 2018 +0200
+
+    Merge pull request #148 from lwm/fixups
+    
+    Some CI related fixups
+
+[33mcommit 86773d64ae41bbbcaa5ce5138467093a5a1f2b98[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Apr 29 01:26:51 2018 +0200
+
+    Appease latest HLint.
+
+[33mcommit 2db939af809ebaa1b20b6d7985435d3571cd2e1b[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Apr 29 01:26:42 2018 +0200
+
+    Build with latest hpack.
+
+[33mcommit c65278b8e4d3d0212a69931acf5accb46bd921cd[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Apr 29 01:26:28 2018 +0200
+
+    Allow the stackage nightly build failure to fail.
+    
+    Because it always does :)
+
+[33mcommit b2d9ac98226612a591c11d139c26f9a9fc2a6a71[m
+Merge: 1854855 158b8b9
+Author: Luke Murphy <lwm@users.noreply.github.com>
+Date:   Sat Apr 28 23:25:21 2018 +0200
+
+    Merge pull request #144 from sshine/patch-1
+    
+    Fixed a few typos
+
+[33mcommit 158b8b93c6abb891ffea8df65c8fcdc70383a291[m
+Author: Simon Shine <shreddedglory@gmail.com>
+Date:   Sat Apr 28 20:03:22 2018 +0200
+
+    Fixed a few typos
+
+[33mcommit 185485536bb9ac5ccb1ff7b9379717f78b4dca8b[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 3 14:15:35 2018 +0100
+
+    Add notes about maintenance.
+
+[33mcommit 881ec8fe217752088bc7fbb02d86a612d3b32740[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 3 14:10:19 2018 +0100
+
+    Bump version to 4.2.0.
+
+[33mcommit bc63ca20e624d04dbf1dab988bcb78eb87480082[m
+Merge: 9151df4 1cdd68e
+Author: Luke Murphy <lwm@users.noreply.github.com>
+Date:   Sat Mar 3 14:07:57 2018 +0100
+
+    Merge pull request #141 from VoQn/fix/test-generator-for-smallcheck
+    
+    Added test generator for SmallCheck
+
+[33mcommit 1cdd68eee7020ef9d920edff9da846db15dac780[m
+Author: Kazuhiro Mizushima <voqn.tyrant@gmail.com>
+Date:   Sat Mar 3 11:40:22 2018 +0900
+
+    Added test generator for SmallCheck
+
+[33mcommit 9151df4b514395a339d2a40629000d7608f32236[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Mon Feb 26 18:22:47 2018 +0100
+
+    Mark latest point release. (4.1.5)
+
+[33mcommit 84d655a1b4a920e32af5c6db4a3d6d3f5b0efb8b[m
+Merge: 4a327a4 17863f6
+Author: Luke Murphy <lwm@users.noreply.github.com>
+Date:   Mon Feb 26 18:18:41 2018 +0100
+
+    Merge pull request #138 from matsubara0507/fix-invalid-byte-sequence
+    
+    Avoid errors on non UTF-8 Windows
+
+[33mcommit 17863f6646b83ad688c237d3a41cc16f5d5929df[m
+Author: MATSUBARA Nobutada <t12307043@gunma-u.ac.jp>
+Date:   Mon Feb 26 16:15:47 2018 +0900
+
+    Fix unused-imports in unix os
+
+[33mcommit 4a327a455be93fd839259ba2177652fb4307f906[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Feb 25 11:44:28 2018 +0100
+
+    Add note about releases.
+
+[33mcommit 61716d037c8aaa23b73ca5bdf418bfe731949985[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Feb 25 11:35:08 2018 +0100
+
+    Add contributors and TOC.
+
+[33mcommit 4834a8a73c73c1d3aab7fb0bcd96e1e76f6a3c6c[m
+Merge: e3830a2 972a81e
+Author: Luke Murphy <lwm@users.noreply.github.com>
+Date:   Sun Feb 25 11:26:20 2018 +0100
+
+    Merge pull request #137 from lwm/make-point-release
+    
+    Make latest point release - 4.1.4.
+
+[33mcommit 972a81e753d34a2c3aca49dac1fbf168235e551e[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Feb 25 11:00:24 2018 +0100
+
+    Make latest point release - 4.1.4.
+    
+    Number of things happening here:
+    
+      - [x] Getting the latest tasty-hedgehog
+      - [x] Adding change log entries
+      - [x] Bumping to the latest LTS resolver
+
+[33mcommit e3830a26019eaa60dc18eae2fcaba60fabf2f31c[m
+Merge: 1ee9588 c98784b
+Author: Luke Murphy <lwm@users.noreply.github.com>
+Date:   Sun Feb 25 10:52:41 2018 +0100
+
+    Merge pull request #136 from matsubara0507/win-test-with-appveyor
+    
+    Add test for Windows with AppVeyor
+
+[33mcommit c98784bceffe0e0f16101ac7ac3e14f248c4031d[m
+Author: MATSUBARA Nobutada <nobutada.matsubara.bigmoon@gmail.com>
+Date:   Sun Feb 25 17:19:50 2018 +0900
+
+    Fix: test on windows
+    
+    Test `Discovers tests` fail because `pathSeparator` is only '\\' on Windows.
+
+[33mcommit a09b4576b9ad58b92230fcd0368c5f5d378ae36f[m
+Author: MATSUBARA Nobutada <t12307043@gunma-u.ac.jp>
+Date:   Sun Feb 25 16:17:52 2018 +0900
+
+    Add config file of AppVeyor for Windows test
+
+[33mcommit 1ee9588ea3743a360a32727692c10a8ac8a974fd[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Mon Feb 5 15:01:30 2018 +0100
+
+    Make that clear. Haskell!
+
+[33mcommit d05128b30575c0b93fcd54c198ec36d591724a02[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Mon Feb 5 15:00:27 2018 +0100
+
+    Add more marketing. Oh yes.
+
+[33mcommit 9eb3d64b5b0741e8f345ae5d67eaf3b0006e682e[m
+Author: MATSUBARA Nobutada <t12307043@gunma-u.ac.jp>
+Date:   Fri Feb 2 18:39:30 2018 +0900
+
+    Fix invalid byte sequence for Windows
+
+[33mcommit 9f08b04a2e2a2fc822f38cbc78099da0ba37bcdc[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Thu Feb 1 11:58:51 2018 +0100
+
+    Add Hpack to title in documentation.
+
+[33mcommit 3664a9f3ba468993f656ebb09e8a6b1e73fc239c[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Fri Jan 26 10:52:25 2018 +0100
+
+    Remove full stop. Borking the link.
+
+[33mcommit e272dee8960b5192c8f2a45ff78c0efd2e66cf78[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Fri Jan 26 10:51:23 2018 +0100
+
+    Fix link for change log.
+
+[33mcommit 97fa33a9f8fcb32c09019ddd088bda074bafd0e7[m
+Merge: dd3810b 601437f
+Author: Luke Murphy <lwm@users.noreply.github.com>
+Date:   Sat Jan 13 12:12:50 2018 +0100
+
+    Merge pull request #133 from ethercrow/master
+    
+    Fix test directory name typo in README
+
+[33mcommit 601437f034e2810bf614577843e8110a6e8d9942[m
+Author: Dmitry Ivanov <ethercrow@gmail.com>
+Date:   Sat Jan 13 11:33:38 2018 +0100
+
+    Fix test directory name typo in README
+
+[33mcommit dd3810bec0d4dba304818194b9bde565feeb238f[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Tue Jan 2 10:00:17 2018 +0100
+
+    Make new release.
+
+[33mcommit 2223240b0f8dc8ee5216e11806acf4a22e782375[m
+Merge: 4e273de bf2518d
+Author: Luke Murphy <lwm@users.noreply.github.com>
+Date:   Tue Jan 2 09:57:52 2018 +0100
+
+    Merge pull request #132 from lwm/get-back-into-nightly
+    
+    Add tasty-hedgehog as an extra dependency again.
+
+[33mcommit bf2518d8aef8698227f025a6178ef47bf3e38724[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Tue Jan 2 09:29:54 2018 +0100
+
+    Also add tasty to extra-deps.
+
+[33mcommit adceac3ef8ecf842b50fdd6b079714feb18f0098[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Tue Jan 2 09:20:45 2018 +0100
+
+    Add tasty-hedgehog as an extra dependency again.
+    
+    Something for https://github.com/lwm/tasty-discover/issues/131.
+    The real issue should be resolved over at https://github.com/qfpl/tasty-hedgehog/issues/4.
+
+[33mcommit 4e273de30f6cfc256db9f561034020c174f3fb74[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Thu Dec 21 11:27:59 2017 +0100
+
+    Add note about driver file.
+
+[33mcommit 71c04455bf2c89b3030f0853cef5dcf799f5ab67[m
+Merge: 92c3778 70cfaa9
+Author: Luke Murphy <lwm@users.noreply.github.com>
+Date:   Thu Dec 21 11:26:05 2017 +0100
+
+    Merge pull request #130 from lwm/add-stackage-build
+    
+    Add specific nightly build checker.
+
+[33mcommit 92c377826ce270b306a34eaf96fc229797a741ce[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Thu Dec 21 10:39:43 2017 +0100
+
+    Remove FIXME. Issue resolved. It has to be like this.
+
+[33mcommit 70cfaa91b98b600c78b6dc4cc2f6781a987fab76[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Wed Dec 20 23:13:10 2017 +0100
+
+    Add specific nightly build checker.
+
+[33mcommit 3e4f9d35d57457819a41da3ec91270866a3f2d10[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Wed Dec 20 23:02:11 2017 +0100
+
+    Woops, remove that - it is at the bottom already.
+
+[33mcommit b3ceb6c6a364e866071326fb4db32e54ec86a33e[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Wed Dec 20 22:59:09 2017 +0100
+
+    Avoid saving credentials.
+
+[33mcommit d2baad775f03194af0adf5f9059d48eb63486e2c[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Wed Dec 20 22:57:24 2017 +0100
+
+    Make newest release.
+    
+    Closes https://github.com/lwm/tasty-discover/issues/128.
+
+[33mcommit c3ee1aea9b09f7f679fbf85ea11b50e67dbabca4[m
+Merge: 1068ee6 b355ed6
+Author: Luke Murphy <lwm@users.noreply.github.com>
+Date:   Wed Dec 20 22:55:13 2017 +0100
+
+    Merge pull request #129 from lwm/ci-again-again-again-again
+    
+    Fix the CI build
+
+[33mcommit b355ed6e5e38098f3f9543e4b150da3ef4b69ad3[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Wed Dec 20 18:50:07 2017 +0100
+
+    Shorten maintenance section. Punt to bottom.
+
+[33mcommit d5227f65b7de6435e087cd7b8a016f37ec2d4d50[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Wed Dec 20 18:49:02 2017 +0100
+
+    Add LTS badge.
+
+[33mcommit 574849d36dcc9fff39e42bd3b1c4802511b276cc[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Wed Dec 20 18:47:57 2017 +0100
+
+    Update Cabal file via package.yaml.
+
+[33mcommit 3eb300511b4975c7ee1f3e1d8293d84267b5fd8a[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Wed Dec 20 18:39:05 2017 +0100
+
+    Bump to latest LTS. Remove extra-deps.
+
+[33mcommit e21ee6fe29da5521231b6cc972682044ff212a0b[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Wed Dec 20 17:37:06 2017 +0100
+
+    Fix the failing CI build. Use HLint binary.
+    
+    Closes https://github.com/lwm/tasty-discover/issues/119.
+
+[33mcommit 46a415131eace99e389493b155af87ba6ad4d99f[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Mon Dec 18 17:34:33 2017 +0100
+
+    Add note about maintenance.
+
+[33mcommit 1068ee6c22b1e72e08f81528096f1fab8dcaa85e[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Mon Dec 18 17:34:33 2017 +0100
+
+    Add note about maintenance.
+
+[33mcommit 9be34585c56f01e8a01de7709da846a886cbf6e1[m
+Merge: 03e7a8c 09e9519
+Author: Luke Murphy <lwm@users.noreply.github.com>
+Date:   Fri Oct 27 17:18:52 2017 +0200
+
+    Merge pull request #126 from jbeigel/jbeigel
+    
+    Properly escape strings using show
+
+[33mcommit 09e95197ab6c0f0eb00cd3a38b6f91b3e5478c95[m
+Author: Johannes Beigel <johannes@beigel.de>
+Date:   Fri Oct 27 16:19:48 2017 +0200
+
+    Properly escape strings using show
+
+[33mcommit 03e7a8c2a38b14b0d45429c9c765a8b79e117973[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Tue Sep 26 19:31:38 2017 +0200
+
+    Fix failing test case. Mark new minor release.
+    
+    Closes https://github.com/lwm/tasty-discover/issues/123.
+
+[33mcommit ec8374990ab9863f5527708cbdf9df5cd2405ca7[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Tue Sep 26 09:34:16 2017 +0200
+
+    Mark allowed failing.
+    
+    Follows from https://github.com/lwm/tasty-discover/issues/119.
+
+[33mcommit 5f53aec5b11a90a16446b175f874124f94f79d36[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Tue Sep 26 09:30:49 2017 +0200
+
+    Mark new release for 52d97de.
+
+[33mcommit 52d97de3e1051008da2f99d4e26290c3cb8fb021[m
+Author: Mike Craig <mike@mkscrg.net>
+Date:   Mon Sep 25 22:37:36 2017 -0700
+
+    Fix recursive test finding, update CHANGELOG
+
+[33mcommit 9c570fc94f98c51ddb869b5d818e8875157f6723[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Thu Sep 7 10:27:15 2017 +0200
+
+    Trim down Travis CI setup.
+
+[33mcommit a1f959c2a9b24713c9c1a18824c4390941e78fbc[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Sep 17 14:25:48 2017 +0200
+
+    Add documentation and change log entry for #120.
+
+[33mcommit 38e264dc6c02905d1360477a411ff9fe31327dc8[m
+Merge: d152370 cee3ea5
+Author: Daniel Mendler <mail@daniel-mendler.de>
+Date:   Sun Sep 10 17:48:38 2017 +0200
+
+    Merge pull request #120 from lwm/commandline-options
+    
+    Add possibility to override Tasty command line options
+
+[33mcommit cee3ea5aa7b0485b877d7883153f4f52ae73e10e[m
+Author: Daniel Mendler <mail@daniel-mendler.de>
+Date:   Sat Sep 9 22:23:54 2017 +0200
+
+    Add possibility to override Tasty command line options
+    
+    Additional -optF arguments are passed to the Tasty test runner.
+    
+    Example:
+    
+     {-#
+     OPTIONS_GHC -F -pgmF tasty-discover
+     -optF --hide-successes
+     #-}
+
+[33mcommit d152370a1a9c3663af429acc12c795ec3c05b478[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Fri Sep 1 12:07:34 2017 +0200
+
+    Mark new release.
+
+[33mcommit c693b829d18630ac1f98d2877faf427e42a977cb[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Fri Sep 1 01:26:09 2017 +0200
+
+    Remove that option.
+
+[33mcommit 0b557ea6ea829ad94458845c5fbda114f022add3[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Fri Sep 1 01:25:32 2017 +0200
+
+    Sort out README for all new changes.
+
+[33mcommit 84ffb9c8060612337b5eafca24572ad7bec65b20[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Fri Sep 1 01:25:57 2017 +0200
+
+    Fix tests for new deprecations.
+
+[33mcommit d41002ca6a16fb090853180da764d98d1ee7530b[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Fri Sep 1 01:23:58 2017 +0200
+
+    Bump version (4.0.0).
+
+[33mcommit 63d46f9e87ed88f6b0393f98fabf78f6ec831b7e[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Fri Sep 1 01:22:36 2017 +0200
+
+    Make change log entry for latest changes.
+
+[33mcommit 557ff352c846867490726d8f88fbe7e77695eee6[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Fri Sep 1 01:24:18 2017 +0200
+
+    Add options, deprecate options, EOL old deprecations.
+    
+    * Add --ignores/--modules options.
+    * Deprecate --ignore-module/--[no-]module-suffix options.
+    * Remove `unit_` prefix (reached EOL).
+
+[33mcommit 1e3039e7586fb29688a9320227bdf77f41041a45[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Fri Sep 1 01:25:18 2017 +0200
+
+    Add new line.
+
+[33mcommit 94e93a1d8dc5bbb90ee0cb1e9cd80225bc0050cf[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Fri Sep 1 01:21:55 2017 +0200
+
+    Get latest stylish haskell configuration.
+
+[33mcommit 61f3215b131bd707727d04853d6acf800e998385[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Thu Aug 31 20:19:58 2017 +0200
+
+    Add deprecation policy notice.
+
+[33mcommit c81f1ffe4254afb69208475ad3aa5c87616ae0b4[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Thu Aug 31 19:46:32 2017 +0200
+
+    Use latest hpack to generate the cabal file.
+
+[33mcommit a7e302589e8993e6d2f3e80e3cdda6e1677b0ebb[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Thu Aug 31 19:46:14 2017 +0200
+
+    Install and build explicitly in that target.
+
+[33mcommit 2f463ede07d6d9d908a1b84ee8044c7beeb86462[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Thu Aug 31 19:44:37 2017 +0200
+
+    Since there are extra-deps now, don't force.
+    
+    Fixes https://travis-ci.org/lwm/tasty-discover/jobs/270234667.
+
+[33mcommit 3697df0ca98861aad1b0897df9de5bf667cf9dd7[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Thu Aug 31 19:44:10 2017 +0200
+
+    Don't upgrade Cabal any more (not necessary).
+
+[33mcommit 613372c24092a1f0219085f9989565f82766e0be[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Thu Aug 31 19:42:46 2017 +0200
+
+    Allow forcing of reinstalls for Cabal installs.
+    
+    Fixes https://travis-ci.org/lwm/tasty-discover/jobs/270234663.
+
+[33mcommit fbe393aa74cfe56e7d5181a490a1d0a4413089b4[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Thu Aug 31 19:20:40 2017 +0200
+
+    Bump to latest LTS.
+
+[33mcommit a85a9ec0912bc73f9bb9d736b672f17e46426329[m
+Author: Daniel Mendler <mail@daniel-mendler.de>
+Date:   Wed Aug 30 22:28:19 2017 +0200
+
+    DiscoverTest: stylish
+
+[33mcommit a9ea1d36416c4cd349816badc32766b025529db9[m
+Author: Daniel Mendler <mail@daniel-mendler.de>
+Date:   Wed Aug 30 22:23:43 2017 +0200
+
+    DiscoverTest: fix tasty-hedgehog hlint/stylish warnings
+
+[33mcommit eaa7aaf3c18439cda8b28316ebbe4486c6e2a3ea[m
+Author: Daniel Mendler <mail@daniel-mendler.de>
+Date:   Wed Aug 30 22:16:31 2017 +0200
+
+    add support for tasty-hedgehog with hprop_ prefix
+
+[33mcommit c81e7958bb504fd8bdf675ac209e440ad893ac80[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Jul 29 23:05:32 2017 +0200
+
+    Add missing haddock documentation.
+    
+    Closes https://github.com/lwm/tasty-discover/issues/89.
+
+[33mcommit d08a4eb5ba1c86a22c508d4d7933a3a72e18cf7e[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Jul 29 21:05:35 2017 +0200
+
+    Convert some unit tests to use Hspec.
+
+[33mcommit 136b9f24cd323dd37aa64c92e1d5c80283b50e14[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Jul 29 18:15:56 2017 +0200
+
+    Bump to latest LTS on stackage.
+
+[33mcommit ee7db25733df0d580730d881f92aa9e03beffed4[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Mon Jul 17 13:50:52 2017 +0200
+
+    Use `--cpp-simple` and ignore any parse errors.
+    
+    We trust the compiler over HLint in this case.
+
+[33mcommit b01367329a0210ba9828691002ee3866766f9d00[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Mon Jul 17 12:23:51 2017 +0200
+
+    Use latest HLint. Use new configuration.
+
+[33mcommit 0633f418de442e2630eb827f2ab396ca929fea24[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Mon Jun 5 18:34:49 2017 +0100
+
+    Add better wording.
+
+[33mcommit 8add78dd1ea972e5c598e15a84410e4b387f8035[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Mon Jun 5 18:33:18 2017 +0100
+
+    Bolden prefixes and don't use named code blocks.
+
+[33mcommit e33376433124cd00076337051c752a5a2e63aba8[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Mon Jun 5 18:30:53 2017 +0100
+
+    Don't use `'` and make configuration options bold.
+
+[33mcommit 0ab5efe59c07f5efb6e9387034de6b5482cfc4e8[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Mon Jun 5 18:28:21 2017 +0100
+
+    Rename test driver file.
+
+[33mcommit c8e7114dd4f9fd31fbc033c3179fb65ae3be1244[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Mon Jun 5 18:28:12 2017 +0100
+
+    Update README to be more friendly.
+
+[33mcommit 2446bd0d7e2adfed4c62f41c864386b3fe2f9fbb[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Mon Jun 5 13:21:54 2017 +0100
+
+    Update LTS resolver.
+
+[33mcommit f55f616b723f8c526878212f3fa71f5a0317c2ad[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Mon Jun 5 13:08:21 2017 +0100
+
+    Make sure we at least compile the README.
+    
+    Closes https://github.com/lwm/tasty-discover/issues/92.
+
+[33mcommit 947108765d49bd552ecf6dca874ac74f755fb71d[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Jun 4 09:33:07 2017 +0100
+
+    Add new line.
+
+[33mcommit 3a3c9cab4e715d926b9ae1901b687fd52e0815a3[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Jun 4 09:32:31 2017 +0100
+
+    Fix link.
+
+[33mcommit cb6d4e7b616ce930e69815241b1a8e9c4daf31dc[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Jun 4 09:31:58 2017 +0100
+
+    Improve notes about `Tasty.hs`.
+
+[33mcommit 219656f1a2dc8e2c9ca0c8c0bce24853797f1b85[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Jun 4 09:19:22 2017 +0100
+
+    Add notes and bump for another (!) minor release.
+
+[33mcommit e4626d74a47be4b7f620f8662834483a7c452096[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Jun 4 09:16:50 2017 +0100
+
+    Woops, wrong month!
+
+[33mcommit a6e4f288b9d0f6411f2b07bb722d1458a4ce5d34[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Jun 4 01:04:00 2017 +0100
+
+    Remove TOC. It doesn't work on Hackage.
+
+[33mcommit 3a2017a0d417f26e1bf172ca61edb095e11545e7[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Jun 4 01:03:00 2017 +0100
+
+    Fix bad option in example documentation.
+
+[33mcommit 9d9ee1926da378cd3a4507e70c36a090ea4a6264[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Jun 4 01:01:33 2017 +0100
+
+    Make upper bounds much looser.
+
+[33mcommit 27219b56c4320a3c45904f78679d31aca037a186[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Jun 4 01:01:29 2017 +0100
+
+    Bump version.
+
+[33mcommit 2f78a8f8edd8d77fa0cc4f23c82f9c81dc460f58[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Jun 4 01:01:07 2017 +0100
+
+    Add new release date and fix wording.
+
+[33mcommit 8011c83e41dd1fe0d2f349dc9d815d3c8444b130[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Jun 4 00:52:28 2017 +0100
+
+    Avoid editor syntax issues (yep, pedantry!).
+
+[33mcommit a035fc2b6815d8ea1cf09a753c79281c0fc6e40d[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Jun 4 00:47:54 2017 +0100
+
+    Add correct badges.
+    
+    Closes https://github.com/lwm/tasty-discover/issues/98.
+
+[33mcommit 20442248475c2e4ef9b423d45190041d34f475c9[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Jun 4 00:44:30 2017 +0100
+
+    Add short documentation note for new configuration.
+    
+    Closes https://github.com/lwm/tasty-discover/issues/105.
+
+[33mcommit f482402a4e27b814be8a0f6ade72542a79e47bb4[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Jun 4 00:44:19 2017 +0100
+
+    Remove GIF (over it). Add 'etc' for example.
+
+[33mcommit 3d21a556bed5c688be17d49c171949f2161f37f9[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Jun 4 00:44:05 2017 +0100
+
+    Update badges for new version.
+
+[33mcommit e55a26e78cd6d3dc21fe68339454f91583b8143b[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Jun 4 00:38:44 2017 +0100
+
+    Fix rendering of CHANGELOG for Hackage.
+    
+    By adding `[FOO]:` at the start of the line, the file rendering
+    was being borked. I've added them to the end of the line now.
+    
+    Closes https://github.com/lwm/tasty-discover/issues/104.
+
+[33mcommit 760f6ba60eef21b7f6f73fd89958695d5cc9bbaa[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Jun 4 00:00:40 2017 +0100
+
+    Clean up imports with stylish-haskell.
+
+[33mcommit ee40d2a05ed1b266767c80bbd42c26f34b8bbbdb[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Jun 3 23:56:24 2017 +0100
+
+    Making new 3.0.0 release.
+    
+    Closes https://github.com/lwm/tasty-discover/issues/100.
+
+[33mcommit 5545e45f2b75c0a5f926b71fe30cb4fdf3ed258a[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Jun 3 23:50:33 2017 +0100
+
+    Add change log entries for #102/#103.
+    
+    Closes https://github.com/lwm/tasty-discover/pull/103.
+
+[33mcommit 48825ac2c6cce4716ed8e02d41f9aefcffe67a9a[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Jun 3 23:47:40 2017 +0100
+
+    Remove extra parentheses.
+
+[33mcommit 0e4ea1a0d76853a16d68bc36ca332212c3b4c233[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Jun 3 23:47:31 2017 +0100
+
+    Fix bad target dependency.
+
+[33mcommit 4a54b9653a8d62123d16aea8aacca05cbcded6cc[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Jun 3 23:47:06 2017 +0100
+
+    Remove comment. Add two new HLint ignores.
+
+[33mcommit c9283cbf16441509c7bd059e77c3914a9a5ece68[m
+Author: Mike Craig <mike@mkscrg.net>
+Date:   Sat Jun 3 04:08:58 2017 -0700
+
+    implement --tree-display flag
+
+[33mcommit 686f482d54152e20818f80c325dcf0b356ea5e37[m
+Author: Mike Craig <mike@mkscrg.net>
+Date:   Sat Jun 3 04:00:00 2017 -0700
+
+    add --tree-display flag and failing unit test
+
+[33mcommit f7a98d9ef8f2b7108b3be00f6ca06a32fbef3e32[m
+Author: Mike Craig <mike@mkscrg.net>
+Date:   Sat Jun 3 04:49:56 2017 -0700
+
+    install test dependencies in cabal build
+
+[33mcommit 171fd5ba0bdd1fe8848e6cb2e011a9c56a698afb[m
+Author: Mike Craig <mike@mkscrg.net>
+Date:   Sat Jun 3 03:41:22 2017 -0700
+
+    recurse into directories when --no-module-suffix is set
+
+[33mcommit a34d76d3a5ec1f7c15154a45fcfd353c53259b7e[m
+Author: Mike Craig <mike@mkscrg.net>
+Date:   Sat Jun 3 03:40:28 2017 -0700
+
+    add failing test for --no-module-suffix with directories
+
+[33mcommit f8fd8b85f46da82eab2e162e61969f15b99028bd[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Fri Apr 14 01:03:04 2017 +0100
+
+    Use new prefix for hunit test cases.
+
+[33mcommit 7b9c2562a3cd0dde5d54e0fbb2281ca69405b5e1[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Fri Apr 14 01:02:04 2017 +0100
+
+    Add TOC
+
+[33mcommit abe9e4c6e993c2fdc50ad288ad614b3c95554c94[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Apr 9 13:30:39 2017 +0100
+
+    Deprecate `case_` prefix for HUnit tests.
+    
+    We now use `unit_` as new default prefix for HUnit tests.
+    
+    Closes https://github.com/lwm/tasty-discover/issues/95.
+
+[33mcommit 0feaa05a74d5be711f0a1119db5f661e9d345bd6[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Apr 9 13:28:28 2017 +0100
+
+    Improve readability of generator functions.
+    
+    Use clearer indentation and where clauses to make it
+    easier to grok.
+
+[33mcommit ade623e5db8bab699a3adefc604998b8e7e16bcb[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Thu Apr 13 13:44:52 2017 +0100
+
+    Bump version on badges.
+    
+    I really, really, really need to automate this.
+
+[33mcommit c0b3c5739bcfd1e9e3631cc969ee73db98c0f1d6[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Thu Apr 13 13:42:24 2017 +0100
+
+    Add synopsis to the description.
+    
+    For some reason, the description is now headlining on the Hackage
+    page, so I better add that first line to make it clear what this
+    package is for.
+
+[33mcommit 4b83b5e782b8b7f4d084cc22e2ee07dd8a3a258f[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Thu Apr 13 13:36:17 2017 +0100
+
+    Add upload target (I keep forgetting the `.`!).
+
+[33mcommit 66fbb718497e462c3c20f4af28edf7dfb8a61d71[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sun Apr 9 13:08:57 2017 +0100
+
+    Add README to cabal file and update description.
+    
+    Closes https://github.com/lwm/tasty-discover/issues/94.
+
+[33mcommit b595ddaf87776d9a26c511fdf9ea16bd509d8adc[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 20:57:09 2017 +0000
+
+    Simplify examples.
+
+[33mcommit dcd3c54821dba3bdac85ecae6de8cd481d36eb9e[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 20:54:02 2017 +0000
+
+    This isn't Python.
+
+[33mcommit beaf3f8ddeb406a6fe0eee6e4583691943b94d86[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 20:03:39 2017 +0000
+
+    Make the test names lower case.
+
+[33mcommit e4a2f2dc1c0e76f4c5e8d14ba0c551aba6595c7e[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 18:57:33 2017 +0000
+
+    Also get pedantic on the install.
+
+[33mcommit fc30cbb43b73c96a5e791ec1bc54e569343da0df[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 12:27:51 2017 +0000
+
+    Get pedantic!
+
+[33mcommit 3a00d7a48cf6f39d9c11d58c0777dba77aa16970[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 11:54:29 2017 +0000
+
+    Bump versions and remove note. tasty-auto is mentioned below.
+
+[33mcommit c193a515f167c701f7351b5ecedc7fad6652a5c6[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 11:54:17 2017 +0000
+
+    Add Change log entry.
+
+[33mcommit 5569abea587b600c3cc71b99422a6123e24dbdd6[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 11:37:41 2017 +0000
+
+    Use underscores in target names consistently.
+
+[33mcommit 26cdb243e647586b0fe91b33b02c1e3f60172aed[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 11:34:04 2017 +0000
+
+    Add stylish-haskell check. Shorten test target.
+    
+    Also move the sdist target further up to the $TEST definition.
+
+[33mcommit be205a506c1ca478a1e4dd2b2e23577f67456c00[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 11:33:43 2017 +0000
+
+    Inline the setup.
+
+[33mcommit a533e54765814791900fc2cbb3cfd1acef7cd1d5[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 11:27:24 2017 +0000
+
+    Run stylish-haskell over the source.
+
+[33mcommit 15e32fddcb139ea6e9b26e13fe7d6a78440fdcd7[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 11:27:11 2017 +0000
+
+    Add latest configuration.
+
+[33mcommit fc02c4e736cc8b50900651d36c273c4190a0dcb8[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 11:10:31 2017 +0000
+
+    Fix link.
+
+[33mcommit 5974de53c56453c5863b9066454669f1b1bc972d[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 11:07:07 2017 +0000
+
+    Add change log entry for change log commit!
+
+[33mcommit e66ec55c50cbe35bde0af3c9fb521e652d7bf030[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 11:04:59 2017 +0000
+
+    Add change log to package.
+
+[33mcommit 92b0274e3ee6f3662b376c5c4c24bb1aff9c302f[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 11:04:26 2017 +0000
+
+    Just use name for `author` field.
+
+[33mcommit 9dc99fda4e2acf8ea4bbd722aae55500fb92b234[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 11:03:45 2017 +0000
+
+    No need for markdown file type.
+
+[33mcommit 08a6d4104080adfb368b606f46491ce4c1757cc8[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 10:48:09 2017 +0000
+
+    Make release date. Run hpack.
+    
+    Forgot to pass configuration to cabal file. Thanks Stack!
+    
+    Related: https://github.com/lwm/tasty-discover/issues/87
+
+[33mcommit 87c4717f1f9d1001ef9ba7e92cc48d1d7ffefa97[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 10:26:29 2017 +0000
+
+    Bump version.
+
+[33mcommit 75b98e98673ce641cb97592a424c58310ff49272[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 10:26:12 2017 +0000
+
+    Add change log entry.
+
+[33mcommit 9356bb0837f08a39107a151a6c73dc50cafef521[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 10:25:35 2017 +0000
+
+    Fix flaky test. Closes #85.
+
+[33mcommit 5cc47e4bd911a3b98fbf0f32e21310a325b6b14b[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 10:25:15 2017 +0000
+
+    Use default config record syntax.
+
+[33mcommit 6620bc40a94ada7e5bf476040a3ca1b718a83daf[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Sat Mar 18 10:24:42 2017 +0000
+
+    Add correct module hierarchy.
+
+[33mcommit 91a6fa295bf9a8b33cf8dc91ae19c2661dfe4e8a[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Wed Mar 15 16:44:27 2017 +0000
+
+    Remove Type module and Show instance and use deriving.
+
+[33mcommit c560036d52380fc2fc8fda80aad68182fe5747d4[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Wed Mar 15 17:25:45 2017 +0000
+
+    Add tasty-auto readme note.
+
+[33mcommit 5e9f80544b809b00f1125f33cbcf1b29992db508[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Wed Mar 15 17:00:28 2017 +0000
+
+    Centralize example of multi-line config.
+
+[33mcommit edf672bd63cd221a007fcd680dfa0f292b19a759[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Wed Mar 15 16:27:45 2017 +0000
+
+    Add multi-line configuration example.
+    
+    Related to https://github.com/lwm/tasty-discover/issues/70#issuecomment-286743089.
+
+[33mcommit 660df6dbd66346140a07a9260e84ebe996b2dcd0[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Wed Mar 15 13:24:50 2017 +0000
+
+    It wasn't as bad as I thought ...
+
+[33mcommit 80ac96e2251470bfc287ba196da878cbc5c7a018[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Wed Mar 15 13:24:18 2017 +0000
+
+    Add release date and forgotten change log note.
+
+[33mcommit f6ecc76b9eaa568efb2d4b98b5c4b421ebbfb1ca[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Wed Mar 15 13:20:25 2017 +0000
+
+    Bump versioning in the README.
+
+[33mcommit 984893ebbf6ae15940a25acd393ab398bb233da6[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Wed Mar 15 13:13:07 2017 +0000
+
+    Bump to latest 2.0 version.
+
+[33mcommit a80fc0d3b3aac30b5a7f61b7fb2fd3b7c59fca14[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Wed Mar 15 13:12:59 2017 +0000
+
+    Remove unused dependency.
+
+[33mcommit 262bf21327c25aa6e5a5a7895d1b6ff1dbe84a76[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Wed Mar 15 12:55:52 2017 +0000
+
+    Add tests for configuration options.
+
+[33mcommit 611bc49d8e38a70b912dafb57a686da46f296e67[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Tue Mar 14 10:01:58 2017 +0000
+
+    Add examples.
+
+[33mcommit bce0f3e5ee236a2b769cb42acec9a7a552c1eaa8[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Tue Mar 14 09:56:24 2017 +0000
+
+    Remove resizing. It ain't working.
+
+[33mcommit 1480467c9f13608aa09aad8540aaaafec8c42b7c[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Tue Mar 14 09:54:36 2017 +0000
+
+    Add alt text to GIF.
+
+[33mcommit 2b9cea678b4beff2c692d5a5d888a991816931e2[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Tue Mar 14 09:52:27 2017 +0000
+
+    Add change log entry for latest commits.
+
+[33mcommit 30a8924801673d3465773e76068b3b0e12972fd0[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Tue Mar 14 09:51:45 2017 +0000
+
+    Remove target. Removed the project.
+
+[33mcommit 2ad941d59fb44f78a6ac29bccd4a5afcb7a22326[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Tue Mar 14 09:48:29 2017 +0000
+
+    Remove example project. Unit test does the job.
+    
+    Also, I improved the readme so, hopefully it just isn't
+    necessary.
+
+[33mcommit 2cde4bed972a04b9699fb7e41cfdba299cfc4299[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Mon Mar 13 20:27:58 2017 +0000
+
+    Improve README.
+
+[33mcommit 5882a1a1706f3e04689b86f69988a71421a73785[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Mon Mar 13 19:48:26 2017 +0000
+
+    Remove example test for now.
+    
+    I'll be back.
+
+[33mcommit d21b5ac7ef4fff43dd1cb67f160aec99e15ae2d3[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Mon Mar 13 19:41:07 2017 +0000
+
+    Add support for configuration options.
+
+[33mcommit 55972b1c7b68a296af3b5983f9710910fa4c05ef[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Mon Mar 13 18:37:32 2017 +0000
+
+    Make sure Stack package are setup for Travis.
+
+[33mcommit 04a8aa1481d448fba59e4c46e3ad902fadc32487[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Mon Mar 13 18:25:10 2017 +0000
+
+    Bump to latest LTS.
+
+[33mcommit f846129286122601a379e435a6fe897b72368706[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Mon Mar 13 18:24:49 2017 +0000
+
+    Remove cruft from package.yaml. Keeping that lean.
+
+[33mcommit c11859112dbbc835cac60e9a4d84de7808bdf89b[m
+Author: Luke Murphy <lukewm@riseup.net>
+Date:   Mon Mar 13 18:24:12 2017 +0000
+
+    Remove cruft from Makefile.
