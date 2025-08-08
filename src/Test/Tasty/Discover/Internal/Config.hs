@@ -7,6 +7,7 @@ module Test.Tasty.Discover.Internal.Config
   ( -- * Configuration Options
     Config (..)
   , GlobPattern
+  , SkipTest (..)
 
     -- * Configuration Parser
   , parseConfig
@@ -19,12 +20,30 @@ import Data.Maybe            (isJust)
 import GHC.Generics          (Generic)
 import System.Console.GetOpt (ArgDescr (NoArg, ReqArg), ArgOrder (Permute), OptDescr (Option), getOpt')
 import System.FilePath ((</>))
+import Test.Tasty.Options (IsOption (..), safeRead)
 
 -- | A tasty ingredient.
 type Ingredient = String
 
 -- | A glob pattern.
 type GlobPattern = String
+
+-- | Newtype wrapper for skip test option.
+--
+-- This option type integrates with Tasty's option system to control whether
+-- tests should be skipped. When set to @SkipTest True@, tests will show as
+-- @[SKIPPED]@ in yellow in the test output and won't actually execute.
+--
+-- Used internally by the 'skip' function and 'Flavored' type to implement
+-- test skipping functionality.
+newtype SkipTest = SkipTest Bool
+  deriving stock (Show, Eq, Generic)
+
+instance IsOption SkipTest where
+  defaultValue = SkipTest False
+  parseValue = fmap SkipTest . safeRead
+  optionName = return "skip-test"
+  optionHelp = return "Skip test execution (useful for debugging test discovery)"
 
 -- | The discovery and runner configuration.
 data Config = Config
