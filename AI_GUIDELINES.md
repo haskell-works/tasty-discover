@@ -49,6 +49,12 @@ tasty-discover is a Haskell test discovery and runner tool for the Tasty testing
 - `.hlint.yaml` - HLint configuration
 - `.stylish-haskell.yaml` - Code formatting rules
 
+### Git Best Practices
+- **Always use `--no-pager`** when running git commands in terminal environments where pagers may cause issues
+- Examples: `git --no-pager log`, `git --no-pager status`, `git --no-pager diff`
+- This prevents git from hanging or showing incomplete output in automated environments
+- Particularly important for AI assistants and CI/CD environments
+
 ## Common Tasks
 
 ### Adding New Test Prefixes
@@ -212,6 +218,12 @@ cabal run tasty-discover -- --debug [options] file.hs _ ModuleName
 
 # Check generated code
 cat dist-newstyle/build/.../generated-file.hs
+
+# Git commands (use --no-pager to avoid pager issues in terminals)
+git --no-pager log --oneline -10
+git --no-pager status
+git --no-pager diff
+git --no-pager show
 ```
 
 ## Contributing Guidelines
