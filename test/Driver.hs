@@ -89,21 +89,23 @@ tests = do
 
   t21 <- TD.tasty (TD.description "reverse" <> TD.name "DiscoverTest.tasty_reverse") DiscoverTest.tasty_reverse
 
-  t22 <- pure $ H.testPropertyNamed "reverse" (fromString "DiscoverTest.hprop_reverse") DiscoverTest.hprop_reverse
+  t22 <- TD.tasty (TD.description "skip me" <> TD.name "DiscoverTest.tasty_skip_me") DiscoverTest.tasty_skip_me
 
-  t23 <- pure $ QC.testProperty "subTest" ModulesGlob.Sub.OneTest.prop_subTest
+  t23 <- pure $ H.testPropertyNamed "reverse" (fromString "DiscoverTest.hprop_reverse") DiscoverTest.hprop_reverse
 
-  t24 <- pure $ QC.testProperty "topLevelTest" ModulesGlob.TwoTest.prop_topLevelTest
+  t24 <- pure $ QC.testProperty "subTest" ModulesGlob.Sub.OneTest.prop_subTest
 
-  t25 <- pure $ QC.testProperty "additionCommutative" SubMod.FooBaz.prop_additionCommutative
+  t25 <- pure $ QC.testProperty "topLevelTest" ModulesGlob.TwoTest.prop_topLevelTest
 
-  t26 <- pure $ QC.testProperty "multiplationDistributiveOverAddition" SubMod.FooBaz.prop_multiplationDistributiveOverAddition
+  t26 <- pure $ QC.testProperty "additionCommutative" SubMod.FooBaz.prop_additionCommutative
 
-  t27 <- pure $ QC.testProperty "additionAssociative" SubMod.PropTest.prop_additionAssociative
+  t27 <- pure $ QC.testProperty "multiplationDistributiveOverAddition" SubMod.FooBaz.prop_multiplationDistributiveOverAddition
 
-  t28 <- pure $ QC.testProperty "additionCommutative" SubMod.SubSubMod.PropTest.prop_additionCommutative
+  t28 <- pure $ QC.testProperty "additionAssociative" SubMod.PropTest.prop_additionAssociative
 
-  pure $ T.testGroup "test/Driver.hs" [t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19,t20,t21,t22,t23,t24,t25,t26,t27,t28]
+  t29 <- pure $ QC.testProperty "additionCommutative" SubMod.SubSubMod.PropTest.prop_additionCommutative
+
+  pure $ T.testGroup "test/Driver.hs" [t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19,t20,t21,t22,t23,t24,t25,t26,t27,t28,t29]
 ingredients :: [T.Ingredient]
 ingredients = T.defaultIngredients
 main :: IO ()

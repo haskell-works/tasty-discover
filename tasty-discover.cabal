@@ -40,6 +40,7 @@ flag dev
 
 common base                       { build-depends: base                       >= 4.11       && < 5      }
 
+common ansi-terminal              { build-depends: ansi-terminal              >= 1.0      && < 2.0      }
 common bytestring                 { build-depends: bytestring                 >= 0.9      && < 1.0      }
 common containers                 { build-depends: containers                 >= 0.4      && < 1.0      }
 common directory                  { build-depends: directory                  >= 1.1      && < 2.0      }
@@ -107,6 +108,7 @@ executable tasty-discover
 
 test-suite tasty-discover-test
   import:               base, project-config
+                      , ansi-terminal
                       , bytestring
                       , containers
                       , directory

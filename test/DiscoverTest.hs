@@ -2,6 +2,8 @@
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
+{- HLINT ignore "Avoid reverse" -}
+
 module DiscoverTest where
 
 import Data.ByteString.Lazy (ByteString)
@@ -9,9 +11,11 @@ import Data.List
 import Data.Maybe (listToMaybe)
 import Data.String (IsString(..))
 import GHC.Generics (Generic)
+import System.Console.ANSI (Color(..), ColorIntensity(..), ConsoleLayer(..), SGR(..), setSGRCode)
 import Test.Hspec (shouldBe)
 import Test.Hspec.Core.Spec (Spec, describe, it)
 import Test.Tasty
+import Test.Tasty.Discover (Flavored, flavored, skip)
 import Test.Tasty.Golden
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck hiding (Property, property)
@@ -77,26 +81,37 @@ newtype Property = Property
   }
 
 instance TD.Tasty Property where
-  tasty info (Property p) = pure $
+  tasty info (Property p) = do
+    let name = TD.nameOf info
+    let mkTestTree =
 #if MIN_VERSION_tasty_hedgehog(1, 2, 0)
-    TH.testPropertyNamed (TD.nameOf info) (fromString (TD.descriptionOf info)) p
+          TH.testPropertyNamed name (fromString (TD.descriptionOf info))
 #else
-    TH.testProperty (TD.nameOf info) p
+          TH.testProperty name
 #endif
+        yellowText text = setSGRCode [SetColor Foreground Vivid Yellow] ++ text ++ setSGRCode [Reset]
+    -- Apply skip functionality if SkipTest option is True
+    pure $ askOption $ \(TD.SkipTest shouldSkip) ->
+      if shouldSkip
+        then testCase (TD.nameOf info ++ " " ++ yellowText "[SKIPPED]") (pure ())
+        else mkTestTree p
 
 property :: HasCallStack => H.PropertyT IO () -> Property
 property = Property . H.property
 
-{- HLINT ignore "Avoid reverse" -}
 tasty_reverse :: Property
 tasty_reverse = property $ do
   xs <- H.forAll $ G.list (R.linear 0 100) G.alpha
   reverse (reverse xs) H.=== xs
 
+tasty_skip_me :: Flavored Property
+tasty_skip_me =
+  flavored skip $ property $ do
+    H.failure
+
 ------------------------------------------------------------------------------------------------
 -- How to use the latest version of tasty-hedgehog
 
-{- HLINT ignore "Avoid reverse" -}
 hprop_reverse :: H.Property
 hprop_reverse = H.property $ do
   xs <- H.forAll $ G.list (R.linear 0 100) G.alpha
