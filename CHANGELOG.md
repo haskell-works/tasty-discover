@@ -8,6 +8,34 @@ The format is based on [Keep a Changelog] and this project adheres to
 [Keep a Changelog]: http://keepachangelog.com/
 [Semantic Versioning]: http://semver.org/
 
+## [Unreleased]
+
+### Added
+- New `--no-main` option for generating modules without main function (see #54)
+- Support for custom tests with `Tasty` instances using `tasty_` prefix
+- New `TastyInfo` type providing access to test metadata in custom tests
+- Comprehensive documentation for all test type variations
+- Step-by-step testing support for HUnit tests
+- IO-based test generation for TestTrees
+- AI development guidelines in AI_GUIDELINES.md
+- Comprehensive coding style guide in CODING_STYLE.md
+
+### Fixed
+- Fixed backup file import generation bug - prevents `.hs.orig` and `.hs.bak` files from being processed (see #58)
+- Fixed directory handling in glob patterns - directories are now filtered out when using `--modules` flag (resolves #12)
+- Fixed HLint warnings in generated code
+- Fixed warnings in Generator.hs and added Unsafe.hs module
+- Fixed broken links in documentation
+
+### Changed
+- Cleaned up cabal file configuration
+- Improved test discovery patterns from `*.hs*` to `*.hs` to avoid backup files
+- Enhanced documentation with more test type examples
+- Added regression tests for backup file handling and directory filtering
+
+### Removed
+- Removed `project.sh` build script
+
 # 5.0.0 [2022-07-08]
 
 - Fix tasty-hedgehog `testProperty` deprecation warning

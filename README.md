@@ -34,6 +34,12 @@ write your tests. Remember to add your test modules to your Cabal/Hpack
 files. Tasty ingredients are included along with various configuration options
 for different use cases.
 
+**Recent improvements include:**
+- New `--no-main` option for custom test runners
+- Enhanced support for custom test types with `Tasty` instances
+- Better handling of backup files and directories in test discovery
+- Comprehensive documentation with more test examples
+
 See below for full documentation and examples.
 
 # Getting Started
@@ -189,7 +195,7 @@ test_generateTrees = do
 -- Custom test with Tasty instance
 --
 -- Write a test for anything with a Tasty instance
--- 
+--
 -- In order to use this feature, you must add tasty-discover as a library dependency
 -- to your test component in the cabal file.
 --
