@@ -15,8 +15,19 @@ import Test.Tasty.QuickCheck
 import Test.Hspec.Core.Spec (Spec, describe, it)
 
 import Test.Hspec (shouldBe, shouldSatisfy)
+import Test.Tasty.ExpectedFailure (expectFail)
+import qualified Test.Tasty as T
+import qualified Test.Tasty.HUnit as HU
 
 import qualified Data.Map.Strict as M
+
+-- For symlinks test
+import System.Directory (createDirectoryIfMissing, createFileLink, 
+                        doesDirectoryExist, listDirectory)
+import System.FilePath ((</>))
+import System.Process (readProcessWithExitCode)
+import System.IO.Temp (withSystemTempDirectory)
+import System.Exit (ExitCode(..))
 
 spec_modules :: Spec
 spec_modules = describe "Test discovery" $ do
@@ -164,3 +175,70 @@ spec_commentHandling = describe "Comment handling" $ do
     let tests = extractTests "Test.hs" content
         testNames = sort $ map testFunction tests
     testNames `shouldBe` sort ["test_first", "test_second", "test_third"]
+
+spec_symlinksNotFollowed :: Spec
+spec_symlinksNotFollowed = describe "Symlinks handling" $ do
+  it "this test is disabled - see tasty_symlinksNotFollowed instead" $ do
+    pure () :: IO ()
+
+-- Tasty test that expects failure for symlink handling
+tasty_symlinksNotFollowed :: IO T.TestTree
+tasty_symlinksNotFollowed = do
+  pure $ expectFail $ HU.testCase "should handle symlinked directories gracefully without crashing" $ do
+    withSystemTempDirectory "tasty-discover-symlink-test" $ \tmpDir -> do
+      -- Create a real test directory with a test file
+      let realTestDir = tmpDir </> "real-tests"
+      createDirectoryIfMissing True realTestDir
+      writeFile (realTestDir </> "RealTest.hs") $ unlines
+        [ "module RealTest where"
+        , "import Test.Tasty.HUnit"
+        , "test_real :: TestTree"
+        , "test_real = testCase \"real test\" $ 1 @?= 1"
+        ]
+      
+      -- Create a symlinked directory pointing to the real test directory
+      let symlinkTestDir = tmpDir </> "symlinked-tests"
+      createFileLink realTestDir symlinkTestDir
+      
+      -- Verify symlink was created
+      symlinkExists <- doesDirectoryExist symlinkTestDir
+      symlinkExists `shouldBe` True
+      
+      -- Helper function to print directory structure for debugging
+      let printDirStructure dir prefix = do
+            contents <- listDirectory dir
+            mapM_ (\item -> do
+              let fullPath = dir </> item
+              isDir <- doesDirectoryExist fullPath
+              if isDir
+                then do
+                  putStrLn $ prefix ++ item ++ "/ (directory)"
+                  printDirStructure fullPath (prefix ++ "  ")
+                else putStrLn $ prefix ++ item
+              ) contents
+      
+      -- Run tasty-discover on the temp directory
+      let outputFile = tmpDir </> "TestOutput.hs"
+      (exitCode, _stdout, stderr) <- readProcessWithExitCode "tasty-discover" [tmpDir, "--output", outputFile] ""
+      
+      -- tasty-discover should NOT crash on symlinked directories
+      -- This test will FAIL until issue #38 is fixed, which is the correct behavior
+      case exitCode of
+        ExitFailure code -> do
+          putStrLn $ "tasty-discover crashed with exit code " ++ show code
+          putStrLn $ "Test directory structure in " ++ tmpDir ++ ":"
+          printDirStructure tmpDir ""
+          putStrLn $ "stderr: " ++ stderr
+          if "withFile: inappropriate type (is a directory)" `isInfixOf` stderr
+            then error "BUG: tasty-discover crashes on symlinked directories (GitHub issue #38). This test will pass when the issue is fixed."
+            else error $ "tasty-discover failed for unexpected reason: " ++ stderr
+        ExitSuccess -> do
+          -- Success! tasty-discover handled symlinks gracefully
+          putStrLn "tasty-discover handled symlinks gracefully!"
+          testOutput <- readFile outputFile
+          -- Verify that at least the real test was found
+          testOutput `shouldSatisfy` ("RealTest" `isInfixOf`)
+          -- The behavior when symlinks are handled correctly could be:
+          -- 1. Symlinks are followed (tests appear twice)
+          -- 2. Symlinks are ignored (tests appear once)
+          -- Either is acceptable as long as no crash occurs
