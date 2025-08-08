@@ -28,6 +28,8 @@ import Data.Maybe      (fromJust)
 import GHC.Generics    (Generic)
 import System.FilePath (dropExtension, isPathSeparator)
 
+import Test.Tasty.Discover.Internal.Unsafe (unsafeHead)
+
 -- | The test type.
 data Test = Test
   { testModule   :: String -- ^ Module name.
@@ -53,7 +55,7 @@ qualifyFunction t = testModule t ++ "." ++ testFunction t
 
 -- | Function namer.
 name :: Test -> String
-name = chooser '_' ' ' . tail . dropWhile (/= '_') . testFunction
+name = chooser '_' ' ' . drop 1 . dropWhile (/= '_') . testFunction
   where chooser c1 c2 = map $ \c3 -> if c3 == c1 then c2 else c3
 
 -- | Generator retriever (single).
@@ -62,9 +64,13 @@ getGenerator t = fromJust $ getPrefix generators
   where getPrefix = find ((`isPrefixOf` testFunction t) . generatorPrefix)
 
 -- | Generator retriever (many).
+--
+-- Groups tests by generator prefix and extracts one representative generator
+-- from each group. Uses 'unsafeHead' because 'groupBy' never produces empty
+-- groups when given a non-empty input list.
 getGenerators :: [Test] -> [Generator]
 getGenerators =
-  map head .
+  map unsafeHead .
   groupBy  ((==) `on` generatorPrefix) .
   sortOn generatorPrefix .
   map getGenerator

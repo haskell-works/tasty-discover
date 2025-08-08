@@ -85,6 +85,7 @@ library
                         Test.Tasty.Discover.Internal.Config
                         Test.Tasty.Discover.Internal.Driver
                         Test.Tasty.Discover.Internal.Generator
+                        Test.Tasty.Discover.Internal.Unsafe
                         Test.Tasty.Discover.TastyInfo
                         Test.Tasty.Discover.Version
   other-modules:        Paths_tasty_discover
