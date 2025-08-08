@@ -224,6 +224,7 @@ tasty_notWindows = platform "!windows" $ testCase "Non-Windows functionality" $ 
   -- Print OS info for debugging platform detection
   putStrLn $ "Current OS from System.Info.os: " ++ show os
   putStrLn $ "Platform expression '!windows' evaluation: " ++ show (evaluatePlatformExpression "!windows" os)
+  _ <- error "hello"
   pure ()
 
 tasty_unixLike :: TestTree
