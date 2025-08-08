@@ -33,6 +33,8 @@ tasty-discover is a Haskell test discovery and runner tool for the Tasty testing
 - Use qualified imports with meaningful aliases
 - Prefer explicit type signatures
 - Follow the existing module structure and naming conventions
+- Avoid generating trailing whitespace on all lines in source files and documentation
+- Use consistent indentation (spaces, not tabs)
 
 ### Testing
 - Main test suite: `test/` directory using standard tasty-discover setup
@@ -73,6 +75,12 @@ tasty-discover is a Haskell test discovery and runner tool for the Tasty testing
 - Conditional import of `System.Environment` (only when main function is generated)
 - Complete test suite in `test-no-main/` demonstrating usage
 
+### Bug Fixes and Robustness Improvements (2025)
+- Fixed backup file handling: changed file pattern from `*.hs*` to `*.hs`
+- Added directory filtering in glob patterns to prevent crashes
+- Introduced comprehensive regression testing for edge cases
+- Fixed HLint warnings in generated code
+
 ## Best Practices
 
 ### When Working with Generated Code
@@ -92,6 +100,26 @@ tasty-discover is a Haskell test discovery and runner tool for the Tasty testing
 - Include examples for new features
 - Maintain consistency between code and documentation
 
+### Regression Testing Strategy
+- Create specific test directories for reproducing reported bugs (e.g., `test/BackupFiles/`, `test/ModulesGlob/`)
+- Add regression tests with descriptive names that reference the issue being fixed
+- Include both positive and negative test cases in the test data
+- Update cabal file to include new test modules when adding test directories
+
+### Code Quality and Safety
+- Use unsafe functions only when strong invariants guarantee safety
+- Document why unsafe functions are necessary and when they should/shouldn't be used
+- Add detailed comments explaining the safety invariants
+- Fix HLint warnings in generated code to maintain code quality standards
+- **Avoid generating trailing whitespace**: Ensure no lines end with spaces or tabs in source code, documentation, or generated code
+- Configure your editor to show/remove trailing whitespace automatically
+
+### File System Robustness
+- Filter file operations to handle edge cases (directories, backup files, etc.)
+- Use appropriate file existence checks before processing
+- Handle glob patterns that might match unintended file types
+- Consider what happens when file patterns match both files and directories
+
 ## File Patterns
 
 ### Test Discovery
@@ -104,6 +132,7 @@ tasty-discover is a Haskell test discovery and runner tool for the Tasty testing
 - Import statements are sorted and deduplicated
 - Code follows consistent formatting patterns
 - Generated functions have meaningful names and documentation
+- No trailing whitespace in generated output
 
 ## Debugging
 
@@ -112,6 +141,15 @@ tasty-discover is a Haskell test discovery and runner tool for the Tasty testing
 - **Wrong test prefix**: Verify the prefix matches exactly in the generators list
 - **Build failures**: Ensure all dependencies are listed in cabal file
 - **Runtime errors**: Check that generated main function handles arguments correctly
+- **File discovery problems**: Verify glob patterns and file filtering logic
+- **Backup file interference**: Ensure test discovery ignores `.orig`, `.bak` files
+- **Directory matching**: Check that directory entries are filtered out from file operations
+
+### Development Patterns from Recent Changes
+- **Issue-driven development**: Create regression tests for reported GitHub issues
+- **Incremental safety**: Add safety checks and filters rather than rewriting large portions
+- **Documentation-first**: Update documentation alongside code changes
+- **Test data organization**: Create dedicated test directories for specific scenarios
 
 ### Useful Commands
 ```bash
@@ -135,6 +173,26 @@ cat dist-newstyle/build/.../generated-file.hs
 3. **Test thoroughly**: Both positive and negative test cases
 4. **Update docs**: README.md, CHANGELOG.md, and help text
 5. **Verify backwards compatibility**: Existing test suites should continue working
+
+### Lessons from Recent Development
+
+**When fixing bugs:**
+- Create minimal reproducible test cases in dedicated directories
+- Change implementation incrementally rather than large rewrites
+- Add safety filters and checks rather than removing functionality
+- Verify the fix doesn't break existing functionality
+
+**When adding features:**
+- Start with a clear use case and example usage
+- Consider both the generated code and the CLI interface impact
+- Add comprehensive documentation and examples
+- Create a complete test suite demonstrating the feature
+
+**When improving robustness:**
+- Identify edge cases through real-world usage patterns
+- Add defensive programming practices (file existence checks, type filtering)
+- Document assumptions and invariants clearly
+- Use regression tests to prevent future breakage
 
 ---
 
