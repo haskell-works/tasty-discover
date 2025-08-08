@@ -10,6 +10,7 @@
   * [Create Test Driver File](#create-test-driver-file)
   * [Configure Cabal or Hpack Test Suite](#configure-cabal-or-hpack-test-suite)
 - [Write Tests](#write-tests)
+  * [Comment Handling](#comment-handling)
 - [Customise Discovery](#customise-discovery)
   * [No Arguments](#no-arguments)
   * [With Arguments](#with-arguments)
@@ -38,6 +39,7 @@ for different use cases.
 - New `--no-main` option for custom test runners
 - Enhanced support for custom test types with `Tasty` instances
 - Better handling of backup files and directories in test discovery
+- Intelligent block comment handling to prevent false test discovery
 - Comprehensive documentation with more test examples
 
 See below for full documentation and examples.
@@ -284,6 +286,48 @@ test_groupedTests =
 ```
 
 This creates nested test hierarchies that make test output more organized and easier to navigate.
+
+## Comment Handling
+
+`tasty-discover` intelligently handles Haskell comments during test discovery to prevent false positives:
+
+### Block Comments
+
+Tests inside multiline block comments are automatically ignored:
+
+```haskell
+module MyTest where
+
+-- This test will be discovered
+unit_validTest :: IO ()
+unit_validTest = pure ()
+
+{- This test will be ignored
+unit_commentedOut :: IO ()
+unit_commentedOut = pure ()
+-}
+
+{- Nested comments are also handled correctly
+{- Even deeply nested ones
+unit_deeplyNested :: IO ()
+unit_deeplyNested = pure ()
+-}
+unit_alsoIgnored :: IO ()
+unit_alsoIgnored = pure ()
+-}
+```
+
+### Line Comments
+
+Line comments (starting with `--`) are handled by the Haskell lexer and don't interfere with test discovery:
+
+```haskell
+-- unit_thisIsIgnored :: IO ()
+unit_thisIsFound :: IO ()  -- This test will be discovered
+unit_thisIsFound = pure ()
+```
+
+This feature prevents compilation errors that would occur if `tasty-discover` tried to reference tests that are commented out, making it easier to temporarily disable tests during development.
 
 # Customise Discovery
 

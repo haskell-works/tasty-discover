@@ -65,39 +65,41 @@ tests = do
 
   t9 <- pure $ QC.testProperty "mkModuleTree" ConfigTest.prop_mkModuleTree
 
-  t10 <- testCase "listCompare" DiscoverTest.unit_listCompare
+  t10 <- HS.testSpec "commentHandling" ConfigTest.spec_commentHandling
 
-  t11 <- pure $ QC.testProperty "additionCommutative" DiscoverTest.prop_additionCommutative
+  t11 <- testCase "listCompare" DiscoverTest.unit_listCompare
 
-  t12 <- pure $ SC.testProperty "sortReverse" DiscoverTest.scprop_sortReverse
+  t12 <- pure $ QC.testProperty "additionCommutative" DiscoverTest.prop_additionCommutative
 
-  t13 <- HS.testSpec "prelude" DiscoverTest.spec_prelude
+  t13 <- pure $ SC.testProperty "sortReverse" DiscoverTest.scprop_sortReverse
 
-  t14 <- testGroup "addition" DiscoverTest.test_addition
+  t14 <- HS.testSpec "prelude" DiscoverTest.spec_prelude
 
-  t15 <- testGroup "multiplication" DiscoverTest.test_multiplication
+  t15 <- testGroup "addition" DiscoverTest.test_addition
 
-  t16 <- testGroup "generateTree" DiscoverTest.test_generateTree
+  t16 <- testGroup "multiplication" DiscoverTest.test_multiplication
 
-  t17 <- testGroup "generateTrees" DiscoverTest.test_generateTrees
+  t17 <- testGroup "generateTree" DiscoverTest.test_generateTree
 
-  t18 <- TD.tasty (TD.description "reverse" <> TD.name "DiscoverTest.tasty_reverse") DiscoverTest.tasty_reverse
+  t18 <- testGroup "generateTrees" DiscoverTest.test_generateTrees
 
-  t19 <- pure $ H.testPropertyNamed "reverse" (fromString "DiscoverTest.hprop_reverse") DiscoverTest.hprop_reverse
+  t19 <- TD.tasty (TD.description "reverse" <> TD.name "DiscoverTest.tasty_reverse") DiscoverTest.tasty_reverse
 
-  t20 <- pure $ QC.testProperty "subTest" ModulesGlob.Sub.OneTest.prop_subTest
+  t20 <- pure $ H.testPropertyNamed "reverse" (fromString "DiscoverTest.hprop_reverse") DiscoverTest.hprop_reverse
 
-  t21 <- pure $ QC.testProperty "topLevelTest" ModulesGlob.TwoTest.prop_topLevelTest
+  t21 <- pure $ QC.testProperty "subTest" ModulesGlob.Sub.OneTest.prop_subTest
 
-  t22 <- pure $ QC.testProperty "additionCommutative" SubMod.FooBaz.prop_additionCommutative
+  t22 <- pure $ QC.testProperty "topLevelTest" ModulesGlob.TwoTest.prop_topLevelTest
 
-  t23 <- pure $ QC.testProperty "multiplationDistributiveOverAddition" SubMod.FooBaz.prop_multiplationDistributiveOverAddition
+  t23 <- pure $ QC.testProperty "additionCommutative" SubMod.FooBaz.prop_additionCommutative
 
-  t24 <- pure $ QC.testProperty "additionAssociative" SubMod.PropTest.prop_additionAssociative
+  t24 <- pure $ QC.testProperty "multiplationDistributiveOverAddition" SubMod.FooBaz.prop_multiplationDistributiveOverAddition
 
-  t25 <- pure $ QC.testProperty "additionCommutative" SubMod.SubSubMod.PropTest.prop_additionCommutative
+  t25 <- pure $ QC.testProperty "additionAssociative" SubMod.PropTest.prop_additionAssociative
 
-  pure $ T.testGroup "test/Driver.hs" [t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19,t20,t21,t22,t23,t24,t25]
+  t26 <- pure $ QC.testProperty "additionCommutative" SubMod.SubSubMod.PropTest.prop_additionCommutative
+
+  pure $ T.testGroup "test/Driver.hs" [t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19,t20,t21,t22,t23,t24,t25,t26]
 ingredients :: [T.Ingredient]
 ingredients = T.defaultIngredients
 main :: IO ()

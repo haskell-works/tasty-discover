@@ -7,7 +7,7 @@ module ConfigTest where
 
 import Data.List                              (isInfixOf, isSuffixOf, sort)
 import Test.Tasty.Discover.Internal.Config
-import Test.Tasty.Discover.Internal.Driver    (ModuleTree (..), findTests, generateTestDriver, mkModuleTree, showTests)
+import Test.Tasty.Discover.Internal.Driver    (ModuleTree (..), findTests, generateTestDriver, mkModuleTree, showTests, extractTests)
 import Test.Tasty.Discover.Internal.Generator (Test (..), mkTest)
 
 import Test.Tasty.HUnit
@@ -106,3 +106,61 @@ instance Arbitrary ModuleTree where
               else resize (size `div` 2) arbitrary
             tVars <- listOf1 (listOf1 arbitrary)
             pure (mdl, (subTree, tVars))
+
+spec_commentHandling :: Spec
+spec_commentHandling = describe "Comment handling" $ do
+  it "ignores tests in block comments" $ do
+    let content = unlines
+          [ "module Test where"
+          , "{- block comment"
+          , "test_ignored :: TestTree"
+          , "test_ignored = testCase \"ignored\" $ pure ()"
+          , "-}"
+          , "test_valid :: TestTree"
+          , "test_valid = testCase \"valid\" $ pure ()"
+          ]
+    let tests = extractTests "Test.hs" content
+        testNames = map testFunction tests
+    testNames `shouldBe` ["test_valid"]
+
+  it "ignores tests in nested block comments" $ do
+    let content = unlines
+          [ "module Test where"
+          , "{- outer comment"
+          , "test_outerIgnored :: TestTree"
+          , "  {- inner comment"
+          , "test_innerIgnored :: TestTree"
+          , "  -}"
+          , "test_stillOuterIgnored :: TestTree"
+          , "-}"
+          , "test_valid :: TestTree"
+          ]
+    let tests = extractTests "Test.hs" content
+        testNames = map testFunction tests
+    testNames `shouldBe` ["test_valid"]
+
+  it "correctly handles line comments (existing behavior)" $ do
+    let content = unlines
+          [ "module Test where"
+          , "-- test_lineIgnored :: TestTree"
+          , "-- test_lineIgnored = testCase \"ignored\" $ pure ()"
+          , "test_valid :: TestTree"
+          , "test_valid = testCase \"valid\" $ pure ()"
+          ]
+    let tests = extractTests "Test.hs" content
+        testNames = map testFunction tests
+    testNames `shouldBe` ["test_valid"]
+
+  it "finds multiple valid tests correctly" $ do
+    let content = unlines
+          [ "module Test where"
+          , "test_first :: TestTree"
+          , "{-"
+          , "test_ignored :: TestTree"
+          , "-}"
+          , "test_second :: TestTree"
+          , "test_third :: TestTree"
+          ]
+    let tests = extractTests "Test.hs" content
+        testNames = sort $ map testFunction tests
+    testNames `shouldBe` sort ["test_first", "test_second", "test_third"]
