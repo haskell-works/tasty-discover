@@ -33,6 +33,8 @@ The format is based on [Keep a Changelog] and this project adheres to
 ### Fixed
 - Fixed backup file import generation bug - prevents `.hs.orig` and `.hs.bak` files from being processed (see #58)
 - Fixed directory handling in glob patterns - directories are now filtered out when using `--modules` flag (resolves #12)
+- Fixed symlink handling to prevent crashes on symlinked directories (resolves #38)
+- Added platform-aware symlink support - automatic test skipping on Windows where symlinks are not supported
 - Fixed HLint warnings in generated code
 - Fixed warnings in Generator.hs and added Unsafe.hs module
 - Fixed broken links in documentation
