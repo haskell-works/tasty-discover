@@ -67,103 +67,109 @@ tests = do
 
   t10 <- HS.testSpec "commentHandling" ConfigTest.spec_commentHandling
 
-  t11 <- HS.testSpec "symlinksNotFollowed" ConfigTest.spec_symlinksNotFollowed
+  t11 <- TD.tasty (TD.description "assertionExample" <> TD.name "ConfigTest.tasty_assertionExample") ConfigTest.tasty_assertionExample
 
-  t12 <- TD.tasty (TD.description "symlinksNotFollowed" <> TD.name "ConfigTest.tasty_symlinksNotFollowed") ConfigTest.tasty_symlinksNotFollowed
+  t12 <- TD.tasty (TD.description "skippedAssertion" <> TD.name "ConfigTest.tasty_skippedAssertion") ConfigTest.tasty_skippedAssertion
 
-  t13 <- testCase "listCompare" DiscoverTest.unit_listCompare
+  t13 <- TD.tasty (TD.description "platformAssertion" <> TD.name "ConfigTest.tasty_platformAssertion") ConfigTest.tasty_platformAssertion
 
-  t14 <- pure $ QC.testProperty "additionCommutative" DiscoverTest.prop_additionCommutative
+  t14 <- HS.testSpec "symlinksNotFollowed" ConfigTest.spec_symlinksNotFollowed
 
-  t15 <- pure $ SC.testProperty "sortReverse" DiscoverTest.scprop_sortReverse
+  t15 <- TD.tasty (TD.description "symlinksNotFollowed" <> TD.name "ConfigTest.tasty_symlinksNotFollowed") ConfigTest.tasty_symlinksNotFollowed
 
-  t16 <- HS.testSpec "prelude" DiscoverTest.spec_prelude
+  t16 <- testCase "listCompare" DiscoverTest.unit_listCompare
 
-  t17 <- testGroup "addition" DiscoverTest.test_addition
+  t17 <- pure $ QC.testProperty "additionCommutative" DiscoverTest.prop_additionCommutative
 
-  t18 <- testGroup "multiplication" DiscoverTest.test_multiplication
+  t18 <- pure $ SC.testProperty "sortReverse" DiscoverTest.scprop_sortReverse
 
-  t19 <- testGroup "generateTree" DiscoverTest.test_generateTree
+  t19 <- HS.testSpec "prelude" DiscoverTest.spec_prelude
 
-  t20 <- testGroup "generateTrees" DiscoverTest.test_generateTrees
+  t20 <- testGroup "addition" DiscoverTest.test_addition
 
-  t21 <- TD.tasty (TD.description "reverse" <> TD.name "DiscoverTest.tasty_reverse") DiscoverTest.tasty_reverse
+  t21 <- testGroup "multiplication" DiscoverTest.test_multiplication
 
-  t22 <- TD.tasty (TD.description "skip me" <> TD.name "DiscoverTest.tasty_skip_me") DiscoverTest.tasty_skip_me
+  t22 <- testGroup "generateTree" DiscoverTest.test_generateTree
 
-  t23 <- TD.tasty (TD.description "tree of testCase not skipped" <> TD.name "DiscoverTest.tasty_tree_of_testCase_not_skipped") DiscoverTest.tasty_tree_of_testCase_not_skipped
+  t23 <- testGroup "generateTrees" DiscoverTest.test_generateTrees
 
-  t24 <- testCase "platformExpression linux" DiscoverTest.unit_platformExpression_linux
+  t24 <- TD.tasty (TD.description "reverse" <> TD.name "DiscoverTest.tasty_reverse") DiscoverTest.tasty_reverse
 
-  t25 <- testCase "platformExpression darwin" DiscoverTest.unit_platformExpression_darwin
+  t25 <- TD.tasty (TD.description "skip me" <> TD.name "DiscoverTest.tasty_skip_me") DiscoverTest.tasty_skip_me
 
-  t26 <- testCase "platformExpression windows" DiscoverTest.unit_platformExpression_windows
+  t26 <- TD.tasty (TD.description "tree of testCase not skipped" <> TD.name "DiscoverTest.tasty_tree_of_testCase_not_skipped") DiscoverTest.tasty_tree_of_testCase_not_skipped
 
-  t27 <- testCase "platformExpression mingw32" DiscoverTest.unit_platformExpression_mingw32
+  t27 <- testCase "platformExpression linux" DiscoverTest.unit_platformExpression_linux
 
-  t28 <- testCase "platformExpression not linux" DiscoverTest.unit_platformExpression_not_linux
+  t28 <- testCase "platformExpression darwin" DiscoverTest.unit_platformExpression_darwin
 
-  t29 <- testCase "platformExpression not windows" DiscoverTest.unit_platformExpression_not_windows
+  t29 <- testCase "platformExpression windows" DiscoverTest.unit_platformExpression_windows
 
-  t30 <- testCase "platformExpression and true" DiscoverTest.unit_platformExpression_and_true
+  t30 <- testCase "platformExpression mingw32" DiscoverTest.unit_platformExpression_mingw32
 
-  t31 <- testCase "platformExpression and false" DiscoverTest.unit_platformExpression_and_false
+  t31 <- testCase "platformExpression not linux" DiscoverTest.unit_platformExpression_not_linux
 
-  t32 <- testCase "platformExpression or true" DiscoverTest.unit_platformExpression_or_true
+  t32 <- testCase "platformExpression not windows" DiscoverTest.unit_platformExpression_not_windows
 
-  t33 <- testCase "platformExpression or false" DiscoverTest.unit_platformExpression_or_false
+  t33 <- testCase "platformExpression and true" DiscoverTest.unit_platformExpression_and_true
 
-  t34 <- testCase "platformExpression unix linux" DiscoverTest.unit_platformExpression_unix_linux
+  t34 <- testCase "platformExpression and false" DiscoverTest.unit_platformExpression_and_false
 
-  t35 <- testCase "platformExpression unix darwin" DiscoverTest.unit_platformExpression_unix_darwin
+  t35 <- testCase "platformExpression or true" DiscoverTest.unit_platformExpression_or_true
 
-  t36 <- testCase "platformExpression unix windows" DiscoverTest.unit_platformExpression_unix_windows
+  t36 <- testCase "platformExpression or false" DiscoverTest.unit_platformExpression_or_false
 
-  t37 <- testCase "platformExpression complex1" DiscoverTest.unit_platformExpression_complex1
+  t37 <- testCase "platformExpression unix linux" DiscoverTest.unit_platformExpression_unix_linux
 
-  t38 <- testCase "platformExpression complex2" DiscoverTest.unit_platformExpression_complex2
+  t38 <- testCase "platformExpression unix darwin" DiscoverTest.unit_platformExpression_unix_darwin
 
-  t39 <- testCase "platformExpression unknown" DiscoverTest.unit_platformExpression_unknown
+  t39 <- testCase "platformExpression unix windows" DiscoverTest.unit_platformExpression_unix_windows
 
-  t40 <- testCase "platformExpression empty" DiscoverTest.unit_platformExpression_empty
+  t40 <- testCase "platformExpression complex1" DiscoverTest.unit_platformExpression_complex1
 
-  t41 <- TD.tasty (TD.description "linuxOnly" <> TD.name "DiscoverTest.tasty_linuxOnly") DiscoverTest.tasty_linuxOnly
+  t41 <- testCase "platformExpression complex2" DiscoverTest.unit_platformExpression_complex2
 
-  t42 <- TD.tasty (TD.description "notWindows" <> TD.name "DiscoverTest.tasty_notWindows") DiscoverTest.tasty_notWindows
+  t42 <- testCase "platformExpression unknown" DiscoverTest.unit_platformExpression_unknown
 
-  t43 <- TD.tasty (TD.description "unixLike" <> TD.name "DiscoverTest.tasty_unixLike") DiscoverTest.tasty_unixLike
+  t43 <- testCase "platformExpression empty" DiscoverTest.unit_platformExpression_empty
 
-  t44 <- TD.tasty (TD.description "complexPlatform1" <> TD.name "DiscoverTest.tasty_complexPlatform1") DiscoverTest.tasty_complexPlatform1
+  t44 <- TD.tasty (TD.description "linuxOnly" <> TD.name "DiscoverTest.tasty_linuxOnly") DiscoverTest.tasty_linuxOnly
 
-  t45 <- TD.tasty (TD.description "complexPlatform2" <> TD.name "DiscoverTest.tasty_complexPlatform2") DiscoverTest.tasty_complexPlatform2
+  t45 <- TD.tasty (TD.description "notWindows" <> TD.name "DiscoverTest.tasty_notWindows") DiscoverTest.tasty_notWindows
 
-  t46 <- TD.tasty (TD.description "platformSpecific" <> TD.name "DiscoverTest.tasty_platformSpecific") DiscoverTest.tasty_platformSpecific
+  t46 <- TD.tasty (TD.description "unixLike" <> TD.name "DiscoverTest.tasty_unixLike") DiscoverTest.tasty_unixLike
 
-  t47 <- TD.tasty (TD.description "platformAndSkip" <> TD.name "DiscoverTest.tasty_platformAndSkip") DiscoverTest.tasty_platformAndSkip
+  t47 <- TD.tasty (TD.description "complexPlatform1" <> TD.name "DiscoverTest.tasty_complexPlatform1") DiscoverTest.tasty_complexPlatform1
 
-  t48 <- TD.tasty (TD.description "platformGroup" <> TD.name "DiscoverTest.tasty_platformGroup") DiscoverTest.tasty_platformGroup
+  t48 <- TD.tasty (TD.description "complexPlatform2" <> TD.name "DiscoverTest.tasty_complexPlatform2") DiscoverTest.tasty_complexPlatform2
 
-  t49 <- TD.tasty (TD.description "platformFlavored" <> TD.name "DiscoverTest.tasty_platformFlavored") DiscoverTest.tasty_platformFlavored
+  t49 <- TD.tasty (TD.description "platformSpecific" <> TD.name "DiscoverTest.tasty_platformSpecific") DiscoverTest.tasty_platformSpecific
 
-  t50 <- TD.tasty (TD.description "platformProperty" <> TD.name "DiscoverTest.tasty_platformProperty") DiscoverTest.tasty_platformProperty
+  t50 <- TD.tasty (TD.description "platformAndSkip" <> TD.name "DiscoverTest.tasty_platformAndSkip") DiscoverTest.tasty_platformAndSkip
 
-  t51 <- pure $ H.testPropertyNamed "reverse" (fromString "DiscoverTest.hprop_reverse") DiscoverTest.hprop_reverse
+  t51 <- TD.tasty (TD.description "platformGroup" <> TD.name "DiscoverTest.tasty_platformGroup") DiscoverTest.tasty_platformGroup
 
-  t52 <- TD.tasty (TD.description "goldenTest" <> TD.name "DiscoverTest.tasty_goldenTest") DiscoverTest.tasty_goldenTest
+  t52 <- TD.tasty (TD.description "platformFlavored" <> TD.name "DiscoverTest.tasty_platformFlavored") DiscoverTest.tasty_platformFlavored
 
-  t53 <- pure $ QC.testProperty "subTest" ModulesGlob.Sub.OneTest.prop_subTest
+  t53 <- TD.tasty (TD.description "platformProperty" <> TD.name "DiscoverTest.tasty_platformProperty") DiscoverTest.tasty_platformProperty
 
-  t54 <- pure $ QC.testProperty "topLevelTest" ModulesGlob.TwoTest.prop_topLevelTest
+  t54 <- pure $ H.testPropertyNamed "reverse" (fromString "DiscoverTest.hprop_reverse") DiscoverTest.hprop_reverse
 
-  t55 <- pure $ QC.testProperty "additionCommutative" SubMod.FooBaz.prop_additionCommutative
+  t55 <- TD.tasty (TD.description "goldenTest" <> TD.name "DiscoverTest.tasty_goldenTest") DiscoverTest.tasty_goldenTest
 
-  t56 <- pure $ QC.testProperty "multiplationDistributiveOverAddition" SubMod.FooBaz.prop_multiplationDistributiveOverAddition
+  t56 <- pure $ QC.testProperty "subTest" ModulesGlob.Sub.OneTest.prop_subTest
 
-  t57 <- pure $ QC.testProperty "additionAssociative" SubMod.PropTest.prop_additionAssociative
+  t57 <- pure $ QC.testProperty "topLevelTest" ModulesGlob.TwoTest.prop_topLevelTest
 
-  t58 <- pure $ QC.testProperty "additionCommutative" SubMod.SubSubMod.PropTest.prop_additionCommutative
+  t58 <- pure $ QC.testProperty "additionCommutative" SubMod.FooBaz.prop_additionCommutative
 
-  pure $ T.testGroup "test/Driver.hs" [t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19,t20,t21,t22,t23,t24,t25,t26,t27,t28,t29,t30,t31,t32,t33,t34,t35,t36,t37,t38,t39,t40,t41,t42,t43,t44,t45,t46,t47,t48,t49,t50,t51,t52,t53,t54,t55,t56,t57,t58]
+  t59 <- pure $ QC.testProperty "multiplationDistributiveOverAddition" SubMod.FooBaz.prop_multiplationDistributiveOverAddition
+
+  t60 <- pure $ QC.testProperty "additionAssociative" SubMod.PropTest.prop_additionAssociative
+
+  t61 <- pure $ QC.testProperty "additionCommutative" SubMod.SubSubMod.PropTest.prop_additionCommutative
+
+  pure $ T.testGroup "test/Driver.hs" [t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19,t20,t21,t22,t23,t24,t25,t26,t27,t28,t29,t30,t31,t32,t33,t34,t35,t36,t37,t38,t39,t40,t41,t42,t43,t44,t45,t46,t47,t48,t49,t50,t51,t52,t53,t54,t55,t56,t57,t58,t59,t60,t61]
 ingredients :: [T.Ingredient]
 ingredients = T.defaultIngredients
 main :: IO ()
