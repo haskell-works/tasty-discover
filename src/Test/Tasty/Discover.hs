@@ -25,6 +25,49 @@ import Test.Tasty.Discover.Internal.Config (SkipTest(..))
 import qualified Test.Tasty as TT
 import qualified Test.Tasty.Discover.TastyInfo as TI
 
+{- $skipPlatform
+Guidelines for using 'skip' and 'platform'
+-----------------------------------------
+
+TL;DR:
+- For tests exposed via @tasty_@ functions, prefer using the 'Flavored' pattern to apply
+  transformations like 'skip' and 'platform' so they take effect at the TestTree level.
+- Directly applying 'skip' to an already-constructed 'TT.TestTree' marks the subtree as
+  skipped (the test can observe 'SkipTest' via 'TT.askOption'), but the outer 'Tasty'
+  instance may not replace it with a top-level "[SKIPPED]" node.
+
+Patterns:
+- Skip with 'Flavored':
+
+@
+tasty_mySkipped :: Flavored TT.TestTree
+tasty_mySkipped = flavored skip $ TT.testCase "will be skipped" $ pure ()
+@
+
+-
+@
+tasty_linuxOnly :: Flavored TT.TestTree
+tasty_linuxOnly = flavored (platform "linux") $ TT.testCase "Linux only" $ pure ()
+@
+
+Platform expressions:
+- Names: @"linux"@, @"darwin"@, @"windows"@ (mapped to @"mingw32"@), @"mingw32"@, and @"unix"@ (matches linux|darwin)
+- Operators: NOT @!@, AND @&@, OR @|@
+-- Examples:
+
+@
+platform "!windows & !darwin"  -- neither Windows nor Darwin
+platform "linux | darwin"       -- Linux or Darwin
+platform "unix"                 -- Linux or Darwin
+@
+
+Combining:
+- You can compose transformations: e.g., @flavored (platform "linux") . flavored skip@
+  or wrap once with a composed function @flavored (platform "linux" . skip)@.
+
+See 'skip' and 'platform' for function-specific details.
+-}
+
 class Tasty a where
   tasty :: TastyInfo -> a -> IO TT.TestTree
 
@@ -91,17 +134,18 @@ description n = mempty
 
 -- | Mark a test tree to be skipped by setting the SkipTest option to True.
 --
--- Skipped tests will show as @[SKIPPED]@ in yellow in the test output and won't
--- actually execute. This is useful for temporarily disabling tests or for tests
--- that are not yet ready to run.
+-- Usage guidelines: see the @Guidelines for using 'skip' and 'platform'@ section ('skipPlatform').
+-- In short, for @tasty_@ tests prefer 'flavored' 'skip' to let the outer 'Tasty' instance
+-- short-circuit at the TestTree level. Direct 'skip' on a pre-built tree applies the option
+-- to the subtree; the test can still observe 'SkipTest' via 'TT.askOption'.
 --
--- Can be used directly on TestTrees or with the Flavored type:
+-- Examples:
 -- @
--- -- Direct usage
--- test_skipThis :: TestTree
--- test_skipThis = skip $ testCase "will be skipped" $ pure ()
+-- -- Direct usage on a TestTree (the test can read SkipTest via askOption)
+-- test_directSkip :: TestTree
+-- test_directSkip = skip $ testCase "will be skipped" $ pure ()
 --
--- -- With Flavored
+-- -- Preferred for tasty_ tests: apply at the right stage using Flavored
 -- tasty_skipProperty :: Flavored Property
 -- tasty_skipProperty = flavored skip $ property $ do
 --   -- This property will be skipped
@@ -111,6 +155,9 @@ skip :: TT.TestTree -> TT.TestTree
 skip = TT.adjustOption (const (SkipTest True))
 
 -- | Conditionally run a test based on a platform expression.
+--
+-- Usage guidelines, syntax, and examples: see the @Guidelines for using 'skip' and 'platform'@
+-- section ('skipPlatform').
 --
 -- The expression supports logical operations with platform names:
 -- - Platform names: "linux", "darwin", "mingw32", "windows", "unix"
@@ -139,7 +186,33 @@ platform expr testTree =
     then testTree
     else skip testTree
 
--- | Parse and evaluate a platform expression against the current platform
+-- | Evaluate a platform expression against a given platform string.
+--
+-- Inputs:
+-- - The first argument is the platform expression (e.g. @"linux | darwin"@, @"!windows"@).
+-- - The second argument is the current platform, typically @System.Info.os@ (e.g. @"linux"@, @"darwin"@, @"mingw32"@).
+--
+-- Semantics (result is 'True' when the test should run):
+-- - Supported platform names: @"linux"@, @"darwin"@, @"mingw32"@, @"windows"@ (alias for @"mingw32"@), and @"unix"@ (alias for @"linux | darwin"@).
+-- - Supported operators: NOT @!@, AND @&@, OR @|@.
+-- - Unknown simple names evaluate to 'False' (do not run).
+-- - Malformed or empty expressions evaluate to 'True' (default to running).
+--   Malformed includes the presence of operator characters without a valid parse.
+-- - Parentheses characters @(@ and @)@ are tokenized but grouping is not currently implemented;
+--   using parentheses in the expression will cause it to be treated as malformed and therefore
+--   default to 'True' (run). Prefer composing with @&@ and @|@ without parentheses.
+--
+-- Examples:
+--
+-- @
+-- evaluatePlatformExpression "linux"        "linux"   == True
+-- evaluatePlatformExpression "linux"        "darwin"  == False
+-- evaluatePlatformExpression "!windows"     "mingw32" == False
+-- evaluatePlatformExpression "linux|darwin" "darwin"  == True
+-- evaluatePlatformExpression "unix"         "darwin"  == True   -- alias for linux|darwin
+-- evaluatePlatformExpression "unknown"      "linux"   == False  -- unknown simple name
+-- evaluatePlatformExpression ""             "linux"   == True   -- empty -> run
+-- @
 evaluatePlatformExpression :: String -> String -> Bool
 evaluatePlatformExpression expr currentPlatform = 
   case parsePlatformExpression expr of
@@ -147,9 +220,8 @@ evaluatePlatformExpression expr currentPlatform =
     Nothing -> 
       -- If it's just a simple unknown platform name, return False
       -- If it's an empty/malformed expression, return True
-      if null (words expr) || any (`elem` ['&', '|', '!', '(', ')']) expr
-        then True   -- Malformed expression - default to running
-        else False  -- Unknown platform name - don't run
+      let malformedOrEmpty = null (words expr) || any (`elem` ['&', '|', '!', '(', ')']) expr
+      in malformedOrEmpty
 
 -- Parse a platform expression with logical operators
 parsePlatformExpression :: String -> Maybe PlatformExpr
