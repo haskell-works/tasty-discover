@@ -186,6 +186,72 @@ tasty_bugReproduction = do
 - Generated functions have meaningful names and documentation
 - No trailing whitespace in generated output
 
+## Test Patterns and Best Practices
+
+### Platform-Specific Tests with Flavored
+
+When writing tests that should only run on specific platforms, use the `Flavored` pattern with `platform` filtering rather than manual OS detection:
+
+**Recommended Pattern:**
+```haskell
+import Test.Tasty.Discover (Flavored, flavored, platform)
+
+-- Test that should only run on non-Windows platforms
+tasty_unixOnlyTest :: Flavored (IO T.TestTree)
+tasty_unixOnlyTest = flavored (platform "!windows") $ do
+  pure $ HU.testCase "Unix-specific functionality" $ do
+    -- Test implementation that requires Unix-like environment
+    pure ()
+
+-- Test that should only run on Linux
+tasty_linuxSpecificTest :: Flavored T.TestTree
+tasty_linuxSpecificTest = flavored (platform "linux") $
+  HU.testCase "Linux-specific feature" $ do
+    -- Test implementation
+    pure ()
+```
+
+**Avoid Manual OS Detection:**
+```haskell
+-- DON'T do this:
+import System.Info (os)
+
+tasty_manualOsCheck :: IO T.TestTree
+tasty_manualOsCheck = do
+  if os == "mingw32"
+    then pure $ HU.testCase "skipped on Windows" $ pure ()
+    else pure $ HU.testCase "actual test" $ do
+      -- test logic
+      pure ()
+```
+
+**Benefits of the Flavored Pattern:**
+- Integrates with tasty-discover's platform expression system
+- Supports complex expressions like `"!windows & !darwin"`
+- Consistent with other test transformations (skip, expectFail, etc.)
+- Better separation of concerns (platform logic vs test logic)
+- Automatic handling by the test discovery system
+
+### Other Flavored Use Cases
+
+The `Flavored` pattern can be used for various test transformations:
+
+```haskell
+-- Combine platform filtering with expected failure
+tasty_platformSpecificBug :: Flavored T.TestTree
+tasty_platformSpecificBug = flavored (platform "linux" . expectFail) $
+  HU.testCase "reproduces Linux-specific bug #XX" $ do
+    -- Test that fails on Linux due to known bug
+    error "Known bug on Linux"
+
+-- Skip test with platform filtering
+tasty_conditionalSkip :: Flavored T.TestTree
+tasty_conditionalSkip = flavored (platform "!windows" . skip) $
+  HU.testCase "temporarily disabled on non-Windows" $ do
+    -- Test temporarily disabled on non-Windows platforms
+    pure ()
+```
+
 ## Debugging
 
 ### Common Issues

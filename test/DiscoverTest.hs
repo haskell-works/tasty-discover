@@ -23,8 +23,10 @@ import Test.Tasty.QuickCheck hiding (Property, property)
 import qualified Hedgehog            as H
 import qualified Hedgehog.Gen        as G
 import qualified Hedgehog.Range      as R
+import qualified Test.Tasty          as TT
 import qualified Test.Tasty.Discover as TD
 import qualified Test.Tasty.Hedgehog as TH
+import qualified Test.Tasty.HUnit    as HU
 
 ------------------------------------------------------------------------------------------------
 
@@ -108,6 +110,25 @@ tasty_skip_me :: Flavored Property
 tasty_skip_me =
   flavored skip $ property $ do
     H.failure
+
+-- Skipping guideline (read this first):
+--   To skip a tasty_ test at the TestTree level (so it shows [SKIPPED] and
+--   doesn’t run), use:  flavored skip $ ...
+--   Applying skip directly to a TestTree won’t skip it at that outer level; the
+--   test itself must check SkipTest via askOption.
+--
+-- Implementation details (for the curious):
+--   Applying skip to an already-constructed TestTree sets a Tasty option on the
+--   subtree. The test body can observe it (as asserted below), but the Tasty
+--   instance used by tasty_ functions may have already decided how to wrap the
+--   node, so you won’t see a top-level [SKIPPED] placeholder. Wrapping with
+--   flavored skip applies the transformation earlier, letting the instance see
+--   SkipTest and short-circuit with a skipped placeholder.
+tasty_tree_of_testCase_not_skipped :: TT.TestTree
+tasty_tree_of_testCase_not_skipped =
+  skip $ askOption $ \(TD.SkipTest shouldSkip) ->
+    HU.testCase "This test is not skipped at the TestTree level" $
+      HU.assertBool "Expected SkipTest to be True inside TestTree" shouldSkip
 
 ------------------------------------------------------------------------------------------------
 -- Platform expression tests
