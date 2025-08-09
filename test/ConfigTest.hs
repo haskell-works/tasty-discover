@@ -6,11 +6,12 @@
 module ConfigTest where
 
 import Data.List                              (isInfixOf, isSuffixOf, sort)
+import System.Console.ANSI                    (Color(..), ColorIntensity(..), ConsoleLayer(..), SGR(..), setSGRCode)
 import Test.Tasty.Discover.Internal.Config
 import Test.Tasty.Discover.Internal.Driver    (ModuleTree (..), findTests, generateTestDriver, mkModuleTree, showTests, extractTests)
 import Test.Tasty.Discover.Internal.Generator (Test (..), mkTest)
 
-import Test.Tasty.HUnit
+import Test.Tasty.HUnit hiding (Assertion)
 import Test.Tasty.QuickCheck
 import Test.Hspec.Core.Spec (Spec, describe, it)
 
@@ -18,11 +19,12 @@ import Test.Hspec (shouldBe, shouldSatisfy)
 import Test.Tasty.ExpectedFailure (expectFail)
 import qualified Test.Tasty as T
 import qualified Test.Tasty.HUnit as HU
+import qualified Test.Tasty.Discover as TD
 
 import qualified Data.Map.Strict as M
 
 -- For symlinks test
-import System.Directory (createDirectoryIfMissing, createFileLink, 
+import System.Directory (createDirectoryIfMissing, createFileLink,
                         doesDirectoryExist, listDirectory)
 import System.FilePath ((</>))
 import System.Process (readProcessWithExitCode)
@@ -176,6 +178,135 @@ spec_commentHandling = describe "Comment handling" $ do
         testNames = sort $ map testFunction tests
     testNames `shouldBe` sort ["test_first", "test_second", "test_third"]
 
+{- |
+= Custom Test Type Wrapping Pattern
+
+This module demonstrates how to create custom test type wrappers using the @newtype@ pattern
+to integrate external testing libraries with tasty-discover's @Tasty@ typeclass and provide
+ergonomic flavor functionality (such as skipping tests).
+
+== The Pattern
+
+1. **Wrap external test types**: Use @newtype@ to wrap test types from other libraries
+   (e.g., HUnit's @Assertion@, QuickCheck's @Property@, etc.)
+
+2. **Implement Tasty instance**: Provide a @Tasty@ instance that handles the @SkipTest@ option
+   and other flavor transformations
+
+3. **Ergonomic skipping**: Tests can be easily skipped using the @Flavored@ pattern with
+   visual feedback (yellow @[SKIPPED]@ text)
+
+== Benefits
+
+- **Library Integration**: Seamlessly integrate any testing library with tasty-discover
+- **Consistent Interface**: All test types get the same flavor functionality (skip, platform, etc.)
+- **Visual Feedback**: Skipped tests are clearly marked with colored @[SKIPPED]@ indicators
+- **Type Safety**: @newtype@ provides zero-cost abstractions with compile-time guarantees
+
+== Example Implementation
+
+The @Assertion@ newtype below demonstrates this pattern:
+
+@
+newtype Assertion = Assertion HU.Assertion
+
+instance TD.Tasty Assertion where
+  tasty info (Assertion assertion) = do
+    let yellowText text = setSGRCode [SetColor Foreground Vivid Yellow] ++ text ++ setSGRCode [Reset]
+    return $ T.askOption $ \\(TD.SkipTest shouldSkip) ->
+      if shouldSkip
+        then HU.testCase (TD.nameOf info ++ " " ++ yellowText "[SKIPPED]") (pure ())
+        else HU.testCase (TD.nameOf info) assertion
+@
+
+== Usage Patterns
+
+**Basic test:**
+@
+tasty_myTest :: Assertion
+tasty_myTest = Assertion $ do
+  result <- someComputation
+  result \@?\= expectedValue
+@
+
+**Skipped test:**
+@
+tasty_skippedTest :: TD.Flavored Assertion
+tasty_skippedTest = TD.flavored TD.skip $ Assertion $ do
+  -- This will show as [SKIPPED] in yellow and won't execute
+  error "This never runs"
+@
+
+**Platform-conditional test:**
+@
+tasty_linuxOnly :: TD.Flavored Assertion
+tasty_linuxOnly = TD.flavored (TD.platform "linux") $ Assertion $ do
+  -- Only runs on Linux systems
+  linuxSpecificAssertion
+@
+
+== Integration with Other Libraries
+
+This pattern can be applied to any testing library:
+
+- **Hedgehog**: @newtype Property = Property H.Property@
+- **QuickCheck**: @newtype QCProperty = QCProperty QC.Property@
+- **Hspec**: @newtype SpecTest = SpecTest Spec@
+- **Custom frameworks**: @newtype MyTest = MyTest MyLibrary.Test@
+
+Each wrapper can implement the @Tasty@ instance to provide consistent flavor functionality
+across all test types in your project.
+-}
+
+-- | Custom Assertion newtype that wraps HU.Assertion
+--
+-- This demonstrates the newtype wrapping pattern for integrating external test types
+-- with tasty-discover's Tasty typeclass and flavor functionality.
+newtype Assertion = Assertion HU.Assertion
+
+-- | Tasty instance for Assertion that provides SkipTest support
+--
+-- Key features:
+-- * Checks SkipTest option at runtime using askOption
+-- * Renders skipped tests with yellow [SKIPPED] indicator
+-- * Falls back to normal HUnit test execution when not skipped
+-- * Maintains test name consistency through TD.nameOf
+instance TD.Tasty Assertion where
+  tasty info (Assertion assertion) = do
+    let yellowText text = setSGRCode [SetColor Foreground Vivid Yellow] ++ text ++ setSGRCode [Reset]
+    return $ T.askOption $ \(TD.SkipTest shouldSkip) ->
+      if shouldSkip
+        then HU.testCase (TD.nameOf info ++ " " ++ yellowText "[SKIPPED]") (pure ())
+        else HU.testCase (TD.nameOf info) assertion
+
+-- | Example: Basic usage of the Assertion newtype
+--
+-- Shows how to create a simple test using the wrapped type.
+-- The test will execute normally unless skipped via flavoring.
+tasty_assertionExample :: Assertion
+tasty_assertionExample = Assertion $ do
+  let result = 2 + 2 :: Int
+  result @?= 4
+
+-- | Example: Skipped test using Flavored pattern
+--
+-- Demonstrates how the newtype integrates with the Flavored mechanism
+-- to provide ergonomic test skipping with visual feedback.
+tasty_skippedAssertion :: TD.Flavored Assertion
+tasty_skippedAssertion = TD.flavored TD.skip $ Assertion $ do
+  -- This test will be skipped and show "[SKIPPED]" in yellow
+  error "This should never run because the test is skipped"
+
+-- | Example: Platform-conditional test
+--
+-- Shows how the same newtype can work with platform filtering,
+-- demonstrating the composability of flavor transformations.
+tasty_platformAssertion :: TD.Flavored Assertion
+tasty_platformAssertion = TD.flavored (TD.platform "!windows") $ Assertion $ do
+  -- This test only runs on non-Windows platforms
+  let unixSpecificResult = "Unix-style path" :: String
+  length unixSpecificResult @?= 15
+
 spec_symlinksNotFollowed :: Spec
 spec_symlinksNotFollowed = describe "Symlinks handling" $ do
   it "this test is disabled - see tasty_symlinksNotFollowed instead" $ do
@@ -195,15 +326,15 @@ tasty_symlinksNotFollowed = do
         , "test_real :: TestTree"
         , "test_real = testCase \"real test\" $ 1 @?= 1"
         ]
-      
+
       -- Create a symlinked directory pointing to the real test directory
       let symlinkTestDir = tmpDir </> "symlinked-tests"
       createFileLink realTestDir symlinkTestDir
-      
+
       -- Verify symlink was created
       symlinkExists <- doesDirectoryExist symlinkTestDir
       symlinkExists `shouldBe` True
-      
+
       -- Helper function to print directory structure for debugging
       let printDirStructure dir prefix = do
             contents <- listDirectory dir
@@ -216,11 +347,11 @@ tasty_symlinksNotFollowed = do
                   printDirStructure fullPath (prefix ++ "  ")
                 else putStrLn $ prefix ++ item
               ) contents
-      
+
       -- Run tasty-discover on the temp directory
       let outputFile = tmpDir </> "TestOutput.hs"
       (exitCode, _stdout, stderr) <- readProcessWithExitCode "tasty-discover" [tmpDir, "--output", outputFile] ""
-      
+
       -- tasty-discover should NOT crash on symlinked directories
       -- This test will FAIL until issue #38 is fixed, which is the correct behavior
       case exitCode of
