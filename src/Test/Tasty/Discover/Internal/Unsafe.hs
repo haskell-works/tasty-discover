@@ -9,7 +9,7 @@ module Test.Tasty.Discover.Internal.Unsafe
   ) where
 
 -- | Unsafe head function with descriptive error message.
--- 
+--
 -- This function is partial and will throw an error on empty lists.
 -- It should only be used when there's a strong invariant guaranteeing
 -- the list is non-empty.

@@ -161,7 +161,7 @@ skip = TT.adjustOption (const (SkipTest True))
 --
 -- The expression supports logical operations with platform names:
 -- - Platform names: "linux", "darwin", "mingw32", "windows", "unix"
--- - Negation: "!platform" (not on platform)  
+-- - Negation: "!platform" (not on platform)
 -- - Conjunction: "platform1 & platform2" (on both platforms)
 -- - Disjunction: "platform1 | platform2" (on either platform)
 -- - Parentheses: "(platform1 | platform2) & !platform3"
@@ -173,7 +173,7 @@ skip = TT.adjustOption (const (SkipTest True))
 -- test_linuxOnly = platform "linux" $ testCase "Linux only" $ pure ()
 --
 -- -- Not on Windows or macOS
--- test_notWinMac :: TestTree  
+-- test_notWinMac :: TestTree
 -- test_notWinMac = platform "!windows & !darwin" $ testCase "Unix-like only" $ pure ()
 --
 -- -- On Linux or macOS but not Windows
@@ -181,7 +181,7 @@ skip = TT.adjustOption (const (SkipTest True))
 -- test_unixLike = platform "(linux | darwin) & !windows" $ testCase "Unix-like" $ pure ()
 -- @
 platform :: String -> TT.TestTree -> TT.TestTree
-platform expr testTree = 
+platform expr testTree =
   if evaluatePlatformExpression expr os
     then testTree
     else skip testTree
@@ -214,10 +214,10 @@ platform expr testTree =
 -- evaluatePlatformExpression ""             "linux"   == True   -- empty -> run
 -- @
 evaluatePlatformExpression :: String -> String -> Bool
-evaluatePlatformExpression expr currentPlatform = 
+evaluatePlatformExpression expr currentPlatform =
   case parsePlatformExpression expr of
     Just result -> evalExpression result currentPlatform
-    Nothing -> 
+    Nothing ->
       -- If it's just a simple unknown platform name, return False
       -- If it's an empty/malformed expression, return True
       let malformedOrEmpty = null (words expr) || any (`elem` ['&', '|', '!', '(', ')']) expr
@@ -232,7 +232,7 @@ tokenize :: String -> [String]
 tokenize = words . concatMap tokenizeChar
   where
     tokenizeChar '&' = " & "
-    tokenizeChar '|' = " | "  
+    tokenizeChar '|' = " | "
     tokenizeChar '(' = " ( "
     tokenizeChar ')' = " ) "
     tokenizeChar c = [c]
@@ -272,10 +272,10 @@ parseAtom tokens = case tokens of
   _ -> Nothing
 
 -- Simple expression data type
-data PlatformExpr 
+data PlatformExpr
   = PlatformName String
   | Not PlatformExpr
-  | And PlatformExpr PlatformExpr  
+  | And PlatformExpr PlatformExpr
   | Or PlatformExpr PlatformExpr
   deriving stock (Show, Eq)
 

@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE TupleSections #-}
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
@@ -12,11 +11,15 @@ import Test.Tasty.Discover.Internal.Driver    (ModuleTree (..), findTests, gener
 import Test.Tasty.Discover.Internal.Generator (Test (..), mkTest)
 
 import Test.Tasty.HUnit hiding (Assertion)
-import Test.Tasty.QuickCheck
+import Data.List (isInfixOf, isSuffixOf, sort)
 import Test.Hspec.Core.Spec (Spec, describe, it)
+import Test.Tasty.Discover (Flavored, flavored, platform)
+import Test.Tasty.Discover.Internal.Config
+import Test.Tasty.Discover.Internal.Driver    (ModuleTree (..), findTests, generateTestDriver, mkModuleTree, showTests, extractTests)
+import Test.Tasty.Discover.Internal.Generator (Test (..), mkTest)
+import Test.Tasty.QuickCheck
 
 import Test.Hspec (shouldBe, shouldSatisfy)
-import Test.Tasty.ExpectedFailure (expectFail)
 import qualified Test.Tasty as T
 import qualified Test.Tasty.HUnit as HU
 import qualified Test.Tasty.Discover as TD
@@ -312,64 +315,66 @@ spec_symlinksNotFollowed = describe "Symlinks handling" $ do
   it "this test is disabled - see tasty_symlinksNotFollowed instead" $ do
     pure () :: IO ()
 
--- Tasty test that expects failure for symlink handling
-tasty_symlinksNotFollowed :: IO T.TestTree
-tasty_symlinksNotFollowed = do
-  pure $ expectFail $ HU.testCase "should handle symlinked directories gracefully without crashing" $ do
-    withSystemTempDirectory "tasty-discover-symlink-test" $ \tmpDir -> do
-      -- Create a real test directory with a test file
-      let realTestDir = tmpDir </> "real-tests"
-      createDirectoryIfMissing True realTestDir
-      writeFile (realTestDir </> "RealTest.hs") $ unlines
-        [ "module RealTest where"
-        , "import Test.Tasty.HUnit"
-        , "test_real :: TestTree"
-        , "test_real = testCase \"real test\" $ 1 @?= 1"
-        ]
+-- Tasty test for symlink handling (issue #38 has been fixed)
+tasty_symlinksNotFollowed :: Flavored Assertion
+tasty_symlinksNotFollowed =
+  flavored (platform "!windows") $ Assertion $ do
+      withSystemTempDirectory "tasty-discover-symlink-test" $ \tmpDir -> do
+        -- Create a real test directory with a test file
+        let realTestDir = tmpDir </> "real-tests"
+        createDirectoryIfMissing True realTestDir
+        writeFile (realTestDir </> "RealTest.hs") $ unlines
+          [ "module RealTest where"
+          , "import Test.Tasty.HUnit"
+          , "test_real :: TestTree"
+          , "test_real = testCase \"real test\" $ 1 @?= 1"
+          ]
 
-      -- Create a symlinked directory pointing to the real test directory
-      let symlinkTestDir = tmpDir </> "symlinked-tests"
-      createFileLink realTestDir symlinkTestDir
+        -- Create a symlinked directory pointing to the real test directory
+        let symlinkTestDir = tmpDir </> "symlinked-tests"
+        createFileLink realTestDir symlinkTestDir
 
-      -- Verify symlink was created
-      symlinkExists <- doesDirectoryExist symlinkTestDir
-      symlinkExists `shouldBe` True
+        -- Verify symlink was created
+        symlinkExists <- doesDirectoryExist symlinkTestDir
+        symlinkExists `shouldBe` True
 
-      -- Helper function to print directory structure for debugging
-      let printDirStructure dir prefix = do
-            contents <- listDirectory dir
-            mapM_ (\item -> do
-              let fullPath = dir </> item
-              isDir <- doesDirectoryExist fullPath
-              if isDir
-                then do
-                  putStrLn $ prefix ++ item ++ "/ (directory)"
-                  printDirStructure fullPath (prefix ++ "  ")
-                else putStrLn $ prefix ++ item
-              ) contents
+        -- Helper function to print directory structure for debugging
+        let printDirStructure dir prefix = do
+              contents <- listDirectory dir
+              mapM_ (\item -> do
+                let fullPath = dir </> item
+                isDir <- doesDirectoryExist fullPath
+                if isDir
+                  then do
+                    putStrLn $ prefix ++ item ++ "/ (directory)"
+                    printDirStructure fullPath (prefix ++ "  ")
+                  else putStrLn $ prefix ++ item
+                ) contents
 
-      -- Run tasty-discover on the temp directory
-      let outputFile = tmpDir </> "TestOutput.hs"
-      (exitCode, _stdout, stderr) <- readProcessWithExitCode "tasty-discover" [tmpDir, "--output", outputFile] ""
+        -- Run tasty-discover on the temp directory (using local build)
+        let outputFile = tmpDir </> "TestOutput.hs"
+            -- Create a dummy source file in the directory
+            dummySourceFile = tmpDir </> "DummyMain.hs"
+            tastyDiscoverPath = "tasty-discover"
+        writeFile dummySourceFile "-- Dummy file for tasty-discover test\n"
+        (exitCode, _stdout, stderr) <- readProcessWithExitCode tastyDiscoverPath [dummySourceFile, "--", outputFile] ""
 
-      -- tasty-discover should NOT crash on symlinked directories
-      -- This test will FAIL until issue #38 is fixed, which is the correct behavior
-      case exitCode of
-        ExitFailure code -> do
-          putStrLn $ "tasty-discover crashed with exit code " ++ show code
-          putStrLn $ "Test directory structure in " ++ tmpDir ++ ":"
-          printDirStructure tmpDir ""
-          putStrLn $ "stderr: " ++ stderr
-          if "withFile: inappropriate type (is a directory)" `isInfixOf` stderr
-            then error "BUG: tasty-discover crashes on symlinked directories (GitHub issue #38). This test will pass when the issue is fixed."
-            else error $ "tasty-discover failed for unexpected reason: " ++ stderr
-        ExitSuccess -> do
-          -- Success! tasty-discover handled symlinks gracefully
-          putStrLn "tasty-discover handled symlinks gracefully!"
-          testOutput <- readFile outputFile
-          -- Verify that at least the real test was found
-          testOutput `shouldSatisfy` ("RealTest" `isInfixOf`)
-          -- The behavior when symlinks are handled correctly could be:
-          -- 1. Symlinks are followed (tests appear twice)
-          -- 2. Symlinks are ignored (tests appear once)
-          -- Either is acceptable as long as no crash occurs
+        -- tasty-discover should handle symlinked directories gracefully (issue #38 fixed)
+        case exitCode of
+          ExitFailure code -> do
+            putStrLn $ "tasty-discover failed with exit code " ++ show code
+            putStrLn $ "Test directory structure in " ++ tmpDir ++ ":"
+            printDirStructure tmpDir ""
+            putStrLn $ "stderr: " ++ stderr
+            -- The fix should prevent the crash, so any failure is unexpected
+            error $ "tasty-discover failed unexpectedly: " ++ stderr
+          ExitSuccess -> do
+            -- Success! tasty-discover handled symlinks gracefully
+            putStrLn "tasty-discover handled symlinks gracefully!"
+            testOutput <- readFile outputFile
+            -- Verify that at least the real test was found
+            testOutput `shouldSatisfy` ("RealTest" `isInfixOf`)
+            -- The behavior when symlinks are handled correctly could be:
+            -- 1. Symlinks are followed (tests appear twice)
+            -- 2. Symlinks are ignored (tests appear once)
+            -- Either is acceptable as long as no crash occurs

@@ -588,6 +588,8 @@ Example: `{-# OPTIONS_GHC -F -pgmF tasty-discover -optF --modules="*CustomTest.h
   - **--ingredient**: Tasty ingredients to add to your test runner.
   - **--inplace**: Has the generated code written to the source file.
 
+**Note on Symbolic Links**: When using `--modules` or `--search-dir` options, `tasty-discover` will gracefully handle symbolic links on Unix-like systems (Linux, macOS) but will skip processing them on Windows due to platform limitations.
+
 It is also possible to override [tasty test options] with `-optF`:
 
 [tasty test options]: https://github.com/feuerbach/tasty#options
@@ -682,6 +684,14 @@ Please follow the guidelines in [CODING_STYLE.md](CODING_STYLE.md) for consisten
 For AI assistants and detailed development guidelines, see [AI_GUIDELINES.md](AI_GUIDELINES.md).
 
 # Frequently Asked Questions
+
+## Platform Limitations
+
+### Symbolic Link Support
+
+`tasty-discover` supports following symbolic links on Unix-like systems (Linux, macOS) but **not on Windows**. On Windows, tests that create or rely on symbolic links will be automatically skipped to prevent test failures.
+
+This limitation is due to Windows' different file system semantics and the underlying Haskell libraries used for file system operations.
 
 ## Deleting Tests Breaks The Test Run
 

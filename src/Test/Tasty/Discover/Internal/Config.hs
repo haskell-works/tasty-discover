@@ -11,7 +11,7 @@ module Test.Tasty.Discover.Internal.Config
   , OnPlatform (..)
   , checkPlatform
   , onLinux
-  , onDarwin  
+  , onDarwin
   , onWindows
   , onUnix
 
@@ -67,7 +67,7 @@ instance IsOption SkipTest where
 -- Example usage:
 -- @
 -- -- Only run on Linux
--- onLinux :: OnPlatform  
+-- onLinux :: OnPlatform
 -- onLinux = OnPlatform (== "linux")
 --
 -- -- Run on Unix-like systems
@@ -80,7 +80,7 @@ instance IsOption OnPlatform where
   defaultValue = OnPlatform (const True)  -- Run on all platforms by default
   parseValue s = case s of
     "linux"   -> Just $ OnPlatform (== "linux")
-    "darwin"  -> Just $ OnPlatform (== "darwin") 
+    "darwin"  -> Just $ OnPlatform (== "darwin")
     "mingw32" -> Just $ OnPlatform (== "mingw32")  -- Windows with GHC
     "windows" -> Just $ OnPlatform (== "mingw32")  -- Alias for mingw32
     "unix"    -> Just $ OnPlatform (\p -> p `elem` ["linux", "darwin"])
@@ -101,7 +101,7 @@ onDarwin :: OnPlatform
 onDarwin = OnPlatform (== "darwin")
 
 -- | Helper function: only run on Windows (mingw32)
-onWindows :: OnPlatform  
+onWindows :: OnPlatform
 onWindows = OnPlatform (== "mingw32")
 
 -- | Helper function: only run on Unix-like systems (Linux or macOS)
