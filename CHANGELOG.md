@@ -11,6 +11,16 @@ The format is based on [Keep a Changelog] and this project adheres to
 ## [Unreleased]
 
 ### Added
+
+### Fixed
+
+### Changed
+
+### Removed
+
+# 5.1.0 [2025-08-10]
+
+### Added
 - Assertion newtype wrapper for HUnit-style assertions with comprehensive documentation and examples (see #74)
 - Platform-specific test examples and documentation showing skip/platform usage (see #69)
 - Support for GHC 9.12.2 in tested configurations (see #53)
