@@ -11,6 +11,10 @@ The format is based on [Keep a Changelog] and this project adheres to
 ## [Unreleased]
 
 ### Added
+- Assertion newtype wrapper for HUnit-style assertions with comprehensive documentation and examples (see #74)
+- Platform-specific test examples and documentation showing skip/platform usage (see #69)
+- Support for GHC 9.12.2 in tested configurations (see #53)
+- Reproduction test for symlink crash issue (see #38)
 - New `--no-main` option for generating modules without main function (see #54)
 - Support for custom tests with `Tasty` instances using `tasty_` prefix
 - New `TastyInfo` type providing access to test metadata in custom tests
@@ -39,6 +43,7 @@ The format is based on [Keep a Changelog] and this project adheres to
 - Fixed test discovery incorrectly finding tests inside `{- -}` block comments (resolves #10)
 
 ### Changed
+- Enhanced documentation for skip and platform guidance (see #72)
 - Cleaned up cabal file configuration
 - Improved test discovery patterns from `*.hs*` to `*.hs` to avoid backup files
 - Enhanced documentation with more test type examples
