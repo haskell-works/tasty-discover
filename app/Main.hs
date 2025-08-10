@@ -29,7 +29,14 @@ main = do
           header <- readHeader src
           let output = generateTestDriver config moduleName ingredients src tests
           when (debug config) $ hPutStrLn stderr output
-          when (inPlace config) $ writeFile src $ unlines $ header ++ [marker, output]
+          -- Write in-place only when content differs (no temp file)
+          when (inPlace config) $ do
+            let newContent = unlines $ header ++ [marker, output]
+            -- Strictly read the existing file so the handle is closed before we write (important on Windows)
+            oldContent <- withFile src ReadMode $ \h -> do
+              s <- hGetContents h
+              length s `seq` return s
+            when (oldContent /= newContent) $ writeFile src newContent
           writeFile dst $
             "{-# LINE " ++ show (length header + 2) ++ " " ++ show src ++ " #-}\n"
             ++ output
