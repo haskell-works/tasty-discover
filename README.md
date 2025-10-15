@@ -705,22 +705,29 @@ This project’s release flow is automated via GitHub Actions and driven by the 
 Release checklist:
 
 1) Prepare notes
-- Update `CHANGELOG.md`: move items from “Unreleased” to a new version section with the current date.
+- Update `CHANGELOG.md`: move items from "Unreleased" to a new version section with the current date.
 
 2) Bump version
 - Edit `tasty-discover.cabal` and set `version:` to the new version (e.g., `5.x.y`).
 
-3) Merge to main
-- Open a PR with the changelog and version bump; once CI passes, merge to `main`.
+3) Commit and tag
+- Commit the changes: `git commit -m "Release X.Y.Z"`
+- Create a git tag: `git tag -a vX.Y.Z -m "Release version X.Y.Z"`
 
-4) CI does the rest (automated)
-- Tags `v<version>` from the cabal file.
-- Builds source distributions (`cabal v2-sdist`).
-- Uploads to Hackage (requires repo secrets `HACKAGE_USER`/`HACKAGE_PASS`).
-- Creates a draft GitHub Release for the tag.
+4) Push to GitHub
+- Push the commit: `git push origin main`
+- Push the tag: `git push origin vX.Y.Z` (or let CI create it automatically)
 
-5) Publish release
-- Edit the draft GitHub Release notes if needed and publish.
+5) CI does the rest (automated)
+- Once pushed to `main`, GitHub Actions detects the version in `tasty-discover.cabal`
+- Tags `v<version>` from the cabal file (if not already tagged)
+- Builds source distributions (`cabal v2-sdist`)
+- Uploads to Hackage (requires repo secrets `HACKAGE_USER`/`HACKAGE_PASS`)
+- Creates a draft GitHub Release for the tag
+
+6) Publish release
+- Go to https://github.com/haskell-works/tasty-discover/releases
+- Edit the draft GitHub Release notes if needed and publish
 
 Notes:
 - The workflow is defined in `.github/workflows/haskell.yml`.
