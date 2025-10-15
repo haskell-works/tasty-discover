@@ -27,6 +27,7 @@
 - [Contributing](#contributing)
 - [FAQ](#frequently-asked-questions)
 - [Maintenance](#maintenance)
+- [Releasing](#releasing)
 - [Acknowledgements](#acknowledgements)
 - [AI Guidelines](AI_GUIDELINES.md)
 - [Coding Style](CODING_STYLE.md)
@@ -400,14 +401,14 @@ Platform filtering can be combined with other tasty-discover features:
 
 ```haskell
 -- Platform filtering with test skipping
-tasty_platformAndSkip :: TestTree  
+tasty_platformAndSkip :: TestTree
 tasty_platformAndSkip = platform "linux" $ skip $ testCase "Linux test that's also skipped" $ do
   -- This would only run on Linux, but it's also skipped
   pure ()
 
 -- Platform filtering with test groups
 tasty_platformGroup :: TestTree
-tasty_platformGroup = platform "unix" $ testGroup "Unix-only tests" 
+tasty_platformGroup = platform "unix" $ testGroup "Unix-only tests"
   [ testCase "Unix test 1" $ pure ()
   , testCase "Unix test 2" $ pure ()
   , testProperty "Unix property" $ \(x :: Int) -> x >= 0 || x < 0
@@ -415,6 +416,41 @@ tasty_platformGroup = platform "unix" $ testGroup "Unix-only tests"
 ```
 
 Platform filtering works by checking the current platform against the expression at runtime. If the expression evaluates to `False`, the test is automatically skipped using the same mechanism as the `skip` function.
+
+#### Skipping entire test trees with `applySkips`
+
+When you want to skip an entire test tree (such as a group of tests) and have each individual test show as `[SKIPPED]` in the output, use the `applySkips` function:
+
+```haskell
+import Test.Tasty.Discover (Flavored, flavored, platform, applySkips)
+
+-- Skip an entire test group on Darwin
+tasty_testTree_no_darwin :: Flavored (IO TestTree)
+tasty_testTree_no_darwin =
+  flavored (platform "!darwin") $ pure $
+    applySkips $ testGroup "Non-Darwin group"
+      [ testProperty "Test 1" $ \(x :: Int) -> x == x
+      , testCase "Test 2" $ pure ()
+      , testProperty "Test 3" $ \(x :: Int) -> x >= 0 || x < 0
+      ]
+```
+
+On Darwin, this will display all tests as skipped in yellow:
+
+```
+Non-Darwin group
+  Test 1 [SKIPPED]: OK
+  Test 2 [SKIPPED]: OK
+  Test 3 [SKIPPED]: OK
+```
+
+The `applySkips` function:
+- Checks the `SkipTest` option (set by functions like `skip` or `platform`)
+- Traverses the entire test tree and replaces each individual test with a skipped placeholder
+- Preserves the test group structure
+- Shows `[SKIPPED]` in yellow for each test
+
+This is particularly useful for platform-specific test suites where you want to see which tests would run on other platforms, rather than hiding the entire group.
 
 ### Using skip and platform (guidelines)
 
@@ -661,6 +697,34 @@ We try to keep [tagged releases] in our release process, if you care about that.
 
 [CHANGELOG.md]: https://github.com/haskell-works/tasty-discover/blob/main/CHANGELOG.md
 [tagged releases]: https://github.com/haskell-works/tasty-discover/releases
+
+# Releasing
+
+This project’s release flow is automated via GitHub Actions and driven by the version in `tasty-discover.cabal`.
+
+Release checklist:
+
+1) Prepare notes
+- Update `CHANGELOG.md`: move items from “Unreleased” to a new version section with the current date.
+
+2) Bump version
+- Edit `tasty-discover.cabal` and set `version:` to the new version (e.g., `5.x.y`).
+
+3) Merge to main
+- Open a PR with the changelog and version bump; once CI passes, merge to `main`.
+
+4) CI does the rest (automated)
+- Tags `v<version>` from the cabal file.
+- Builds source distributions (`cabal v2-sdist`).
+- Uploads to Hackage (requires repo secrets `HACKAGE_USER`/`HACKAGE_PASS`).
+- Creates a draft GitHub Release for the tag.
+
+5) Publish release
+- Edit the draft GitHub Release notes if needed and publish.
+
+Notes:
+- The workflow is defined in `.github/workflows/haskell.yml`.
+- Keep `tested-with` in the cabal file up to date with CI’s GHC matrix.
 
 # Deprecation Policy
 

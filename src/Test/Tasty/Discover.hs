@@ -12,17 +12,21 @@ module Test.Tasty.Discover
   , nameOf
   , descriptionOf
   , skip
+  , applySkips
   , platform
   , evaluatePlatformExpression
   ) where
 
 import Data.Maybe
 import Data.Monoid
+import System.Console.ANSI (Color(..), ColorIntensity(..), ConsoleLayer(..), SGR(..), setSGRCode)
 import System.Info (os)
 import Test.Tasty.Discover.TastyInfo (TastyInfo)
 import Test.Tasty.Discover.Internal.Config (SkipTest(..))
 
 import qualified Test.Tasty as TT
+import qualified Test.Tasty.Runners as TR
+import qualified Test.Tasty.Providers as TP
 import qualified Test.Tasty.Discover.TastyInfo as TI
 
 {- $skipPlatform
@@ -153,6 +157,74 @@ description n = mempty
 -- @
 skip :: TT.TestTree -> TT.TestTree
 skip = TT.adjustOption (const (SkipTest True))
+
+-- | Transform a TestTree to apply skipping behavior throughout the entire tree.
+--
+-- This function wraps a TestTree so that when the 'SkipTest' option is set to 'True',
+-- all individual tests within the tree are replaced with skipped placeholder tests.
+-- This is useful when you want to conditionally skip an entire group of tests while
+-- still showing each test as skipped in the output.
+--
+-- The function works by:
+--
+-- * Checking the 'SkipTest' option via 'TT.askOption'
+-- * If skipping is enabled, using 'TT.foldTestTree' to traverse the tree and rebuild it with:
+--
+--     * All single tests replaced with test cases showing "[SKIPPED]"
+--     * Test groups preserved with their structure intact
+--     * Resources skipped (not acquired)
+--
+-- * If skipping is disabled, returning the tree unchanged
+--
+-- This is particularly useful in combination with 'platform' for platform-specific test suites:
+--
+-- @
+-- tasty_testTree_no_darwin :: Flavored (IO TestTree)
+-- tasty_testTree_no_darwin =
+--   flavored (platform "!darwin") $ pure $ applySkips $ testGroup "Non-Darwin group"
+--     [ testProperty "Test 1" $ \\(x :: Int) -> x == x
+--     , testCase "Test 2" $ pure ()
+--     ]
+-- @
+--
+-- On Darwin, this will show:
+--
+-- @
+-- Non-Darwin group
+--   Test 1 [SKIPPED]: OK
+--   Test 2 [SKIPPED]: OK
+-- @
+--
+-- @since 5.1.0
+-- | A simple test type for skipped tests
+data SkippedTest = SkippedTest
+  deriving stock (Show, Eq)
+
+instance TP.IsTest SkippedTest where
+  run _ _ _ = return $ TP.testPassed ""
+  testOptions = return []
+
+applySkips :: TT.TestTree -> TT.TestTree
+applySkips tree = TT.askOption $ \(SkipTest shouldSkip) ->
+  if shouldSkip
+    then transformTree tree
+    else tree
+  where
+    yellowText :: String -> String
+    yellowText text = setSGRCode [SetColor Foreground Vivid Yellow] ++ text ++ setSGRCode [Reset]
+
+    transformTree :: TT.TestTree -> TT.TestTree
+    transformTree t = case TR.foldTestTree
+      TR.TreeFold
+        { TR.foldSingle = \_ testName _ -> [TP.singleTest (testName ++ " " ++ yellowText "[SKIPPED]") SkippedTest]
+        , TR.foldGroup = \_ groupName trees -> [TT.testGroup groupName (concat trees)]
+        , TR.foldResource = \_ _ _ -> []
+        , TR.foldAfter = \_ _ _ trees -> trees
+        }
+      mempty
+      t of
+        [result] -> result
+        results -> TT.testGroup "" results
 
 -- | Conditionally run a test based on a platform expression.
 --
