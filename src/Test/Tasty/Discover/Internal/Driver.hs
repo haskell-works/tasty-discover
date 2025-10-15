@@ -16,9 +16,9 @@ module Test.Tasty.Discover.Internal.Driver
 import Control.Monad                          (filterM)
 import Data.List                              (dropWhileEnd, intercalate, isPrefixOf, nub, sort, stripPrefix)
 import Data.Maybe                             (fromMaybe)
-import System.Directory                       (doesFileExist)
+import System.Directory                       (doesDirectoryExist, doesFileExist, pathIsSymbolicLink)
 import System.FilePath                        (pathSeparator)
-import System.FilePath.Glob                   (compile, globDir1, match)
+import System.FilePath.Glob                   (compile, globDirWith, match, GlobOptions(..), SymlinkBehavior(..), matchDefault)
 import System.IO                              (IOMode (ReadMode), withFile)
 import Test.Tasty.Discover.Internal.Config    (Config (..), GlobPattern)
 import Test.Tasty.Discover.Internal.Generator (Generator (..), Test (..), generators, getGenerators, mkTest, showSetup)
@@ -83,10 +83,13 @@ generateTestDriver config modname is src tests =
 -- | Match files by specified glob pattern.
 filesByModuleGlob :: FilePath -> Maybe GlobPattern -> IO [String]
 filesByModuleGlob directory globPattern = do
-  allPaths <- globDir1 pattern directory
-  -- Filter out directories to avoid "inappropriate type" errors
-  filterM doesFileExist allPaths
-  where pattern = compile ("**/" ++ fromMaybe "*.hs" globPattern)
+  -- Use FollowSymlinks to properly traverse symlinked directories
+  let globOptions = GlobOptions matchDefault False FollowSymlinks
+  (matchedPaths, _unmatchedPaths) <- globDirWith globOptions [pattern] directory
+  -- globDirWith returns [[FilePath]] for multiple patterns, we use one pattern so take head
+  return (concat matchedPaths)
+  where
+    pattern = compile ("**/" ++ fromMaybe "*.hs" globPattern)
 
 -- | Filter and remove files by specified glob pattern.
 ignoreByModuleGlob :: [FilePath] -> Maybe GlobPattern -> [FilePath]
@@ -100,20 +103,37 @@ findTests config = do
   let directory = searchDir config
   allModules <- filesByModuleGlob directory (modules config)
   let filtered = ignoreByModuleGlob allModules (ignores config)
-      -- The files to scan need to be sorted or otherwise the output of
+  -- Filter out directories and symlinks to avoid "withFile: inappropriate type" errors
+  -- We need to check that each path is a regular file, not a directory or symlink to a directory
+  onlyFiles <- filterM isRegularFile filtered
+  let -- The files to scan need to be sorted or otherwise the output of
       -- findTests might not be deterministic
-      sortedFiltered = sort filtered
+      sortedFiltered = sort onlyFiles
   concat <$> traverse (extract directory) sortedFiltered
-  where extract directory filePath =
-          withFile filePath ReadMode $ \h -> do
+  where
+    -- Check if a path is a regular file (not a directory, not a symlink to a directory)
+    isRegularFile path = do
+      isDir <- doesDirectoryExist path
+      if isDir
+        then return False  -- It's a directory, skip it
+        else do
+          -- Check if it's a symlink pointing to a directory
+          isSymlink <- pathIsSymbolicLink path
+          if isSymlink
+            then return False  -- It's a symlink, skip it to be safe
+            else doesFileExist path  -- Only include if it's a regular file
+
+    extract directory filePath =
+      withFile filePath ReadMode $ \h -> do
 #if defined(mingw32_HOST_OS)
-          -- Avoid internal error: hGetContents: invalid argument (invalid byte sequence)' non UTF-8 Windows
-            hSetEncoding h $ mkLocaleEncoding TransliterateCodingFailure
+        -- Avoid internal error: hGetContents: invalid argument (invalid byte sequence)' non UTF-8 Windows
+        hSetEncoding h $ mkLocaleEncoding TransliterateCodingFailure
 #endif
-            tests <- extractTests (dropDirectory directory filePath) <$> hGetContents h
-            seq (length tests) (return tests)
-        dropDirectory directory filePath = fromMaybe filePath $
-          stripPrefix (directory ++ [pathSeparator]) filePath
+        tests <- extractTests (dropDirectory directory filePath) <$> hGetContents h
+        seq (length tests) (return tests)
+
+    dropDirectory directory filePath = fromMaybe filePath $
+      stripPrefix (directory ++ [pathSeparator]) filePath
 
 -- | Extract the test names from discovered modules.
 extractTests :: FilePath -> String -> [Test]
@@ -140,7 +160,7 @@ removeBlockComments = go (0 :: Int)
   where
     go _ [] = []
     go depth ('{':'-':rest) = go (depth + 1) rest
-    go depth ('-':'}':rest) 
+    go depth ('-':'}':rest)
       | depth > 0 = go (depth - 1) rest
       | otherwise = '-' : '}' : go depth rest
     go 0 (c:rest) = c : go 0 rest
