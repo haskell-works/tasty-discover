@@ -11,17 +11,25 @@ The format is based on [Keep a Changelog] and this project adheres to
 ## [Unreleased]
 
 ### Added
-- `applySkips` function for skipping entire test trees with individual test visibility
-  - Traverses test trees and replaces tests with skipped placeholders
-  - Shows each test as `[SKIPPED]` in yellow when skip condition is met
-  - Useful for platform-specific test suites with `Flavored (IO TestTree)`
-  - Preserves test group structure while showing which tests would run
 
 ### Fixed
 
 ### Changed
 
 ### Removed
+
+# 5.2.0 [2025-10-16]
+
+### Added
+- `applySkips` function for skipping entire test trees with individual test visibility
+  - Traverses test trees and replaces tests with skipped placeholders
+  - Shows each test as `[SKIPPED]` in yellow when skip condition is met
+  - Useful for platform-specific test suites with `Flavored (IO TestTree)`
+  - Preserves test group structure while showing which tests would run
+- Comprehensive platform expression tests covering all operators and edge cases
+  - Added tests for `!darwin`, `!mingw32`, `!unix` negations
+  - Added tests for complex AND/OR expressions
+  - Added tests for edge cases like unknown platforms (freebsd)
 
 # 5.1.0 [2025-08-10]
 
