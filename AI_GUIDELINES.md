@@ -252,6 +252,44 @@ tasty_conditionalSkip = flavored (platform "!windows" . skip) $
     pure ()
 ```
 
+### Skipping Entire Test Trees with `applySkips`
+
+When you need to skip an entire test tree (group of tests) and have each individual test display as `[SKIPPED]` in the output, use the `applySkips` function:
+
+```haskell
+import Test.Tasty.Discover (Flavored, flavored, platform, applySkips)
+
+-- Skip all tests in a group on a specific platform
+tasty_platformSpecificGroup :: Flavored (IO T.TestTree)
+tasty_platformSpecificGroup =
+  flavored (platform "!darwin") $ pure $ applySkips $ T.testGroup "Non-Darwin tests"
+    [ HU.testCase "Test 1" $ pure ()
+    , HU.testCase "Test 2" $ pure ()
+    , TQ.testProperty "Property test" $ \(x :: Int) -> x == x
+    ]
+```
+
+**When to use `applySkips`:**
+- You have a group of tests that should be skipped as a unit (e.g., platform-specific test suites)
+- You want visibility into which individual tests are being skipped
+- You want each test to show `[SKIPPED]` in yellow in the output
+- You're working with `IO TestTree` or complex test tree constructions
+
+**How it works:**
+- `applySkips` checks the `SkipTest` option (set by `skip`, `platform`, etc.)
+- Traverses the entire test tree using `foldTestTree`
+- Replaces each individual test with a skipped placeholder
+- Preserves the test group structure
+- Shows each test with `[SKIPPED]` in yellow
+
+Without `applySkips`, platform-filtered test groups would be hidden entirely. With `applySkips`, you see:
+```
+Non-Darwin tests
+  Test 1 [SKIPPED]: OK
+  Test 2 [SKIPPED]: OK
+  Property test [SKIPPED]: OK
+```
+
 ## Debugging
 
 ### Common Issues

@@ -3,6 +3,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 {- HLINT ignore "Avoid reverse" -}
+{- HLINT ignore "Redundant reverse" -}
 
 module DiscoverTest where
 
@@ -15,7 +16,7 @@ import System.Console.ANSI (Color(..), ColorIntensity(..), ConsoleLayer(..), SGR
 import Test.Hspec (shouldBe)
 import Test.Hspec.Core.Spec (Spec, describe, it)
 import Test.Tasty
-import Test.Tasty.Discover (Flavored, flavored, skip, platform, evaluatePlatformExpression)
+import Test.Tasty.Discover (Flavored, flavored, skip, platform, applySkips, evaluatePlatformExpression)
 import Test.Tasty.Golden
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck hiding (Property, property)
@@ -365,11 +366,28 @@ tasty_platformFlavored = flavored (platform "!windows") $ testCase "Advanced pla
   pure ()
 
 -- You can also create platform-specific custom Property tests
-tasty_platformProperty :: Flavored Property  
+tasty_platformProperty :: Flavored Property
 tasty_platformProperty = flavored (platform "unix") $ property $ do
   -- This hedgehog property only runs on Unix-like systems
   x <- H.forAll $ G.int (R.linear 1 100)
   x H.=== x
+
+-- Helper function to make testProperty respect SkipTest option
+testPropertySkippable :: Testable a => String -> a -> TestTree
+testPropertySkippable name prop = askOption $ \(TD.SkipTest shouldSkip) ->
+  if shouldSkip
+    then testCase (name ++ " " ++ yellowText "[SKIPPED]") (pure ())
+    else testProperty name prop
+  where
+    yellowText text = setSGRCode [SetColor Foreground Vivid Yellow] ++ text ++ setSGRCode [Reset]
+
+tasty_testTree_no_darwin :: Flavored (IO TestTree)
+tasty_testTree_no_darwin =
+  flavored (platform "!darwin") $ pure $ applySkips $ testGroup "Non-Darwin group"
+    [ testProperty "Always succeeds" $ \(x :: Int) -> x == x
+    , testCase "Another test" $ pure ()
+    , testProperty "Yet another" $ \(x :: Int) -> x >= 0 || x < 0
+    ]
 
 ------------------------------------------------------------------------------------------------
 -- How to use the latest version of tasty-hedgehog

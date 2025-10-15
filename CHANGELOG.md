@@ -11,6 +11,11 @@ The format is based on [Keep a Changelog] and this project adheres to
 ## [Unreleased]
 
 ### Added
+- `applySkips` function for skipping entire test trees with individual test visibility
+  - Traverses test trees and replaces tests with skipped placeholders
+  - Shows each test as `[SKIPPED]` in yellow when skip condition is met
+  - Useful for platform-specific test suites with `Flavored (IO TestTree)`
+  - Preserves test group structure while showing which tests would run
 
 ### Fixed
 
