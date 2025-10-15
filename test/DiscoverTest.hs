@@ -155,9 +155,45 @@ unit_platformExpression_not_linux :: Assertion
 unit_platformExpression_not_linux =
   evaluatePlatformExpression "!linux" "darwin" @?= True
 
+unit_platformExpression_not_linux_false :: Assertion
+unit_platformExpression_not_linux_false =
+  evaluatePlatformExpression "!linux" "linux" @?= False
+
+unit_platformExpression_not_darwin :: Assertion
+unit_platformExpression_not_darwin =
+  evaluatePlatformExpression "!darwin" "linux" @?= True
+
+unit_platformExpression_not_darwin_false :: Assertion
+unit_platformExpression_not_darwin_false =
+  evaluatePlatformExpression "!darwin" "darwin" @?= False
+
 unit_platformExpression_not_windows :: Assertion
 unit_platformExpression_not_windows =
   evaluatePlatformExpression "!windows" "linux" @?= True
+
+unit_platformExpression_not_windows_false :: Assertion
+unit_platformExpression_not_windows_false =
+  evaluatePlatformExpression "!windows" "mingw32" @?= False
+
+unit_platformExpression_not_mingw32 :: Assertion
+unit_platformExpression_not_mingw32 =
+  evaluatePlatformExpression "!mingw32" "linux" @?= True
+
+unit_platformExpression_not_mingw32_false :: Assertion
+unit_platformExpression_not_mingw32_false =
+  evaluatePlatformExpression "!mingw32" "mingw32" @?= False
+
+unit_platformExpression_not_unix :: Assertion
+unit_platformExpression_not_unix =
+  evaluatePlatformExpression "!unix" "mingw32" @?= True
+
+unit_platformExpression_not_unix_false_linux :: Assertion
+unit_platformExpression_not_unix_false_linux =
+  evaluatePlatformExpression "!unix" "linux" @?= False
+
+unit_platformExpression_not_unix_false_darwin :: Assertion
+unit_platformExpression_not_unix_false_darwin =
+  evaluatePlatformExpression "!unix" "darwin" @?= False
 
 -- Test conjunction (AND)
 unit_platformExpression_and_true :: Assertion
@@ -168,14 +204,42 @@ unit_platformExpression_and_false :: Assertion
 unit_platformExpression_and_false =
   evaluatePlatformExpression "!windows & !darwin" "darwin" @?= False
 
--- Test disjunction (OR)  
+unit_platformExpression_and_false_windows :: Assertion
+unit_platformExpression_and_false_windows =
+  evaluatePlatformExpression "!windows & !darwin" "mingw32" @?= False
+
+unit_platformExpression_and_both_positive :: Assertion
+unit_platformExpression_and_both_positive =
+  evaluatePlatformExpression "unix & !windows" "linux" @?= True
+
+unit_platformExpression_and_both_positive_false :: Assertion
+unit_platformExpression_and_both_positive_false =
+  evaluatePlatformExpression "unix & !windows" "mingw32" @?= False
+
+unit_platformExpression_and_three_terms :: Assertion
+unit_platformExpression_and_three_terms =
+  evaluatePlatformExpression "!windows & !darwin & !mingw32" "linux" @?= True
+
+-- Test disjunction (OR)
 unit_platformExpression_or_true :: Assertion
 unit_platformExpression_or_true =
   evaluatePlatformExpression "linux | darwin" "linux" @?= True
 
+unit_platformExpression_or_true_darwin :: Assertion
+unit_platformExpression_or_true_darwin =
+  evaluatePlatformExpression "linux | darwin" "darwin" @?= True
+
 unit_platformExpression_or_false :: Assertion
 unit_platformExpression_or_false =
   evaluatePlatformExpression "linux | darwin" "mingw32" @?= False
+
+unit_platformExpression_or_windows_mingw32 :: Assertion
+unit_platformExpression_or_windows_mingw32 =
+  evaluatePlatformExpression "windows | linux" "mingw32" @?= True
+
+unit_platformExpression_or_three_platforms :: Assertion
+unit_platformExpression_or_three_platforms =
+  evaluatePlatformExpression "linux | darwin | windows" "darwin" @?= True
 
 -- Test unix special case
 unit_platformExpression_unix_linux :: Assertion
@@ -207,6 +271,18 @@ unit_platformExpression_unknown =
 unit_platformExpression_empty :: Assertion
 unit_platformExpression_empty =
   evaluatePlatformExpression "" "linux" @?= True  -- Should default to True on parse failure
+
+unit_platformExpression_unknown_current :: Assertion
+unit_platformExpression_unknown_current =
+  evaluatePlatformExpression "linux" "freebsd" @?= False
+
+unit_platformExpression_unix_freebsd :: Assertion
+unit_platformExpression_unix_freebsd =
+  evaluatePlatformExpression "unix" "freebsd" @?= False  -- unix only matches linux and darwin
+
+unit_platformExpression_not_unix_freebsd :: Assertion
+unit_platformExpression_not_unix_freebsd =
+  evaluatePlatformExpression "!unix" "freebsd" @?= True  -- freebsd is not unix (in our definition)
 
 ------------------------------------------------------------------------------------------------
 -- Platform-Specific Test Examples
