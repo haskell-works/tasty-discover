@@ -13,6 +13,7 @@ import Data.Maybe (listToMaybe)
 import Data.String (IsString(..))
 import GHC.Generics (Generic)
 import System.Console.ANSI (Color(..), ColorIntensity(..), ConsoleLayer(..), SGR(..), setSGRCode)
+import System.Info (os)
 import Test.Hspec (shouldBe)
 import Test.Hspec.Core.Spec (Spec, describe, it)
 import Test.Tasty
@@ -318,6 +319,8 @@ tasty_linuxOnly = platform "linux" $ testCase "Linux-specific functionality" $ d
 tasty_notWindows :: TestTree  
 tasty_notWindows = platform "!windows" $ testCase "Non-Windows functionality" $ do
   -- This test runs on all platforms except Windows
+  -- Print OS info for debugging platform detection
+  _ <- error $ "OS check: " ++ show os ++ ", Platform expression '!windows' evaluation: " ++ show (evaluatePlatformExpression "!windows" os)
   pure ()
 
 tasty_unixLike :: TestTree
