@@ -18,7 +18,7 @@ The format is based on [Keep a Changelog] and this project adheres to
 
 ### Removed
 
-# 5.2.0 [2025-10-16]
+# 5.2.0 [2025-10-25]
 
 ### Added
 - `applySkips` function for skipping entire test trees with individual test visibility
@@ -30,6 +30,15 @@ The format is based on [Keep a Changelog] and this project adheres to
   - Added tests for `!darwin`, `!mingw32`, `!unix` negations
   - Added tests for complex AND/OR expressions
   - Added tests for edge cases like unknown platforms (freebsd)
+
+### Changed
+- Migrated release process to tag-triggered workflow
+  - Release workflow now triggers when version tags (e.g., v5.2.0) are pushed
+  - Removed automatic tag creation from CI
+  - Updated release documentation to reflect tag-based process
+- `--inplace` option now only overwrites file if content has changed
+  - Prevents unnecessary file modification timestamps
+  - Reduces build system churn when generated file is identical
 
 # 5.1.0 [2025-08-10]
 
