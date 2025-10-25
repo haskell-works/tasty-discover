@@ -700,7 +700,7 @@ We try to keep [tagged releases] in our release process, if you care about that.
 
 # Releasing
 
-This project’s release flow is automated via GitHub Actions and driven by the version in `tasty-discover.cabal`.
+This project's release flow is automated via GitHub Actions and triggered by pushing version tags.
 
 Release checklist:
 
@@ -710,20 +710,21 @@ Release checklist:
 2) Bump version
 - Edit `tasty-discover.cabal` and set `version:` to the new version (e.g., `5.x.y`).
 
-3) Commit and tag
+3) Commit changes
 - Commit the changes: `git commit -m "Release X.Y.Z"`
-- Create a git tag: `git tag -a vX.Y.Z -m "Release version X.Y.Z"`
-
-4) Push to GitHub
 - Push the commit: `git push origin main`
-- Push the tag: `git push origin vX.Y.Z` (or let CI create it automatically)
+
+4) Create and push tag
+- Create a git tag: `git tag -a vX.Y.Z -m "Release version X.Y.Z"`
+- Push the tag: `git push origin vX.Y.Z`
 
 5) CI does the rest (automated)
-- Once pushed to `main`, GitHub Actions detects the version in `tasty-discover.cabal`
-- Tags `v<version>` from the cabal file (if not already tagged)
-- Builds source distributions (`cabal v2-sdist`)
-- Uploads to Hackage (requires repo secrets `HACKAGE_USER`/`HACKAGE_PASS`)
-- Creates a draft GitHub Release for the tag
+- When the tag is pushed, GitHub Actions automatically:
+  - Runs the full test suite
+  - Validates the cabal project with `cabal check`
+  - Builds source distributions (`cabal v2-sdist`)
+  - Uploads to Hackage (requires repo secrets `HACKAGE_USER`/`HACKAGE_PASS`)
+  - Creates a draft GitHub Release for the tag
 
 6) Publish release
 - Go to https://github.com/haskell-works/tasty-discover/releases
@@ -731,7 +732,8 @@ Release checklist:
 
 Notes:
 - The workflow is defined in `.github/workflows/haskell.yml`.
-- Keep `tested-with` in the cabal file up to date with CI’s GHC matrix.
+- The release workflow only triggers on tags matching `v[0-9]+.[0-9]+.[0-9]+` (e.g., v5.2.0).
+- Keep `tested-with` in the cabal file up to date with CI's GHC matrix.
 
 # Deprecation Policy
 
