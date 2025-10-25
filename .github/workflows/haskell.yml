@@ -8,6 +8,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
   pull_request:
 
 jobs:
@@ -78,8 +80,6 @@ jobs:
   check:
     needs: build
     runs-on: ubuntu-latest
-    outputs:
-      tag: ${{ steps.tag.outputs.tag }}
 
     steps:
       - uses: actions/checkout@v2
@@ -93,34 +93,10 @@ jobs:
             cabal check
           done
 
-      - name: Tag new version
-        id: tag
-        if: ${{ github.ref == 'refs/heads/main' }}
-        env:
-          server: http://hackage.haskell.org
-          username: ${{ secrets.HACKAGE_USER }}
-          password: ${{ secrets.HACKAGE_PASS }}
-        run: |
-          package_version="$(cat *.cabal | grep '^version:' | cut -d : -f 2 | xargs)"
-
-          echo "Package version is v$package_version"
-
-          git fetch --unshallow origin
-
-          if git tag "v$package_version"; then
-            echo "Tagging with new version "v$package_version""
-
-            if git push origin "v$package_version"; then
-              echo "Tagged with new version "v$package_version""
-
-              echo "::set-output name=tag::v$package_version"
-            fi
-          fi
-
   release:
     needs: [build, check]
     runs-on: ubuntu-latest
-    if: ${{ needs.check.outputs.tag != '' }}
+    if: startsWith(github.ref, 'refs/tags/v')
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
 
@@ -172,10 +148,13 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: Undocumented
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          body: |
+            Release ${{ github.ref_name }}
+
+            See [CHANGELOG.md](https://github.com/haskell-works/tasty-discover/blob/main/CHANGELOG.md) for details.
           draft: true
           prerelease: false
